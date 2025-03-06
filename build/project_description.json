@@ -1,7 +1,7 @@
 {
     "version":            "1.1",
     "project_name":       "Robotic-Arm-V2",
-    "project_version":    "1",
+    "project_version":    "78b990e-dirty",
     "project_path":       "C:/Users/xswin/OneDrive/Desktop/Projects/Robotic Arm/Code/Robotic-Arm-V2",
     "idf_path":           "C:/Users/xswin/esp/v5.4/esp-idf",
     "build_dir":          "C:/Users/xswin/OneDrive/Desktop/Projects/Robotic Arm/Code/Robotic-Arm-V2/build",
@@ -25,9 +25,24 @@
         "COMPONENT_KCONFIGS_PROJBUILD" : "C:/Users/xswin/esp/v5.4/esp-idf/components/bootloader/Kconfig.projbuild;C:/Users/xswin/esp/v5.4/esp-idf/components/esp_app_format/Kconfig.projbuild;C:/Users/xswin/esp/v5.4/esp-idf/components/esp_rom/Kconfig.projbuild;C:/Users/xswin/esp/v5.4/esp-idf/components/esptool_py/Kconfig.projbuild;C:/Users/xswin/esp/v5.4/esp-idf/components/partition_table/Kconfig.projbuild"
     },
     "common_component_reqs": [ "cxx", "newlib", "freertos", "esp_hw_support", "heap", "log", "soc", "hal", "esp_rom", "esp_common", "esp_system", "xtensa" ],
-    "build_components" : [ "app_trace", "app_update", "bootloader", "bootloader_support", "bt", "cmock", "console", "cxx", "driver", "efuse", "esp-tls", "esp_adc", "esp_app_format", "esp_bootloader_format", "esp_coex", "esp_common", "esp_driver_ana_cmpr", "esp_driver_cam", "esp_driver_dac", "esp_driver_gpio", "esp_driver_gptimer", "esp_driver_i2c", "esp_driver_i2s", "esp_driver_isp", "esp_driver_jpeg", "esp_driver_ledc", "esp_driver_mcpwm", "esp_driver_parlio", "esp_driver_pcnt", "esp_driver_ppa", "esp_driver_rmt", "esp_driver_sdio", "esp_driver_sdm", "esp_driver_sdmmc", "esp_driver_sdspi", "esp_driver_spi", "esp_driver_touch_sens", "esp_driver_tsens", "esp_driver_uart", "esp_driver_usb_serial_jtag", "esp_eth", "esp_event", "esp_gdbstub", "esp_hid", "esp_http_client", "esp_http_server", "esp_https_ota", "esp_https_server", "esp_hw_support", "esp_lcd", "esp_local_ctrl", "esp_mm", "esp_netif", "esp_netif_stack", "esp_partition", "esp_phy", "esp_pm", "esp_psram", "esp_ringbuf", "esp_rom", "esp_security", "esp_system", "esp_timer", "esp_vfs_console", "esp_wifi", "espcoredump", "esptool_py", "fatfs", "freertos", "hal", "heap", "http_parser", "idf_test", "ieee802154", "json", "log", "lwip", "main", "mbedtls", "mqtt", "newlib", "nvs_flash", "nvs_sec_provider", "openthread", "partition_table", "perfmon", "protobuf-c", "protocomm", "pthread", "rt", "sdmmc", "soc", "spi_flash", "spiffs", "tcp_transport", "ulp", "unity", "usb", "vfs", "wear_levelling", "wifi_provisioning", "wpa_supplicant", "xtensa", "" ],
-    "build_component_paths" : [ "C:/Users/xswin/esp/v5.4/esp-idf/components/app_trace", "C:/Users/xswin/esp/v5.4/esp-idf/components/app_update", "C:/Users/xswin/esp/v5.4/esp-idf/components/bootloader", "C:/Users/xswin/esp/v5.4/esp-idf/components/bootloader_support", "C:/Users/xswin/esp/v5.4/esp-idf/components/bt", "C:/Users/xswin/esp/v5.4/esp-idf/components/cmock", "C:/Users/xswin/esp/v5.4/esp-idf/components/console", "C:/Users/xswin/esp/v5.4/esp-idf/components/cxx", "C:/Users/xswin/esp/v5.4/esp-idf/components/driver", "C:/Users/xswin/esp/v5.4/esp-idf/components/efuse", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp-tls", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_adc", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_app_format", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_bootloader_format", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_coex", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_common", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_driver_ana_cmpr", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_driver_cam", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_driver_dac", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_driver_gpio", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_driver_gptimer", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_driver_i2c", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_driver_i2s", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_driver_isp", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_driver_jpeg", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_driver_ledc", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_driver_mcpwm", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_driver_parlio", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_driver_pcnt", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_driver_ppa", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_driver_rmt", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_driver_sdio", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_driver_sdm", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_driver_sdmmc", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_driver_sdspi", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_driver_spi", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_driver_touch_sens", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_driver_tsens", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_driver_uart", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_driver_usb_serial_jtag", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_eth", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_event", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_gdbstub", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_hid", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_http_client", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_http_server", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_https_ota", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_https_server", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_hw_support", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_lcd", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_local_ctrl", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_mm", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_netif", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_netif_stack", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_partition", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_phy", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_pm", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_psram", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_ringbuf", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_rom", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_security", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_system", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_timer", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_vfs_console", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_wifi", "C:/Users/xswin/esp/v5.4/esp-idf/components/espcoredump", "C:/Users/xswin/esp/v5.4/esp-idf/components/esptool_py", "C:/Users/xswin/esp/v5.4/esp-idf/components/fatfs", "C:/Users/xswin/esp/v5.4/esp-idf/components/freertos", "C:/Users/xswin/esp/v5.4/esp-idf/components/hal", "C:/Users/xswin/esp/v5.4/esp-idf/components/heap", "C:/Users/xswin/esp/v5.4/esp-idf/components/http_parser", "C:/Users/xswin/esp/v5.4/esp-idf/components/idf_test", "C:/Users/xswin/esp/v5.4/esp-idf/components/ieee802154", "C:/Users/xswin/esp/v5.4/esp-idf/components/json", "C:/Users/xswin/esp/v5.4/esp-idf/components/log", "C:/Users/xswin/esp/v5.4/esp-idf/components/lwip", "C:/Users/xswin/OneDrive/Desktop/Projects/Robotic Arm/Code/Robotic-Arm-V2/main", "C:/Users/xswin/esp/v5.4/esp-idf/components/mbedtls", "C:/Users/xswin/esp/v5.4/esp-idf/components/mqtt", "C:/Users/xswin/esp/v5.4/esp-idf/components/newlib", "C:/Users/xswin/esp/v5.4/esp-idf/components/nvs_flash", "C:/Users/xswin/esp/v5.4/esp-idf/components/nvs_sec_provider", "C:/Users/xswin/esp/v5.4/esp-idf/components/openthread", "C:/Users/xswin/esp/v5.4/esp-idf/components/partition_table", "C:/Users/xswin/esp/v5.4/esp-idf/components/perfmon", "C:/Users/xswin/esp/v5.4/esp-idf/components/protobuf-c", "C:/Users/xswin/esp/v5.4/esp-idf/components/protocomm", "C:/Users/xswin/esp/v5.4/esp-idf/components/pthread", "C:/Users/xswin/esp/v5.4/esp-idf/components/rt", "C:/Users/xswin/esp/v5.4/esp-idf/components/sdmmc", "C:/Users/xswin/esp/v5.4/esp-idf/components/soc", "C:/Users/xswin/esp/v5.4/esp-idf/components/spi_flash", "C:/Users/xswin/esp/v5.4/esp-idf/components/spiffs", "C:/Users/xswin/esp/v5.4/esp-idf/components/tcp_transport", "C:/Users/xswin/esp/v5.4/esp-idf/components/ulp", "C:/Users/xswin/esp/v5.4/esp-idf/components/unity", "C:/Users/xswin/esp/v5.4/esp-idf/components/usb", "C:/Users/xswin/esp/v5.4/esp-idf/components/vfs", "C:/Users/xswin/esp/v5.4/esp-idf/components/wear_levelling", "C:/Users/xswin/esp/v5.4/esp-idf/components/wifi_provisioning", "C:/Users/xswin/esp/v5.4/esp-idf/components/wpa_supplicant", "C:/Users/xswin/esp/v5.4/esp-idf/components/xtensa", "" ],
+    "build_components" : [ "a4988", "app_trace", "app_update", "as5600", "bootloader", "bootloader_support", "bt", "cmock", "console", "cxx", "driver", "efuse", "esp-tls", "esp_adc", "esp_app_format", "esp_bootloader_format", "esp_coex", "esp_common", "esp_driver_ana_cmpr", "esp_driver_cam", "esp_driver_dac", "esp_driver_gpio", "esp_driver_gptimer", "esp_driver_i2c", "esp_driver_i2s", "esp_driver_isp", "esp_driver_jpeg", "esp_driver_ledc", "esp_driver_mcpwm", "esp_driver_parlio", "esp_driver_pcnt", "esp_driver_ppa", "esp_driver_rmt", "esp_driver_sdio", "esp_driver_sdm", "esp_driver_sdmmc", "esp_driver_sdspi", "esp_driver_spi", "esp_driver_touch_sens", "esp_driver_tsens", "esp_driver_uart", "esp_driver_usb_serial_jtag", "esp_eth", "esp_event", "esp_gdbstub", "esp_hid", "esp_http_client", "esp_http_server", "esp_https_ota", "esp_https_server", "esp_hw_support", "esp_lcd", "esp_local_ctrl", "esp_mm", "esp_netif", "esp_netif_stack", "esp_partition", "esp_phy", "esp_pm", "esp_psram", "esp_ringbuf", "esp_rom", "esp_security", "esp_system", "esp_timer", "esp_vfs_console", "esp_wifi", "espcoredump", "esptool_py", "fatfs", "freertos", "hal", "heap", "http_parser", "idf_test", "ieee802154", "json", "log", "lwip", "main", "mbedtls", "mqtt", "newlib", "nvs_flash", "nvs_sec_provider", "openthread", "partition_table", "perfmon", "protobuf-c", "protocomm", "pthread", "rt", "sdmmc", "soc", "spi_flash", "spiffs", "tasks", "tcp_transport", "ulp", "unity", "usb", "vfs", "wear_levelling", "wifi_provisioning", "wpa_supplicant", "xtensa", "" ],
+    "build_component_paths" : [ "C:/Users/xswin/OneDrive/Desktop/Projects/Robotic Arm/Code/Robotic-Arm-V2/components/a4988", "C:/Users/xswin/esp/v5.4/esp-idf/components/app_trace", "C:/Users/xswin/esp/v5.4/esp-idf/components/app_update", "C:/Users/xswin/OneDrive/Desktop/Projects/Robotic Arm/Code/Robotic-Arm-V2/components/as5600", "C:/Users/xswin/esp/v5.4/esp-idf/components/bootloader", "C:/Users/xswin/esp/v5.4/esp-idf/components/bootloader_support", "C:/Users/xswin/esp/v5.4/esp-idf/components/bt", "C:/Users/xswin/esp/v5.4/esp-idf/components/cmock", "C:/Users/xswin/esp/v5.4/esp-idf/components/console", "C:/Users/xswin/esp/v5.4/esp-idf/components/cxx", "C:/Users/xswin/esp/v5.4/esp-idf/components/driver", "C:/Users/xswin/esp/v5.4/esp-idf/components/efuse", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp-tls", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_adc", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_app_format", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_bootloader_format", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_coex", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_common", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_driver_ana_cmpr", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_driver_cam", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_driver_dac", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_driver_gpio", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_driver_gptimer", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_driver_i2c", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_driver_i2s", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_driver_isp", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_driver_jpeg", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_driver_ledc", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_driver_mcpwm", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_driver_parlio", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_driver_pcnt", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_driver_ppa", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_driver_rmt", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_driver_sdio", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_driver_sdm", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_driver_sdmmc", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_driver_sdspi", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_driver_spi", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_driver_touch_sens", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_driver_tsens", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_driver_uart", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_driver_usb_serial_jtag", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_eth", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_event", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_gdbstub", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_hid", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_http_client", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_http_server", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_https_ota", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_https_server", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_hw_support", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_lcd", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_local_ctrl", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_mm", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_netif", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_netif_stack", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_partition", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_phy", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_pm", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_psram", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_ringbuf", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_rom", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_security", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_system", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_timer", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_vfs_console", "C:/Users/xswin/esp/v5.4/esp-idf/components/esp_wifi", "C:/Users/xswin/esp/v5.4/esp-idf/components/espcoredump", "C:/Users/xswin/esp/v5.4/esp-idf/components/esptool_py", "C:/Users/xswin/esp/v5.4/esp-idf/components/fatfs", "C:/Users/xswin/esp/v5.4/esp-idf/components/freertos", "C:/Users/xswin/esp/v5.4/esp-idf/components/hal", "C:/Users/xswin/esp/v5.4/esp-idf/components/heap", "C:/Users/xswin/esp/v5.4/esp-idf/components/http_parser", "C:/Users/xswin/esp/v5.4/esp-idf/components/idf_test", "C:/Users/xswin/esp/v5.4/esp-idf/components/ieee802154", "C:/Users/xswin/esp/v5.4/esp-idf/components/json", "C:/Users/xswin/esp/v5.4/esp-idf/components/log", "C:/Users/xswin/esp/v5.4/esp-idf/components/lwip", "C:/Users/xswin/OneDrive/Desktop/Projects/Robotic Arm/Code/Robotic-Arm-V2/main", "C:/Users/xswin/esp/v5.4/esp-idf/components/mbedtls", "C:/Users/xswin/esp/v5.4/esp-idf/components/mqtt", "C:/Users/xswin/esp/v5.4/esp-idf/components/newlib", "C:/Users/xswin/esp/v5.4/esp-idf/components/nvs_flash", "C:/Users/xswin/esp/v5.4/esp-idf/components/nvs_sec_provider", "C:/Users/xswin/esp/v5.4/esp-idf/components/openthread", "C:/Users/xswin/esp/v5.4/esp-idf/components/partition_table", "C:/Users/xswin/esp/v5.4/esp-idf/components/perfmon", "C:/Users/xswin/esp/v5.4/esp-idf/components/protobuf-c", "C:/Users/xswin/esp/v5.4/esp-idf/components/protocomm", "C:/Users/xswin/esp/v5.4/esp-idf/components/pthread", "C:/Users/xswin/esp/v5.4/esp-idf/components/rt", "C:/Users/xswin/esp/v5.4/esp-idf/components/sdmmc", "C:/Users/xswin/esp/v5.4/esp-idf/components/soc", "C:/Users/xswin/esp/v5.4/esp-idf/components/spi_flash", "C:/Users/xswin/esp/v5.4/esp-idf/components/spiffs", "C:/Users/xswin/OneDrive/Desktop/Projects/Robotic Arm/Code/Robotic-Arm-V2/components/tasks", "C:/Users/xswin/esp/v5.4/esp-idf/components/tcp_transport", "C:/Users/xswin/esp/v5.4/esp-idf/components/ulp", "C:/Users/xswin/esp/v5.4/esp-idf/components/unity", "C:/Users/xswin/esp/v5.4/esp-idf/components/usb", "C:/Users/xswin/esp/v5.4/esp-idf/components/vfs", "C:/Users/xswin/esp/v5.4/esp-idf/components/wear_levelling", "C:/Users/xswin/esp/v5.4/esp-idf/components/wifi_provisioning", "C:/Users/xswin/esp/v5.4/esp-idf/components/wpa_supplicant", "C:/Users/xswin/esp/v5.4/esp-idf/components/xtensa", "" ],
     "build_component_info" : {
+        "a4988": {
+            "alias": "idf::a4988",
+            "target": "___idf_a4988",
+            "prefix": "idf",
+            "dir": "C:/Users/xswin/OneDrive/Desktop/Projects/Robotic Arm/Code/Robotic-Arm-V2/components/a4988",
+            "type": "LIBRARY",
+            "lib": "__idf_a4988",
+            "reqs": [],
+            "priv_reqs": [],
+            "managed_reqs": [],
+            "managed_priv_reqs": [],
+            "file": "C:/Users/xswin/OneDrive/Desktop/Projects/Robotic Arm/Code/Robotic-Arm-V2/build/esp-idf/a4988/liba4988.a",
+            "sources": [ "C:/Users/xswin/OneDrive/Desktop/Projects/Robotic Arm/Code/Robotic-Arm-V2/components/a4988/a4988.cpp" ],
+            "include_dirs": [ "." ]
+        },
         "app_trace": {
             "alias": "idf::app_trace",
             "target": "___idf_app_trace",
@@ -57,6 +72,21 @@
             "file": "C:/Users/xswin/OneDrive/Desktop/Projects/Robotic Arm/Code/Robotic-Arm-V2/build/esp-idf/app_update/libapp_update.a",
             "sources": [ "C:/Users/xswin/esp/v5.4/esp-idf/components/app_update/esp_ota_ops.c", "C:/Users/xswin/esp/v5.4/esp-idf/components/app_update/esp_ota_app_desc.c" ],
             "include_dirs": [ "include" ]
+        },
+        "as5600": {
+            "alias": "idf::as5600",
+            "target": "___idf_as5600",
+            "prefix": "idf",
+            "dir": "C:/Users/xswin/OneDrive/Desktop/Projects/Robotic Arm/Code/Robotic-Arm-V2/components/as5600",
+            "type": "LIBRARY",
+            "lib": "__idf_as5600",
+            "reqs": [],
+            "priv_reqs": [],
+            "managed_reqs": [],
+            "managed_priv_reqs": [],
+            "file": "C:/Users/xswin/OneDrive/Desktop/Projects/Robotic Arm/Code/Robotic-Arm-V2/build/esp-idf/as5600/libas5600.a",
+            "sources": [ "C:/Users/xswin/OneDrive/Desktop/Projects/Robotic Arm/Code/Robotic-Arm-V2/components/as5600/as5600.cpp" ],
+            "include_dirs": [ "." ]
         },
         "bootloader": {
             "alias": "idf::bootloader",
@@ -1190,12 +1220,12 @@
             "dir": "C:/Users/xswin/OneDrive/Desktop/Projects/Robotic Arm/Code/Robotic-Arm-V2/main",
             "type": "LIBRARY",
             "lib": "__idf_main",
-            "reqs": [],
-            "priv_reqs": [ "console", "esp_timer" ],
+            "reqs": [ "tasks" ],
+            "priv_reqs": [],
             "managed_reqs": [],
             "managed_priv_reqs": [],
             "file": "C:/Users/xswin/OneDrive/Desktop/Projects/Robotic Arm/Code/Robotic-Arm-V2/build/esp-idf/main/libmain.a",
-            "sources": [ "C:/Users/xswin/OneDrive/Desktop/Projects/Robotic Arm/Code/Robotic-Arm-V2/main/basic_freertos_smp_usage.c", "C:/Users/xswin/OneDrive/Desktop/Projects/Robotic Arm/Code/Robotic-Arm-V2/main/create_task_example.c", "C:/Users/xswin/OneDrive/Desktop/Projects/Robotic Arm/Code/Robotic-Arm-V2/main/queue_example.c", "C:/Users/xswin/OneDrive/Desktop/Projects/Robotic Arm/Code/Robotic-Arm-V2/main/lock_example.c", "C:/Users/xswin/OneDrive/Desktop/Projects/Robotic Arm/Code/Robotic-Arm-V2/main/task_notify_example.c", "C:/Users/xswin/OneDrive/Desktop/Projects/Robotic Arm/Code/Robotic-Arm-V2/main/batch_processing_example.c" ],
+            "sources": [ "C:/Users/xswin/OneDrive/Desktop/Projects/Robotic Arm/Code/Robotic-Arm-V2/main/main.cpp" ],
             "include_dirs": [ "." ]
         },
         "mbedtls": {
@@ -1437,6 +1467,21 @@
             "file": "C:/Users/xswin/OneDrive/Desktop/Projects/Robotic Arm/Code/Robotic-Arm-V2/build/esp-idf/spiffs/libspiffs.a",
             "sources": [ "C:/Users/xswin/esp/v5.4/esp-idf/components/spiffs/spiffs_api.c", "C:/Users/xswin/esp/v5.4/esp-idf/components/spiffs/spiffs/src/spiffs_cache.c", "C:/Users/xswin/esp/v5.4/esp-idf/components/spiffs/spiffs/src/spiffs_check.c", "C:/Users/xswin/esp/v5.4/esp-idf/components/spiffs/spiffs/src/spiffs_gc.c", "C:/Users/xswin/esp/v5.4/esp-idf/components/spiffs/spiffs/src/spiffs_hydrogen.c", "C:/Users/xswin/esp/v5.4/esp-idf/components/spiffs/spiffs/src/spiffs_nucleus.c", "C:/Users/xswin/esp/v5.4/esp-idf/components/spiffs/esp_spiffs.c" ],
             "include_dirs": [ "include" ]
+        },
+        "tasks": {
+            "alias": "idf::tasks",
+            "target": "___idf_tasks",
+            "prefix": "idf",
+            "dir": "C:/Users/xswin/OneDrive/Desktop/Projects/Robotic Arm/Code/Robotic-Arm-V2/components/tasks",
+            "type": "LIBRARY",
+            "lib": "__idf_tasks",
+            "reqs": [ "as5600", "a4988" ],
+            "priv_reqs": [],
+            "managed_reqs": [],
+            "managed_priv_reqs": [],
+            "file": "C:/Users/xswin/OneDrive/Desktop/Projects/Robotic Arm/Code/Robotic-Arm-V2/build/esp-idf/tasks/libtasks.a",
+            "sources": [ "C:/Users/xswin/OneDrive/Desktop/Projects/Robotic Arm/Code/Robotic-Arm-V2/components/tasks/communication_task.cpp", "C:/Users/xswin/OneDrive/Desktop/Projects/Robotic Arm/Code/Robotic-Arm-V2/components/tasks/control_task.cpp", "C:/Users/xswin/OneDrive/Desktop/Projects/Robotic Arm/Code/Robotic-Arm-V2/components/tasks/kinematics_task.cpp", "C:/Users/xswin/OneDrive/Desktop/Projects/Robotic Arm/Code/Robotic-Arm-V2/components/tasks/motor_task.cpp" ],
+            "include_dirs": [ "./include" ]
         },
         "tcp_transport": {
             "alias": "idf::tcp_transport",
@@ -2841,11 +2886,47 @@
             "prefix": "idf",
             "dir": "C:/Users/xswin/OneDrive/Desktop/Projects/Robotic Arm/Code/Robotic-Arm-V2/main",
             "lib": "__idf_main",
-            "reqs": [],
-            "priv_reqs": [ "console", "esp_timer" ],
+            "reqs": [ "tasks" ],
+            "priv_reqs": [],
             "managed_reqs": [],
             "managed_priv_reqs": [],
             "include_dirs": [ "." ]
+        },
+        "a4988": {
+            "alias": "idf::a4988",
+            "target": "___idf_a4988",
+            "prefix": "idf",
+            "dir": "C:/Users/xswin/OneDrive/Desktop/Projects/Robotic Arm/Code/Robotic-Arm-V2/components/a4988",
+            "lib": "__idf_a4988",
+            "reqs": [],
+            "priv_reqs": [],
+            "managed_reqs": [],
+            "managed_priv_reqs": [],
+            "include_dirs": [ "." ]
+        },
+        "as5600": {
+            "alias": "idf::as5600",
+            "target": "___idf_as5600",
+            "prefix": "idf",
+            "dir": "C:/Users/xswin/OneDrive/Desktop/Projects/Robotic Arm/Code/Robotic-Arm-V2/components/as5600",
+            "lib": "__idf_as5600",
+            "reqs": [],
+            "priv_reqs": [],
+            "managed_reqs": [],
+            "managed_priv_reqs": [],
+            "include_dirs": [ "." ]
+        },
+        "tasks": {
+            "alias": "idf::tasks",
+            "target": "___idf_tasks",
+            "prefix": "idf",
+            "dir": "C:/Users/xswin/OneDrive/Desktop/Projects/Robotic Arm/Code/Robotic-Arm-V2/components/tasks",
+            "lib": "__idf_tasks",
+            "reqs": [ "as5600", "a4988" ],
+            "priv_reqs": [],
+            "managed_reqs": [],
+            "managed_priv_reqs": [],
+            "include_dirs": [ "./include" ]
         }
     },
     "debug_prefix_map_gdbinit": ""

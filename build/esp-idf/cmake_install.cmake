@@ -549,6 +549,11 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
+  include("C:/Users/xswin/OneDrive/Desktop/Projects/Robotic Arm/Code/Robotic-Arm-V2/build/esp-idf/pca9548a/cmake_install.cmake")
+endif()
+
+if(NOT CMAKE_INSTALL_LOCAL_ONLY)
+  # Include the install script for the subdirectory.
   include("C:/Users/xswin/OneDrive/Desktop/Projects/Robotic Arm/Code/Robotic-Arm-V2/build/esp-idf/as5600/cmake_install.cmake")
 endif()
 

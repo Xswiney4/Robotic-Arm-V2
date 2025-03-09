@@ -1,0 +1,37 @@
+#include <stdio.h>
+#include <iostream>
+
+#include "pca9548a.h"
+
+const gpio_num_t I2C_SCL_PIN = GPIO_NUM_22;
+const gpio_num_t I2C_SDA_PIN = GPIO_NUM_21;
+
+const uint8_t PCA9548A_SLAVE_ADDR = 0x70;
+const uint32_t I2C_FREQ = 100000;
+
+extern "C" void app_main()
+{
+    std::cout << "Main Started..." << std::endl;
+
+    std::cout << "Creating params..." << std::endl;
+    Pca9548aParams pca9548aParams = {I2C_SCL_PIN, I2C_SDA_PIN, PCA9548A_SLAVE_ADDR, I2C_FREQ, I2C_NUM_0};
+    std::cout << "Params Created." << std::endl;
+
+    std::cout << "Creating i2cMp object..." << std::endl;
+    PCA9548A i2cMp(pca9548aParams);
+    std::cout << "i2cMp Created." << std::endl;
+
+    std::cout << "Reading Byte..." << std::endl;
+    uint8_t testData = i2cMp.readByte(PCA9548A_PORT_1, 0x36, 0x07);
+
+    std::cout << "Byte Read." << std::endl;
+
+    std::cout << "REG_MAGNET_STATUS: " << static_cast<int>(testData) << std::endl;
+
+    uint8_t rawAngle;
+    while(true){
+        rawAngle = i2cMp.readByte(PCA9548A_PORT_1, 0x36, 0x08);
+        std::cout << "REG_CONF_LSB: " << static_cast<int>(rawAngle) << std::endl;
+        sleep(1);
+    }
+}

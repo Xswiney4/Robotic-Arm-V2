@@ -824,6 +824,13 @@ C:/Users/xswin/OneDrive/Desktop/Projects/Robotic Arm/Code/Robotic-Arm-V2/build/e
 C:/Users/xswin/OneDrive/Desktop/Projects/Robotic Arm/Code/Robotic-Arm-V2/build/esp-idf/wifi_provisioning/CMakeFiles/install.dir
 C:/Users/xswin/OneDrive/Desktop/Projects/Robotic Arm/Code/Robotic-Arm-V2/build/esp-idf/wifi_provisioning/CMakeFiles/install/local.dir
 C:/Users/xswin/OneDrive/Desktop/Projects/Robotic Arm/Code/Robotic-Arm-V2/build/esp-idf/wifi_provisioning/CMakeFiles/install/strip.dir
+C:/Users/xswin/OneDrive/Desktop/Projects/Robotic Arm/Code/Robotic-Arm-V2/build/esp-idf/pca9548a/CMakeFiles/__idf_pca9548a.dir
+C:/Users/xswin/OneDrive/Desktop/Projects/Robotic Arm/Code/Robotic-Arm-V2/build/esp-idf/pca9548a/CMakeFiles/edit_cache.dir
+C:/Users/xswin/OneDrive/Desktop/Projects/Robotic Arm/Code/Robotic-Arm-V2/build/esp-idf/pca9548a/CMakeFiles/rebuild_cache.dir
+C:/Users/xswin/OneDrive/Desktop/Projects/Robotic Arm/Code/Robotic-Arm-V2/build/esp-idf/pca9548a/CMakeFiles/list_install_components.dir
+C:/Users/xswin/OneDrive/Desktop/Projects/Robotic Arm/Code/Robotic-Arm-V2/build/esp-idf/pca9548a/CMakeFiles/install.dir
+C:/Users/xswin/OneDrive/Desktop/Projects/Robotic Arm/Code/Robotic-Arm-V2/build/esp-idf/pca9548a/CMakeFiles/install/local.dir
+C:/Users/xswin/OneDrive/Desktop/Projects/Robotic Arm/Code/Robotic-Arm-V2/build/esp-idf/pca9548a/CMakeFiles/install/strip.dir
 C:/Users/xswin/OneDrive/Desktop/Projects/Robotic Arm/Code/Robotic-Arm-V2/build/esp-idf/as5600/CMakeFiles/__idf_as5600.dir
 C:/Users/xswin/OneDrive/Desktop/Projects/Robotic Arm/Code/Robotic-Arm-V2/build/esp-idf/as5600/CMakeFiles/edit_cache.dir
 C:/Users/xswin/OneDrive/Desktop/Projects/Robotic Arm/Code/Robotic-Arm-V2/build/esp-idf/as5600/CMakeFiles/rebuild_cache.dir

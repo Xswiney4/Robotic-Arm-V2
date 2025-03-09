@@ -1,5 +1,9 @@
-#include "driver/i2c.h"
+#ifndef PCA9548A_H
+#define PCA9548A_H
+
 #include <vector>
+#include "driver/i2c.h"
+#include <cstdint>
 
 // Port Definitions
 #define PCA9548A_PORT_0 0b00000001
@@ -11,37 +15,50 @@
 #define PCA9548A_PORT_6 0b01000000
 #define PCA9548A_PORT_7 0b10000000
 
+// Parameters
+struct Pca9548aParams{
 
+    // Pin Definitions
+    gpio_num_t i2cMasterScl;
+    gpio_num_t i2cMasterSda;
 
-// I2C Configuration
-#define I2C_MASTER_SCL_IO           22           // Set SCL pin
-#define I2C_MASTER_SDA_IO           21           // Set SDA pin
-#define I2C_MASTER_NUM              I2C_NUM_0     // I2C port number
-#define I2C_MASTER_FREQ_HZ          400000       // I2C frequency
-#define I2C_MASTER_TX_BUF_DISABLE   0            // No buffer
-#define I2C_MASTER_RX_BUF_DISABLE   0            // No buffer
+    // I2C Characteristics
+    uint8_t slaveAddr;
+
+    uint32_t i2cFreq;
+    i2c_port_t i2cPort;    // ESP32 i2c port number
+
+};
 
 
 class PCA9548A{
     private:
-        // Private Variables
-        uint8_t i2cMasterScl;       // SCL Pin
-        uint8_t i2cMasterSda;       // SDA Pin
-        uint8_t addr;               // Configured Slave Address
+
+        // Parameters
+        Pca9548aParams params; // PCA params;
+
+        // Initialization
+        void i2cInit();
+        void devInit();
 
 
     public:
 
          // Constructor/Destructor
-        PCA9548A();
+        PCA9548A(const Pca9548aParams& params);
         ~PCA9548A();
 
+        // Port Switch
+        void setPort(uint8_t port);
+
         // Read/Write
-        std::vector<uint8_t> read(uint8_t port, uint8_t addr, int numBytes);
-        bool write(uint8_t port, uint8_t addr, int numBytes);
+        uint8_t readByte(uint8_t port, uint8_t addr, uint8_t reg);
+        void write(uint8_t port, uint8_t addr, uint8_t* data, int numDataBytes);
 
         // Other I2C Commands
         bool pingSlave(uint8_t port, uint8_t addr);
 
 
 };
+
+#endif

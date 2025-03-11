@@ -2,6 +2,8 @@
 #include "pca9548a.h"
 #include "stepper.h"
 
+#include "driver/ledc.h"
+
 #include <chrono> // For time in ms
 #include <thread> // For sleeping
 #include <cstdint> // for uint16_t
@@ -50,13 +52,15 @@ extern "C" void app_main(){
     for(int i = 0; i < 200; i++){
         std::cout << "Step" << std::endl;
         motor.step();
+        //std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
     std::cout << "Changing Direction" << std::endl;
-    motor.setDir(false);
-    for(int i = 0; i < 200; i++){
-        std::cout << "Step" << std::endl;
-        motor.step();
-    }
+    // motor.setDir(false);
+    // for(int i = 0; i < 200; i++){
+    //     std::cout << "Step" << std::endl;
+    //     motor.step();
+    //     //std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    // }
 
     while(true){
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));

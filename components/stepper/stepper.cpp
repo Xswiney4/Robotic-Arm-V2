@@ -2,7 +2,6 @@
 // ~~ Libraries ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 #include "stepper.h"
-//#include "ets_sys.h"
 
 #include <thread> // For sleeping
 #include <chrono> // For time in ms
@@ -40,20 +39,19 @@ void StepperMotor::setupGPIO(){
 // Sets the direction of the motor
 void StepperMotor::setDir(bool clockwise){
     gpio_set_level(this->dirPin, clockwise);
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
 }
 
 // Takes a step
 void StepperMotor::step(){
     
     // Set pin high, then delay
-    if(gpio_set_level(this->stepPin, 1) != ESP_OK){
-        std::cout << "GPIO HIGH FAILED" << std::endl;
-    }
-    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+
+    gpio_set_level(this->stepPin, 1);
+
+    std::this_thread::sleep_for(std::chrono::microseconds(500));
 
     // Set pin low, then delay
-    if(gpio_set_level(this->stepPin, 0) != ESP_OK){
-        std::cout << "GPIO LOW FAILED" << std::endl;
-    }
-    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    gpio_set_level(this->stepPin, 0);
+    std::this_thread::sleep_for(std::chrono::microseconds(500));
 }

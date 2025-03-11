@@ -55,10 +55,6 @@ class PCA9548A{
         uint8_t readByte(uint8_t port, uint8_t addr, uint8_t reg);
         void write(uint8_t port, uint8_t addr, uint8_t* data, int numDataBytes);
 
-        // Other I2C Commands
-        bool pingSlave(uint8_t port, uint8_t addr);
-
-
 };
 
 #endif

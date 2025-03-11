@@ -112,10 +112,3 @@ void PCA9548A::write(uint8_t port, uint8_t addr, uint8_t* data, int numDataBytes
 }
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// ~~ Other I2C Commands ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-bool PCA9548A::pingSlave(uint8_t port, uint8_t addr){
-    return true;
-}
-
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

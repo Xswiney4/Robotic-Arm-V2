@@ -4,7 +4,6 @@
 #include "as5600.h"
 
 #include <string>
-#include <stdexcept> // For std::runtime_error
 #include <iostream>
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

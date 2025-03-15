@@ -1,4 +1,3 @@
-#include "config.h"
 #include "as5600.h"
 #include "pca9548a.h"
 #include "stepper.h"
@@ -15,8 +14,8 @@
 #include <iostream>
 #include <iomanip>
 
-const gpio_num_t STEP_PIN = J6S_PIN_STEP;
-const gpio_num_t DIR_PIN = J6S_PIN_DIR;
+const gpio_num_t STEP_PIN = GPIO_NUM_18;
+const gpio_num_t DIR_PIN = GPIO_NUM_5;
 
 
 extern "C" void app_main(){

@@ -3,8 +3,8 @@
 
 // Input User Command Structure
 struct UserCommand{
-    int commandNum;
-    const char* name;
+    int commandNum = -1;
+    const char* name = "NULL";
     double params[6] = {0,0,0,0,0,0};
 };
 

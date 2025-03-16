@@ -30,18 +30,46 @@ void initControl(){
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // ~~ User Commands ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+/*
+Sets the endpoint given a position (x, y, z) and orientation (pitch, yaw, roll) of the end effector
+The control structure is as follows:
+- UserCommand is sent over to Kinematics Solver to be solved
+- Wait until all motors are idle AND Kinematic Solver flags 'solved'
+- Enable all motors
+- Break
+*/
 void setEnd(double x, double y, double z, double pitch, double yaw, double roll){
 
 }
 
+/*
+Sets the endpoint speed in m/s
+The structure is as follows:
+- 
+*/
 void setEndSpeed(double speed){
     
 }
 
+/*
+Sets the angle of a given motor in degrees
+The structure is as follows:
+- UserCommand is sent over to Kinematics Solver to be solved
+- Wait until given motor is idle AND Kinematic Solver flags 'solved'
+- Enable given motor
+- Break
+*/
 void setMotorAngle(int motor, double angle){
 
 }
 
+/*
+Sets the given motor speed in m/s
+The structure is as follows:
+- UserCommand is sent over to Kinematics Solver to be solved
+- Wait until given motor is idle AND Kinematic Solver flags 'solved'
+- Break
+*/
 void setMotorSpeed(int motor, double speed){
     
 }

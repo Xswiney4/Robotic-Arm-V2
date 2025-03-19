@@ -5,6 +5,7 @@
 // ESP/FreeRTOS
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+#include "freertos/queue.h"
 #include "esp_log.h"
 
 // Utils
@@ -16,7 +17,6 @@
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // ~~ Definitions ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-static QueueHandle_t userCmd;  // Queue for user commands
 char cmdBuffer[64];
 static const char *controlTag = "Control Task";
 
@@ -204,7 +204,7 @@ void controlTask(void *pvParameter){
     while(true){
 
         // Waits until a User Command has been received
-        xQueueReceive(userCmd, &cmdBuffer, portMAX_DELAY);
+        xQueueReceive(userCmdRaw, &cmdBuffer, portMAX_DELAY);
         ESP_LOGI(controlTag, "User Command Input: \n %s", cmdBuffer);
 
         // Once received, we decode the message, and then respond accordingly

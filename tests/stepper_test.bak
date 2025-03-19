@@ -1,6 +1,7 @@
 #include "as5600.h"
 #include "pca9548a.h"
 #include "stepper.h"
+#include "config.h"
 
 #include "driver/ledc.h"
 
@@ -10,19 +11,15 @@
 #include <iostream>
 #include <iomanip>
 
-const gpio_num_t STEP_PIN = GPIO_NUM_18;
-const gpio_num_t DIR_PIN = GPIO_NUM_5;
-
-
 extern "C" void app_main(){
 
     // Object Building
     std::cout << "Creating StepperMotor object..." << std::endl;
-    StepperMotor motor(STEP_PIN, DIR_PIN);
+    StepperMotor motor(J6S_PIN_STEP, J6S_PIN_DIR);
     std::cout << "Motor Created." << std::endl;
 
 
-    gpio_set_level(DIR_PIN, 1);
+    //gpio_set_level(J6S_PIN_DIR, 1);
 
     // std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     // gpio_set_level(STEP_PIN, 1);

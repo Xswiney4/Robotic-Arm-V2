@@ -1,12 +1,7 @@
-#ifndef CONTROL_TASKS_H
-#define CONTROL_TASKS_H
+#ifndef CONTROL_TASK_H
+#define CONTROL_TASK_H
 
-// Input User Command Structure
-struct UserCommand{
-    int commandNum = -1;
-    const char* name = "NULL";
-    double params[6] = {0,0,0,0,0,0};
-};
+#include "robotic_definitions.h"
 
 // Structure Format
 struct Command{

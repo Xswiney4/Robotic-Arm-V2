@@ -29,6 +29,9 @@ void initMotors(); // Sets up motor control tasks
 // Task Definition
 void motorTask(void *pvParameter);
 
+// Motor Functions
+void setMotorAngle(MotorParams* params, float angle);
+
 // Other Utils
 
 

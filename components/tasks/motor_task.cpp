@@ -13,7 +13,7 @@
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // ~~ Initializations ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
+const float tolerance = 1.5f;
 
 #include "config.h"
 // Creates all 6 motor tasks given the configurations
@@ -73,10 +73,6 @@ void motorTask(void *pvParameter){
 
     // Variables
     float desiredAngle;
-    float currentAngle;
-
-    float tolerance = 1.0f;
-
     
     while(true){
 
@@ -98,53 +94,67 @@ void motorTask(void *pvParameter){
         // Error Check
         if(desiredAngle == -1){
             ESP_LOGE(pcTaskGetName(NULL), "Motor enabled without sending a desired angle, restarting task...");
-            break;
-        }
-
-        currentAngle = params->as5600->getAngle();
-        ESP_LOGI(pcTaskGetName(NULL), "Start Angle: %f",currentAngle);
-
-        // Set the direction
-        if(currentAngle - tolerance > desiredAngle){
-            params->stepper->setDir(true);
-        }
-        else if(currentAngle + tolerance < desiredAngle){
-            params->stepper->setDir(false);
+            continue;
         }
         else{
-            // If the current angle is already at the desired, we reset
-            ESP_LOGI(pcTaskGetName(NULL), "Motor already at desired angle");
-            break;
+            setMotorAngle(params, desiredAngle);
         }
-
-        // Calculate time between steps
-        float difference = std::abs(currentAngle - desiredAngle); // Difference (deg)
-
-        float numSteps = std::round(difference / 1.8f); // Total steps need to get close to the desired (steps)
-
-        float timeTotal = difference / params->speed; // Total time needed to match the set speed (s)
-
-        float stepTriggerTime = 1000 * timeTotal / numSteps; // Total time to wait after each step (ms)
-
-        // RTOS Tick Setup
-        TickType_t xLastWakeTime = xTaskGetTickCount();
-        TickType_t xFrequency = stepTriggerTime / portTICK_PERIOD_MS;
-
-        // Take steps until we reach the target
-        while(currentAngle - tolerance > desiredAngle || currentAngle + tolerance < desiredAngle){
-
-            vTaskDelayUntil(&xLastWakeTime, xFrequency); // Block until delay
-
-            params->stepper->step(); // Take a step
-            currentAngle = params->as5600->getAngle(); // Updates currentAngle
-            ESP_LOGI(pcTaskGetName(NULL), "Current Angle: %f",currentAngle);
-        }
-
-        ESP_LOGI(pcTaskGetName(NULL), "Motor has reached desired angle");
-
-        
-
     }
+}
+
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// ~~ Motor Functions ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+void setMotorAngle(MotorParams* params, float angle){
+
+    // Variables
+    float currentAngle;
+    float lastAngle;
+    float stepTriggerTime = 1800 / params->speed;
+    TickType_t xFrequency = pdMS_TO_TICKS(stepTriggerTime);
+
+    currentAngle = params->as5600->getAngle();
+    ESP_LOGI(pcTaskGetName(NULL), "Start Angle: %f",currentAngle);
+
+    // Set the direction
+    if(currentAngle - tolerance > angle){
+        params->stepper->setDir(true);
+    }
+    else if(currentAngle + tolerance < angle){
+        params->stepper->setDir(false);
+    }
+    else{
+        // If the current angle is already at the desired, we reset
+        ESP_LOGI(pcTaskGetName(NULL), "Motor already at desired angle");
+        return;
+    }
+
+    // RTOS Tick Setup
+    TickType_t xLastWakeTime = xTaskGetTickCount();
+
+    // Take steps until we reach the target
+    while(currentAngle - tolerance > angle || currentAngle + tolerance < angle){
+
+        vTaskDelayUntil(&xLastWakeTime, xFrequency); // Block until delay
+
+        params->stepper->step(); // Take a step
+        lastAngle = currentAngle;
+        currentAngle = params->as5600->getAngle(); // Updates currentAngle
+
+        // Checks to see if the AS5600 jumped
+        if(std::abs(lastAngle - currentAngle) > 100.0f){
+            if(lastAngle > 180){ // We're at the 360 threshold
+                currentAngle = 360.0f;
+            }
+            else{ // We're at the 0 threshold
+                currentAngle = 0.0f;
+            }
+        }
+        ESP_LOGI(pcTaskGetName(NULL), "Current Angle: %f",currentAngle);
+    }
+
+    ESP_LOGI(pcTaskGetName(NULL), "Motor has reached desired angle");
+
 }
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

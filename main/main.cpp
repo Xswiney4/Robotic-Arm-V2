@@ -43,18 +43,21 @@ extern "C" void app_main(){
     xTaskCreate(motorTask, J6S_TASK_NAME, 2048, &j6sParams, 1, NULL);
 
     // Delay 5 seconds
-    std::this_thread::sleep_for(std::chrono::milliseconds(5000));
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
     // Go to Angle 0
     float desiredAngle = 0.0f;
     xQueueSend(j6sDesiredAngleQueue, &desiredAngle, 0);
     xEventGroupSetBits(motorEnable, BIT5);
 
+
     // Wait a ms for idle flag to shut off
-    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    std::this_thread::sleep_for(std::chrono::microseconds(5));
 
     // Wait until motor is idle again
     xEventGroupWaitBits(motorIdle, BIT5, pdFALSE, pdFALSE, portMAX_DELAY);
+
+    sleep(5);
 
     // Go to Angle 360
     desiredAngle = 360.0f;
@@ -62,18 +65,19 @@ extern "C" void app_main(){
     xEventGroupSetBits(motorEnable, BIT5);
 
     // Wait a ms for idle flag to shut off
-    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    std::this_thread::sleep_for(std::chrono::microseconds(5));
 
     // Wait until motor is idle again
     xEventGroupWaitBits(motorIdle, BIT5, pdFALSE, pdFALSE, portMAX_DELAY);
 
+    sleep(5);
     // Go to Angle 180
     desiredAngle = 180.0f;
     xQueueSend(j6sDesiredAngleQueue, &desiredAngle, 0);
     xEventGroupSetBits(motorEnable, BIT5);
 
     // Wait a ms for idle flag to shut off
-    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    std::this_thread::sleep_for(std::chrono::microseconds(5));
 
     // Wait until motor is idle again
     xEventGroupWaitBits(motorIdle, BIT5, pdFALSE, pdFALSE, portMAX_DELAY);
@@ -84,7 +88,7 @@ extern "C" void app_main(){
     
 
     while(true){
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        std::this_thread::sleep_for(std::chrono::milliseconds(5000));
     }
 
 }

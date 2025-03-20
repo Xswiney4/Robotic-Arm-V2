@@ -4,8 +4,13 @@
 #include "stepper.h"
 
 #include <thread> // For sleeping
-#include <chrono> // For time in ms
 #include <iostream>
+#include <chrono>
+
+// ESP/FreeRTOS
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "esp_log.h"
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // ~~ Constructor/Destructor ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -39,19 +44,18 @@ void StepperMotor::setupGPIO(){
 // Sets the direction of the motor
 void StepperMotor::setDir(bool clockwise){
     gpio_set_level(this->dirPin, clockwise);
-    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    std::this_thread::sleep_for(std::chrono::microseconds(5));
+    
 }
 
 // Takes a step
 void StepperMotor::step(){
     
     // Set pin high, then delay
-
     gpio_set_level(this->stepPin, 1);
-
-    std::this_thread::sleep_for(std::chrono::microseconds(500));
+    std::this_thread::sleep_for(std::chrono::microseconds(4));
 
     // Set pin low, then delay
     gpio_set_level(this->stepPin, 0);
-    std::this_thread::sleep_for(std::chrono::microseconds(500));
+    std::this_thread::sleep_for(std::chrono::microseconds(4));
 }

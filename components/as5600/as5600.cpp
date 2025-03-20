@@ -14,7 +14,6 @@ AS5600::AS5600(PCA9548A *pca9548a, uint8_t pca9548aPort , uint16_t config) : pca
 
     initConfig(config);
     checkMagnet();
-    zero();
 
 }
 

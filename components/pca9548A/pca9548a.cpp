@@ -39,6 +39,9 @@ void PCA9548A::i2cInit(){
     ESP_ERROR_CHECK(i2c_param_config(params.i2cPort, &conf));
     ESP_ERROR_CHECK(i2c_driver_install(params.i2cPort, I2C_MODE_MASTER, 0, 0, 0));
 
+    // Creates Mutex for all i2c communications
+    i2cMutex = xSemaphoreCreateMutex();
+
 }
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -48,7 +51,13 @@ void PCA9548A::i2cInit(){
 
 void PCA9548A::setPort(uint8_t port){
 
+    // Blocks I2C Bus
+    xSemaphoreTake(i2cMutex, portMAX_DELAY);
+
     esp_err_t err = i2c_master_write_to_device(params.i2cPort, params.slaveAddr, &port, 1, 50);
+
+    // Releases I2C Bus
+    xSemaphoreGive(i2cMutex);
 
     // Check for errors
     if (err != ESP_OK) {
@@ -68,6 +77,9 @@ uint8_t PCA9548A::readByte(uint8_t port, uint8_t addr, uint8_t reg){
     // Read buffer
     uint8_t data;
 
+    // Blocks I2C Bus
+    xSemaphoreTake(i2cMutex, portMAX_DELAY);
+
     // Set slave device register
     err = i2c_master_write_to_device(params.i2cPort, addr, &reg, 1, 50);
 
@@ -78,6 +90,9 @@ uint8_t PCA9548A::readByte(uint8_t port, uint8_t addr, uint8_t reg){
 
     // Read from slave device
     err = i2c_master_read_from_device(params.i2cPort, addr, &data, 1, 50);
+
+    // Releases I2C Bus
+    xSemaphoreGive(i2cMutex);
 
     // Check for errors
     if (err != ESP_OK) {
@@ -103,8 +118,14 @@ void PCA9548A::write(uint8_t port, uint8_t addr, uint8_t* data, int numDataBytes
     Stop
     */
 
+    // Blocks I2C Bus
+    xSemaphoreTake(i2cMutex, portMAX_DELAY);
+    
     // Set slave device register
     esp_err_t err = i2c_master_write_to_device(params.i2cPort, addr, data, numDataBytes, 50);
+
+    // Releases I2C Bus
+    xSemaphoreGive(i2cMutex);
     
     if (err != ESP_OK) {
         printf("I2C Write Error: %s\n", esp_err_to_name(err));

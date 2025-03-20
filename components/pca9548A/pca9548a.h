@@ -5,6 +5,9 @@
 #include "driver/i2c.h"
 #include <cstdint>
 
+#include "freertos/FreeRTOS.h"
+#include "freertos/semphr.h"
+
 // Port Definitions
 #define PCA9548A_PORT_0 0b00000001
 #define PCA9548A_PORT_1 0b00000010
@@ -36,6 +39,7 @@ class PCA9548A{
 
         // Parameters
         Pca9548aParams params; // PCA params;
+        SemaphoreHandle_t i2cMutex;
 
         // Initialization
         void i2cInit();

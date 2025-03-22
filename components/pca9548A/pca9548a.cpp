@@ -1,6 +1,10 @@
 // ~~ Libraries ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #include "pca9548a.h"
-#include <iostream>
+#include "esp_log.h"
+
+
+static const char *pca9584Tag = "PCA9548A Driver";
+
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // ~~ Constructor/Destructor ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -25,7 +29,6 @@ void PCA9548A::i2cInit(){
     // I2C conf builder
     i2c_config_t conf;
 
-    std::cout << "I2C Frequency: " << params.i2cFreq << std::endl;
     conf.mode =                 I2C_MODE_MASTER;        // Default
     conf.sda_io_num =           params.i2cMasterSda;    // SDA Pin
     conf.scl_io_num =           params.i2cMasterScl;    // SCL Pin
@@ -61,7 +64,7 @@ void PCA9548A::setPort(uint8_t port){
 
     // Check for errors
     if (err != ESP_OK) {
-        printf("I2C Port Error: %s\n", esp_err_to_name(err));
+        ESP_LOGE(pca9584Tag, "I2C Port Error: %s", esp_err_to_name(err));
     }
 }
 
@@ -84,7 +87,10 @@ uint8_t PCA9548A::readByte(uint8_t port, uint8_t addr, uint8_t reg){
     err = i2c_master_write_to_device(params.i2cPort, addr, &reg, 1, 50);
 
     if (err != ESP_OK) {
-        printf("I2C Read Setup Error: %s\n", esp_err_to_name(err));
+        // Releases I2C Bus
+        xSemaphoreGive(i2cMutex);
+
+        ESP_LOGE(pca9584Tag, "I2C Read Setup Error: %s", esp_err_to_name(err));
         return 0xFF;  // Return a default value on error
     }
 
@@ -96,7 +102,7 @@ uint8_t PCA9548A::readByte(uint8_t port, uint8_t addr, uint8_t reg){
 
     // Check for errors
     if (err != ESP_OK) {
-        printf("I2C Read Error: %s\n", esp_err_to_name(err));
+        ESP_LOGE(pca9584Tag, "I2C Read Error: %s", esp_err_to_name(err));
         return 0xFF;  // Return a default value on error
     }
 
@@ -128,7 +134,7 @@ void PCA9548A::write(uint8_t port, uint8_t addr, uint8_t* data, int numDataBytes
     xSemaphoreGive(i2cMutex);
     
     if (err != ESP_OK) {
-        printf("I2C Write Error: %s\n", esp_err_to_name(err));
+        ESP_LOGE(pca9584Tag, "I2C Write Error: %s", esp_err_to_name(err));
     }
 }
 

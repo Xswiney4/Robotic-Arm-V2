@@ -53,6 +53,7 @@ TaskHandle_t KinematicsSolved; // Flags if Kinematics Solver is idle
 // Event Groups
 EventGroupHandle_t motorEnable; // Enables Motors
 EventGroupHandle_t motorIdle;   // Flags if motor is idle
+EventGroupHandle_t motorReady;  // Signals motor is ready
 
 // ~~~~~~~~~~~~~~~
 
@@ -120,11 +121,8 @@ bool RoboticArm::initAll(){
     }
 
     // Motor Tasks
-    // if(this->initAllMotors()){
-    //     ESP_LOGE(roboticArmInitTag, "Error initializing Motor Tasks");
-    //     return true;
-    // }
-    if(this->initMotor6()){
+    if(this->initAllMotors()){
+        ESP_LOGE(roboticArmInitTag, "Error initializing Motor Tasks");
         return true;
     }
     else{
@@ -136,40 +134,114 @@ bool RoboticArm::initAll(){
 
 }
 
-// Configures FreeRTOS queues/semaphores/event groups
+// AS5600_CONFigures FreeRTOS queues/semaphores/event groups
 bool RoboticArm::initRTOSComms(){
 
-    try{
-        // Queues
-        userCmdRaw = xQueueCreate(10, sizeof(char) * 64);
-        userCmd = xQueueCreate(10, sizeof(UserCommand));
+    // Queues
+    userCmdRaw = xQueueCreate(10, sizeof(char) * 64);
+    userCmd = xQueueCreate(10, sizeof(UserCommand));
 
-        j1sDesiredAngleQueue = xQueueCreate(MOTOR_QUEUE_SIZE, sizeof(float));
-        j1sParamsQueue = xQueueCreate(MOTOR_QUEUE_SIZE, sizeof(MotorParams));
-        j2sDesiredAngleQueue = xQueueCreate(MOTOR_QUEUE_SIZE, sizeof(float));
-        j2sParamsQueue = xQueueCreate(MOTOR_QUEUE_SIZE, sizeof(MotorParams));
-        j3sDesiredAngleQueue = xQueueCreate(MOTOR_QUEUE_SIZE, sizeof(float));
-        j3sParamsQueue = xQueueCreate(MOTOR_QUEUE_SIZE, sizeof(MotorParams));
-        j4sDesiredAngleQueue = xQueueCreate(MOTOR_QUEUE_SIZE, sizeof(float));
-        j4sParamsQueue = xQueueCreate(MOTOR_QUEUE_SIZE, sizeof(MotorParams));
-        j5sDesiredAngleQueue = xQueueCreate(MOTOR_QUEUE_SIZE, sizeof(float));
-        j5sParamsQueue = xQueueCreate(MOTOR_QUEUE_SIZE, sizeof(MotorParams));
-        j6sDesiredAngleQueue = xQueueCreate(MOTOR_QUEUE_SIZE, sizeof(float));
-        j6sParamsQueue = xQueueCreate(MOTOR_QUEUE_SIZE, sizeof(MotorParams));
+    j1sDesiredAngleQueue = xQueueCreate(MOTOR_QUEUE_SIZE, sizeof(float));
+    j1sParamsQueue = xQueueCreate(MOTOR_QUEUE_SIZE, sizeof(MotorParams));
+    j2sDesiredAngleQueue = xQueueCreate(MOTOR_QUEUE_SIZE, sizeof(float));
+    j2sParamsQueue = xQueueCreate(MOTOR_QUEUE_SIZE, sizeof(MotorParams));
+    j3sDesiredAngleQueue = xQueueCreate(MOTOR_QUEUE_SIZE, sizeof(float));
+    j3sParamsQueue = xQueueCreate(MOTOR_QUEUE_SIZE, sizeof(MotorParams));
+    j4sDesiredAngleQueue = xQueueCreate(MOTOR_QUEUE_SIZE, sizeof(float));
+    j4sParamsQueue = xQueueCreate(MOTOR_QUEUE_SIZE, sizeof(MotorParams));
+    j5sDesiredAngleQueue = xQueueCreate(MOTOR_QUEUE_SIZE, sizeof(float));
+    j5sParamsQueue = xQueueCreate(MOTOR_QUEUE_SIZE, sizeof(MotorParams));
+    j6sDesiredAngleQueue = xQueueCreate(MOTOR_QUEUE_SIZE, sizeof(float));
+    j6sParamsQueue = xQueueCreate(MOTOR_QUEUE_SIZE, sizeof(MotorParams));
 
-        // Task Notification
+    // Task Notification
 
 
-        // Event Groups
-        motorEnable = xEventGroupCreate();
-        motorIdle = xEventGroupCreate();
+    // Event Groups
+    motorEnable = xEventGroupCreate();
+    motorIdle = xEventGroupCreate();
+    motorReady = xEventGroupCreate();
 
-        return false;
+    return this->errorCheckComms();
+
+}
+
+// Checks that all FreeRTOS Comms are initialized
+bool RoboticArm::errorCheckComms(){
+    bool error = false;
+
+    // Queues
+    if(userCmdRaw == NULL){
+        ESP_LOGE(roboticArmInitTag, "Failed to create queue: userCmdRaw");
+        error = true;
     }
-    catch(...){
-        return true;
+    if(userCmd == NULL){
+        ESP_LOGE(roboticArmInitTag, "Failed to create queue: userCmd");
+        error = true;
+    }
+    if(j1sDesiredAngleQueue == NULL){
+        ESP_LOGE(roboticArmInitTag, "Failed to create queue: j1sDesiredAngleQueue");
+        error = true;
+    }
+    if(j1sParamsQueue == NULL){
+        ESP_LOGE(roboticArmInitTag, "Failed to create queue: j1sParamsQueue");
+        error = true;
+    }
+    if(j2sDesiredAngleQueue == NULL){
+        ESP_LOGE(roboticArmInitTag, "Failed to create queue: j2sDesiredAngleQueue");
+        error = true;
+    }
+    if(j2sParamsQueue == NULL){
+        ESP_LOGE(roboticArmInitTag, "Failed to create queue: j2sParamsQueue");
+        error = true;
+    }
+    if(j3sDesiredAngleQueue == NULL){
+        ESP_LOGE(roboticArmInitTag, "Failed to create queue: j3sDesiredAngleQueue");
+        error = true;
+    }
+    if(j3sParamsQueue == NULL){
+        ESP_LOGE(roboticArmInitTag, "Failed to create queue: j3sParamsQueue");
+        error = true;
+    }
+    if(j4sDesiredAngleQueue == NULL){
+        ESP_LOGE(roboticArmInitTag, "Failed to create queue: j4sDesiredAngleQueue");
+        error = true;
+    }
+    if(j4sParamsQueue == NULL){
+        ESP_LOGE(roboticArmInitTag, "Failed to create queue: j4sParamsQueue");
+        error = true;
+    }
+    if(j5sDesiredAngleQueue == NULL){
+        ESP_LOGE(roboticArmInitTag, "Failed to create queue: j5sDesiredAngleQueue");
+        error = true;
+    }
+    if(j5sParamsQueue == NULL){
+        ESP_LOGE(roboticArmInitTag, "Failed to create queue: j5sParamsQueue");
+        error = true;
+    }
+    if(j6sDesiredAngleQueue == NULL){
+        ESP_LOGE(roboticArmInitTag, "Failed to create queue: j6sDesiredAngleQueue");
+        error = true;
+    }
+    if(j6sParamsQueue == NULL){
+        ESP_LOGE(roboticArmInitTag, "Failed to create queue: j6sParamsQueue");
+        error = true;
     }
 
+    // Task Notifications
+
+
+    // Event Groups
+    if(motorEnable == NULL){
+        ESP_LOGE(roboticArmInitTag, "Failed to create event group: motorEnable");
+        error = true;
+    }
+    if(motorIdle == NULL){
+        ESP_LOGE(roboticArmInitTag, "Failed to create event group: motorIdle");
+        error = true;
+    }
+
+    return error;
 
 }
 
@@ -191,38 +263,42 @@ bool RoboticArm::initKinematics(){
 // Initializes all motor tasks
 bool RoboticArm::initAllMotors(){
 
+    ESP_LOGI(motorInitTag, "Initializing all motors...");
+
+    bool error = false;
+
     // Motor 1 Init
     if(this->initMotor1()){
-        return true;
+        error = true;
     }
 
     // Motor 2 Init
     if(this->initMotor2()){
-        return true;
+        error = true;
     }
 
     // Motor 3 Init
     if(this->initMotor3()){
-        return true;
+        error = true;
     }
 
     // Motor 4 Init
     if(this->initMotor4()){
-        return true;
+        error = true;
     }
-
+    
     // Motor 5 Init
     if(this->initMotor5()){
-        return true;
+        error = true;
     }
 
     // Motor 6 Init
     if(this->initMotor6()){
-        return true;
+        error = true;
     }
 
     // Initialization Successful
-    return false;
+    return error;
 
 }
 
@@ -232,7 +308,7 @@ bool RoboticArm::initMotor1(){
     // Motor 1
     if(this->pca9548a->pingDev(J1S_PORT, AS5600_ADDRESS)){
         // Device Found
-        AS5600 j1sAS5600(this->pca9548a, J1S_PORT, CONF);
+        AS5600 j1sAS5600(this->pca9548a, J1S_PORT, AS5600_CONF);
         StepperMotor j1sMotor(J1S_PIN_STEP, J1S_PIN_DIR);
         MotorParams j1sParams = {&j1sMotor, &j1sAS5600, STEPPER_SPEED, BIT0, j1sDesiredAngleQueue, j1sParamsQueue};
         xTaskCreate(motorTask, J1S_TASK_NAME, 2048, &j1sParams, 1, NULL);
@@ -252,7 +328,7 @@ bool RoboticArm::initMotor2(){
 
     // Motor 2
     if(this->pca9548a->pingDev(J2S_PORT, AS5600_ADDRESS)){
-        AS5600 j2sAS5600(this->pca9548a, J2S_PORT, CONF);
+        AS5600 j2sAS5600(this->pca9548a, J2S_PORT, AS5600_CONF);
         StepperMotor j2sMotor(J2S_PIN_STEP, J2S_PIN_DIR);
         MotorParams j2sParams = {&j2sMotor, &j2sAS5600, STEPPER_SPEED, BIT1, j2sDesiredAngleQueue, j2sParamsQueue};
         xTaskCreate(motorTask, J2S_TASK_NAME, 2048, &j2sParams, 1, NULL);
@@ -271,7 +347,7 @@ bool RoboticArm::initMotor3(){
 
     // Motor 3
     if(this->pca9548a->pingDev(J3S_PORT, AS5600_ADDRESS)){
-        AS5600 j3sAS5600(this->pca9548a, J3S_PORT, CONF);
+        AS5600 j3sAS5600(this->pca9548a, J3S_PORT, AS5600_CONF);
         StepperMotor j3sMotor(J3S_PIN_STEP, J3S_PIN_DIR);
         MotorParams j3sParams = {&j3sMotor, &j3sAS5600, STEPPER_SPEED, BIT2, j3sDesiredAngleQueue, j3sParamsQueue};
         xTaskCreate(motorTask, J3S_TASK_NAME, 2048, &j3sParams, 1, NULL);
@@ -290,7 +366,7 @@ bool RoboticArm::initMotor4(){
 
     // Motor 4
     if(this->pca9548a->pingDev(J4S_PORT, AS5600_ADDRESS)){
-        AS5600 j4sAS5600(this->pca9548a, J4S_PORT, CONF);
+        AS5600 j4sAS5600(this->pca9548a, J4S_PORT, AS5600_CONF);
         StepperMotor j4sMotor(J4S_PIN_STEP, J4S_PIN_DIR);
         MotorParams j4sParams = {&j4sMotor, &j4sAS5600, STEPPER_SPEED, BIT3, j4sDesiredAngleQueue, j4sParamsQueue};
         xTaskCreate(motorTask, J4S_TASK_NAME, 2048, &j4sParams, 1, NULL);
@@ -309,7 +385,7 @@ bool RoboticArm::initMotor5(){
 
     // Motor 5
     if(this->pca9548a->pingDev(J5S_PORT, AS5600_ADDRESS)){
-        AS5600 j5sAS5600(this->pca9548a, J5S_PORT, CONF);
+        AS5600 j5sAS5600(this->pca9548a, J5S_PORT, AS5600_CONF);
         StepperMotor j5sMotor(J5S_PIN_STEP, J5S_PIN_DIR);
         MotorParams j5sParams = {&j5sMotor, &j5sAS5600, STEPPER_SPEED, BIT4, j5sDesiredAngleQueue, j5sParamsQueue};
         xTaskCreate(motorTask, J5S_TASK_NAME, 2048, &j5sParams, 1, NULL);
@@ -328,7 +404,7 @@ bool RoboticArm::initMotor6(){
 
     // Motor 6
     if(this->pca9548a->pingDev(J6S_PORT, AS5600_ADDRESS)){
-        AS5600 j6sAS5600(this->pca9548a, J6S_PORT, CONF);
+        AS5600 j6sAS5600(this->pca9548a, J6S_PORT, AS5600_CONF);
         StepperMotor j6sMotor(J6S_PIN_STEP, J6S_PIN_DIR);
         MotorParams j6sParams = {&j6sMotor, &j6sAS5600, STEPPER_SPEED, BIT5, j6sDesiredAngleQueue, j6sParamsQueue};
         xTaskCreate(motorTask, J6S_TASK_NAME, 2048, &j6sParams, 1, NULL);

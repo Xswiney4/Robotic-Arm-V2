@@ -30,49 +30,49 @@
 
 // Global Joint Params
 #define STEPPER_UPDATE_RESOLUTION 5 // updates/degree (servo smoothness)
-#define STEPPER_SPEED 180 // deg/sec
+#define STEPPER_SPEED 90 // deg/sec
 
 // ~~ Global AS5600 Config ~~
 
 // Power Mode
 // 00 = NOM, 01 = LPM1, 10 = LPM2, 11 = LPM3
-constexpr uint8_t PM = 0b00;
+constexpr uint8_t AS5600_PM = 0b00;
 
 // Hystersis
 // 00 = OFF, 01 = 1 LSB, 10 = 2 LSBs, 11 = 3 LSBs
-constexpr uint8_t HYST = 0b11;
+constexpr uint8_t AS5600_HYST = 0b11;
 
 /* Output Stage
  00 = analog (full range from 0% to 100% between GND and VDD, 01 = analog
 (reduced range from 10% to 90% between GND and VDD, 10 = digital PWM */
-constexpr uint8_t OUTS = 0b00;
+constexpr uint8_t AS5600_OUTS = 0b00;
 
 // PWM Frequency
 // 00 = 115 Hz; 01 = 230 Hz; 10 = 460 Hz; 11 = 920 Hz
-constexpr uint8_t PWMF = 0b00;
+constexpr uint8_t AS5600_PWMF = 0b00;
 
 // Slow Filter
 // 00 = 16x ; 01 = 8x; 10 = 4x; 11 = 2x
-constexpr uint8_t SF = 0b00;
+constexpr uint8_t AS5600_SF = 0b00;
 
 /* Fast Filter Threshold
 000 = slow filter only, 001 = 6 LSBs, 010 = 7 LSBs, 011 = 9 LSBs,100 = 18 LSBs, 101
 = 21 LSBs, 110 = 24 LSBs, 111 = 10 LSBs*/
-constexpr uint8_t FTH = 0b000;
+constexpr uint8_t AS5600_FTH = 0b000;
 
 // Watchdog
 // 0 = OFF, 1 = ON
-constexpr uint8_t WD = 0b0;
+constexpr uint8_t AS5600_WD = 0b0;
 
 // Config Building
-constexpr uint16_t CONF =
-    (PM    << 0)  |  // Bits 0-1
-    (HYST  << 2)  |  // Bits 2-3
-    (OUTS  << 4)  |  // Bits 4-5
-    (PWMF  << 6)  |  // Bits 6-7
-    (SF    << 8)  |  // Bits 8-9
-    (FTH   << 10) |  // Bits 10-12
-    (WD    << 13);   // Bit 13
+constexpr uint16_t AS5600_CONF =
+    (AS5600_PM    << 0)  |  // Bits 0-1
+    (AS5600_HYST  << 2)  |  // Bits 2-3
+    (AS5600_OUTS  << 4)  |  // Bits 4-5
+    (AS5600_PWMF  << 6)  |  // Bits 6-7
+    (AS5600_SF    << 8)  |  // Bits 8-9
+    (AS5600_FTH   << 10) |  // Bits 10-12
+    (AS5600_WD    << 13);   // Bit 13
 
 // ~~~~~~~~~~~~~~~~~~~~
 

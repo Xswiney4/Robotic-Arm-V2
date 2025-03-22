@@ -37,25 +37,13 @@ void motorTask(void *pvParameter){
         desiredAngle = -1; // Reset desiredAngle
         xEventGroupSetBits(motorIdle, params->eventGroupBit); // Sets the 'motorIdle' flag
 
-        // Waits until it's enable flag is set, and clears the flag
-        xEventGroupWaitBits(motorEnable, params->eventGroupBit, pdTRUE, pdFALSE, portMAX_DELAY);
-
-        // Clears the 'motorIdle' flag
-        xEventGroupClearBits(motorIdle, params->eventGroupBit);
-
         // Given the speed, we need to take steps towards the target angle at intervals until we reach the target
 
-        // First we get the desired angle
-        xQueueReceive(params->desiredAngleQueueHandle, &desiredAngle, 0);
+        // Wait until we get a desired angle
+        xQueueReceive(params->desiredAngleQueueHandle, &desiredAngle, portMAX_DELAY);
 
-        // Error Check
-        if(desiredAngle == -1){
-            ESP_LOGE(pcTaskGetName(NULL), "Motor enabled without sending a desired angle, restarting task...");
-            continue;
-        }
-        else{
-            setMotorAngle(params, desiredAngle);
-        }
+        setMotorAngle(params, desiredAngle);
+
     }
 }
 
@@ -85,6 +73,15 @@ void setMotorAngle(MotorParams* params, float angle){
         ESP_LOGI(pcTaskGetName(NULL), "Motor already at desired angle");
         return;
     }
+
+    // Mark motor as ready
+    xEventGroupSetBits(motorReady, params->eventGroupBit);
+
+    // Waits until it's enable flag is set, and clears the flag
+    xEventGroupWaitBits(motorEnable, params->eventGroupBit, pdTRUE, pdFALSE, portMAX_DELAY);
+
+    // Clears the 'motorIdle' flag
+    xEventGroupClearBits(motorIdle, params->eventGroupBit);
 
     // RTOS Tick Setup
     TickType_t xLastWakeTime = xTaskGetTickCount();

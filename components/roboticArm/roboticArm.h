@@ -14,6 +14,7 @@ class RoboticArm{
         bool initAll();             // Runs all initializations
 
         bool initRTOSComms();       // Configures FreeRTOS queues/semaphores/event groups
+        bool errorCheckComms();     // Checks that all FreeRTOS Comms are initialized
 
         bool initCommunications();  // Initializes communications task
         bool initControl();         // Initializes central control task

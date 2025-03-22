@@ -23,8 +23,6 @@ struct MotorParams{
     
 };
 
-// Initialization
-void initMotors(); // Sets up motor control tasks
 
 // Task Definition
 void motorTask(void *pvParameter);

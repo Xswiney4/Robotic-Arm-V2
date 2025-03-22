@@ -12,55 +12,10 @@
 #include <cmath>
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// ~~ Initializations ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// ~~ Variables  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+// Tolerance in degrees within which the motor angle is considered close enough to the desired angle to stop
 const float tolerance = 1.5f;
-
-#include "config.h"
-// Creates all 6 motor tasks given the configurations
-void initMotors(){
-    
-    // PCA9548A
-    Pca9548aParams pca9548aParams = {I2C_SCL_PIN, I2C_SDA_PIN, PCA9548A_SLAVE_ADDR, I2C_FREQ, I2C_NUM_0};
-    PCA9548A pca9548a(pca9548aParams);
-    
-    // Motor 1
-    AS5600 j1sAS5600(&pca9548a, J1S_PORT, CONF);
-    StepperMotor j1sMotor(J1S_PIN_STEP, J1S_PIN_DIR);
-    MotorParams j1sParams = {&j1sMotor, &j1sAS5600, STEPPER_SPEED, BIT0, j1sDesiredAngleQueue, j1sParamsQueue};
-    xTaskCreate(motorTask, J1S_TASK_NAME, 2048, &j1sParams, 1, NULL);
-
-    // Motor 2
-    AS5600 j2sAS5600(&pca9548a, J2S_PORT, CONF);
-    StepperMotor j2sMotor(J2S_PIN_STEP, J2S_PIN_DIR);
-    MotorParams j2sParams = {&j2sMotor, &j2sAS5600, STEPPER_SPEED, BIT1, j2sDesiredAngleQueue, j2sParamsQueue};
-    xTaskCreate(motorTask, J2S_TASK_NAME, 2048, &j2sParams, 1, NULL);
-
-    // Motor 3
-    AS5600 j3sAS5600(&pca9548a, J3S_PORT, CONF);
-    StepperMotor j3sMotor(J3S_PIN_STEP, J3S_PIN_DIR);
-    MotorParams j3sParams = {&j3sMotor, &j3sAS5600, STEPPER_SPEED, BIT2, j3sDesiredAngleQueue, j3sParamsQueue};
-    xTaskCreate(motorTask, J3S_TASK_NAME, 2048, &j3sParams, 1, NULL);
-
-    // Motor 4
-    AS5600 j4sAS5600(&pca9548a, J4S_PORT, CONF);
-    StepperMotor j4sMotor(J4S_PIN_STEP, J4S_PIN_DIR);
-    MotorParams j4sParams = {&j4sMotor, &j4sAS5600, STEPPER_SPEED, BIT3, j4sDesiredAngleQueue, j4sParamsQueue};
-    xTaskCreate(motorTask, J4S_TASK_NAME, 2048, &j4sParams, 1, NULL);
-
-    // Motor 5
-    AS5600 j5sAS5600(&pca9548a, J5S_PORT, CONF);
-    StepperMotor j5sMotor(J5S_PIN_STEP, J5S_PIN_DIR);
-    MotorParams j5sParams = {&j5sMotor, &j5sAS5600, STEPPER_SPEED, BIT4, j5sDesiredAngleQueue, j5sParamsQueue};
-    xTaskCreate(motorTask, J5S_TASK_NAME, 2048, &j5sParams, 1, NULL);
-
-    // Motor 6
-    AS5600 j6sAS5600(&pca9548a, J6S_PORT, CONF);
-    StepperMotor j6sMotor(J6S_PIN_STEP, J6S_PIN_DIR);
-    MotorParams j6sParams = {&j6sMotor, &j6sAS5600, STEPPER_SPEED, BIT5, j6sDesiredAngleQueue, j6sParamsQueue};
-    xTaskCreate(motorTask, J6S_TASK_NAME, 2048, &j6sParams, 1, NULL);
-
-}
-
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // ~~ Task Definitions ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -73,6 +28,8 @@ void motorTask(void *pvParameter){
 
     // Variables
     float desiredAngle;
+
+    ESP_LOGI(pcTaskGetName(NULL), "Motor Initialized");
     
     while(true){
 

@@ -9,6 +9,11 @@
 // Robotic Arm Physical Parameters
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// ~~~ FreeRTOS Config ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+#define MOTOR_QUEUE_SIZE 5 // Size of the motor's queues
+
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // ~~~ Device Parameters ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 // I2C Params
@@ -73,37 +78,37 @@ constexpr uint16_t CONF =
 
 
 // Joint 1 Params
-#define J1S_TASK_NAME   "Motor 1 Engine"
+#define J1S_TASK_NAME   "Motor 1 Driver"
 #define J1S_PORT        PCA9548A_PORT_7
 #define J1S_PIN_DIR     GPIO_NUM_19
 #define J1S_PIN_STEP    GPIO_NUM_23
 
 // Joint 2 Params
-#define J2S_TASK_NAME   "Motor 2 Engine"
+#define J2S_TASK_NAME   "Motor 2 Driver"
 #define J2S_PORT        PCA9548A_PORT_6
 #define J2S_PIN_DIR     GPIO_NUM_5
 #define J2S_PIN_STEP    GPIO_NUM_18
 
 // Joint 3 Params
-#define J3S_TASK_NAME   "Motor 3 Engine"
+#define J3S_TASK_NAME   "Motor 3 Driver"
 #define J3S_PORT        PCA9548A_PORT_5
 #define J3S_PIN_DIR     GPIO_NUM_2
 #define J3S_PIN_STEP    GPIO_NUM_4
 
 // Joint 4 Params
-#define J4S_TASK_NAME   "Motor 4 Engine"
+#define J4S_TASK_NAME   "Motor 4 Driver"
 #define J4S_PORT        PCA9548A_PORT_4
 #define J4S_PIN_DIR     GPIO_NUM_26
 #define J4S_PIN_STEP    GPIO_NUM_25
 
 // Joint 5 Params
-#define J5S_TASK_NAME   "Motor 5 Engine"
+#define J5S_TASK_NAME   "Motor 5 Driver"
 #define J5S_PORT        PCA9548A_PORT_3
 #define J5S_PIN_DIR     GPIO_NUM_14
 #define J5S_PIN_STEP    GPIO_NUM_27
 
 // Joint 6 Params
-#define J6S_TASK_NAME   "Motor 6 Engine"
+#define J6S_TASK_NAME   "Motor 6 Driver"
 #define J6S_PORT        PCA9548A_PORT_2
 #define J6S_PIN_DIR     GPIO_NUM_13
 #define J6S_PIN_STEP    GPIO_NUM_12

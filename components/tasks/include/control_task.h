@@ -19,9 +19,6 @@ const Command commands[] = {
 };
 const int numCommands = sizeof(commands) / sizeof(commands[0]);  // Get array size dynamically
 
-// Initialization
-void initControl(); // Sets up control task
-
 // User Commands
 void setEnd(double x, double y, double z, double pitch, double yaw, double roll);
 void setEndSpeed(double speed);

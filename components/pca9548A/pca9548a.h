@@ -45,6 +45,9 @@ class PCA9548A{
         void i2cInit();
         void devInit();
 
+        // Helper Functions
+        void setPort(uint8_t port);
+
 
     public:
 
@@ -53,11 +56,14 @@ class PCA9548A{
         ~PCA9548A();
 
         // Port Switch
-        void setPort(uint8_t port);
+        void setPortSafe(uint8_t port);
 
         // Read/Write
         uint8_t readByte(uint8_t port, uint8_t addr, uint8_t reg);
         void write(uint8_t port, uint8_t addr, uint8_t* data, int numDataBytes);
+
+        // Ping Function
+        bool pingDev(uint8_t port, uint8_t addr); // Pings slave device, returns true if ping is successful
 
 };
 

@@ -47,20 +47,13 @@ void PCA9548A::i2cInit(){
 
 }
 
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// *********************************** PUBLIC **************************************
-
 // ~~ Port Switch ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+// Sets the port the PCA9548A is set to.
+// THIS IS NOT EXCLUSIVE TO PREVENT REDUNDANT MUTEX CALLS: BLOCK THE I2C BUS BEFORE USING
 void PCA9548A::setPort(uint8_t port){
 
-    // Blocks I2C Bus
-    xSemaphoreTake(i2cMutex, portMAX_DELAY);
-
     esp_err_t err = i2c_master_write_to_device(params.i2cPort, params.slaveAddr, &port, 1, 50);
-
-    // Releases I2C Bus
-    xSemaphoreGive(i2cMutex);
 
     // Check for errors
     if (err != ESP_OK) {
@@ -68,13 +61,30 @@ void PCA9548A::setPort(uint8_t port){
     }
 }
 
+
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// *********************************** PUBLIC **************************************
+
+// ~~ Port Switch ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+// Sets the port the PCA9548A is set to. This blocks I2C bus
+void PCA9548A::setPortSafe(uint8_t port){
+
+    // Blocks I2C Bus
+    xSemaphoreTake(i2cMutex, portMAX_DELAY);
+
+    this -> setPort(port);
+
+    // Releases I2C Bus
+    xSemaphoreGive(i2cMutex);
+
+
+}
+
 // ~~ Read/Write ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 uint8_t PCA9548A::readByte(uint8_t port, uint8_t addr, uint8_t reg){
     
-    // Sets the port
-    this->setPort(port);
-
     esp_err_t err;
 
     // Read buffer
@@ -82,6 +92,9 @@ uint8_t PCA9548A::readByte(uint8_t port, uint8_t addr, uint8_t reg){
 
     // Blocks I2C Bus
     xSemaphoreTake(i2cMutex, portMAX_DELAY);
+
+    // Sets the port
+    this->setPort(port);
 
     // Set slave device register
     err = i2c_master_write_to_device(params.i2cPort, addr, &reg, 1, 50);
@@ -114,18 +127,11 @@ uint8_t PCA9548A::readByte(uint8_t port, uint8_t addr, uint8_t reg){
 // Writes data to a given slave over a given port on the PCA9548A
 void PCA9548A::write(uint8_t port, uint8_t addr, uint8_t* data, int numDataBytes){
 
-    /* Writing to the PCA9548A follows this format:
-    Start
-    Send PCA9548A address (write) [0x70]    - Byte 1
-    Send control register                   - Byte 2
-    Send slave device address (write)       - Byte 3
-    Send register address (if applicable)   - Byte 4
-    Send data                               - Data Bytes
-    Stop
-    */
-
     // Blocks I2C Bus
     xSemaphoreTake(i2cMutex, portMAX_DELAY);
+
+    // Sets the port
+    this->setPort(port);
     
     // Set slave device register
     esp_err_t err = i2c_master_write_to_device(params.i2cPort, addr, data, numDataBytes, 50);
@@ -136,6 +142,47 @@ void PCA9548A::write(uint8_t port, uint8_t addr, uint8_t* data, int numDataBytes
     if (err != ESP_OK) {
         ESP_LOGE(pca9584Tag, "I2C Write Error: %s", esp_err_to_name(err));
     }
+}
+
+// Pings slave device, returns true if ping is successful
+bool PCA9548A::pingDev(uint8_t port, uint8_t addr){
+
+    // Custom I2C command that sends the slave address, then checks for an ACK
+    i2c_cmd_handle_t cmd = i2c_cmd_link_create();
+
+    i2c_master_start(cmd);
+    i2c_master_write_byte(cmd, (addr << 1) | I2C_MASTER_WRITE, true);
+    i2c_master_stop(cmd);
+
+    // Blocks I2C Bus
+    xSemaphoreTake(i2cMutex, portMAX_DELAY);
+
+    // Sets the port
+    this->setPort(port);
+
+    // Runs Custom I2C Command
+    esp_err_t err = i2c_master_cmd_begin(params.i2cPort, cmd, 50);
+
+    // Releases I2C Bus
+    xSemaphoreGive(i2cMutex);
+
+    // Deletes Command
+    i2c_cmd_link_delete(cmd);
+    
+    if (err == ESP_OK) {
+        ESP_LOGI(pca9584Tag, "Device at 0x%02X found on port 0x%02X", addr, port);
+        return true;
+    } else if (err == ESP_ERR_TIMEOUT) {
+        ESP_LOGE(pca9584Tag, "I2C Timeout while probing device at 0x%02X on port %02X", addr, port);
+        return false;
+    } else if (err == ESP_FAIL) {
+        ESP_LOGE(pca9584Tag, "No device found at 0x%02X on port 0x%02X", addr, port);
+        return false;
+    } else {
+        ESP_LOGE(pca9584Tag, "Error probing device at 0x%02X on port 0x%02X: %s", addr, port, esp_err_to_name(err));
+        return false;
+    }
+
 }
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

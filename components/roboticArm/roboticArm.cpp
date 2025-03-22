@@ -120,8 +120,11 @@ bool RoboticArm::initAll(){
     }
 
     // Motor Tasks
-    if(this->initAllMotors()){
-        ESP_LOGE(roboticArmInitTag, "Error initializing Motor Tasks");
+    // if(this->initAllMotors()){
+    //     ESP_LOGE(roboticArmInitTag, "Error initializing Motor Tasks");
+    //     return true;
+    // }
+    if(this->initMotor6()){
         return true;
     }
     else{
@@ -190,32 +193,32 @@ bool RoboticArm::initAllMotors(){
 
     // Motor 1 Init
     if(this->initMotor1()){
-        //return true;
+        return true;
     }
 
     // Motor 2 Init
     if(this->initMotor2()){
-        //return true;
+        return true;
     }
 
     // Motor 3 Init
     if(this->initMotor3()){
-        //return true;
+        return true;
     }
 
     // Motor 4 Init
     if(this->initMotor4()){
-        //return true;
+        return true;
     }
 
     // Motor 5 Init
     if(this->initMotor5()){
-        //return true;
+        return true;
     }
 
     // Motor 6 Init
     if(this->initMotor6()){
-        //return true;
+        return true;
     }
 
     // Initialization Successful
@@ -227,7 +230,8 @@ bool RoboticArm::initAllMotors(){
 bool RoboticArm::initMotor1(){
 
     // Motor 1
-    try{
+    if(this->pca9548a->pingDev(J1S_PORT, AS5600_ADDRESS)){
+        // Device Found
         AS5600 j1sAS5600(this->pca9548a, J1S_PORT, CONF);
         StepperMotor j1sMotor(J1S_PIN_STEP, J1S_PIN_DIR);
         MotorParams j1sParams = {&j1sMotor, &j1sAS5600, STEPPER_SPEED, BIT0, j1sDesiredAngleQueue, j1sParamsQueue};
@@ -235,7 +239,8 @@ bool RoboticArm::initMotor1(){
         ESP_LOGI(motorInitTag, "Motor 1 successfully initialized");
         return false;
     }
-    catch(...){
+    else{
+        // Device not found
         ESP_LOGE(motorInitTag, "Error initializing Motor 1");
         return true;
     }
@@ -246,7 +251,7 @@ bool RoboticArm::initMotor1(){
 bool RoboticArm::initMotor2(){
 
     // Motor 2
-    try{
+    if(this->pca9548a->pingDev(J2S_PORT, AS5600_ADDRESS)){
         AS5600 j2sAS5600(this->pca9548a, J2S_PORT, CONF);
         StepperMotor j2sMotor(J2S_PIN_STEP, J2S_PIN_DIR);
         MotorParams j2sParams = {&j2sMotor, &j2sAS5600, STEPPER_SPEED, BIT1, j2sDesiredAngleQueue, j2sParamsQueue};
@@ -254,7 +259,7 @@ bool RoboticArm::initMotor2(){
         ESP_LOGI(motorInitTag, "Motor 2 successfully initialized");
         return false;
     }
-    catch(...){
+    else{
         ESP_LOGE(motorInitTag, "Error initializing Motor 2");
         return true;
     }
@@ -265,7 +270,7 @@ bool RoboticArm::initMotor2(){
 bool RoboticArm::initMotor3(){
 
     // Motor 3
-    try{
+    if(this->pca9548a->pingDev(J3S_PORT, AS5600_ADDRESS)){
         AS5600 j3sAS5600(this->pca9548a, J3S_PORT, CONF);
         StepperMotor j3sMotor(J3S_PIN_STEP, J3S_PIN_DIR);
         MotorParams j3sParams = {&j3sMotor, &j3sAS5600, STEPPER_SPEED, BIT2, j3sDesiredAngleQueue, j3sParamsQueue};
@@ -273,7 +278,7 @@ bool RoboticArm::initMotor3(){
         ESP_LOGI(motorInitTag, "Motor 3 successfully initialized");
         return false;
     }
-    catch(...){
+    else{
         ESP_LOGE(motorInitTag, "Error initializing Motor 3");
         return true;
     }
@@ -284,7 +289,7 @@ bool RoboticArm::initMotor3(){
 bool RoboticArm::initMotor4(){
 
     // Motor 4
-    try{
+    if(this->pca9548a->pingDev(J4S_PORT, AS5600_ADDRESS)){
         AS5600 j4sAS5600(this->pca9548a, J4S_PORT, CONF);
         StepperMotor j4sMotor(J4S_PIN_STEP, J4S_PIN_DIR);
         MotorParams j4sParams = {&j4sMotor, &j4sAS5600, STEPPER_SPEED, BIT3, j4sDesiredAngleQueue, j4sParamsQueue};
@@ -292,7 +297,7 @@ bool RoboticArm::initMotor4(){
         ESP_LOGI(motorInitTag, "Motor 4 successfully initialized");
         return false;
     }
-    catch(...){
+    else{
         ESP_LOGE(motorInitTag, "Error initializing Motor 4");
         return true;
     }
@@ -303,7 +308,7 @@ bool RoboticArm::initMotor4(){
 bool RoboticArm::initMotor5(){
 
     // Motor 5
-    try{
+    if(this->pca9548a->pingDev(J5S_PORT, AS5600_ADDRESS)){
         AS5600 j5sAS5600(this->pca9548a, J5S_PORT, CONF);
         StepperMotor j5sMotor(J5S_PIN_STEP, J5S_PIN_DIR);
         MotorParams j5sParams = {&j5sMotor, &j5sAS5600, STEPPER_SPEED, BIT4, j5sDesiredAngleQueue, j5sParamsQueue};
@@ -311,7 +316,7 @@ bool RoboticArm::initMotor5(){
         ESP_LOGI(motorInitTag, "Motor 5 successfully initialized");
         return false;
     }
-    catch(...){
+    else{
         ESP_LOGE(motorInitTag, "Error initializing Motor 5");
         return true;
     }
@@ -322,7 +327,7 @@ bool RoboticArm::initMotor5(){
 bool RoboticArm::initMotor6(){
 
     // Motor 6
-    try{
+    if(this->pca9548a->pingDev(J6S_PORT, AS5600_ADDRESS)){
         AS5600 j6sAS5600(this->pca9548a, J6S_PORT, CONF);
         StepperMotor j6sMotor(J6S_PIN_STEP, J6S_PIN_DIR);
         MotorParams j6sParams = {&j6sMotor, &j6sAS5600, STEPPER_SPEED, BIT5, j6sDesiredAngleQueue, j6sParamsQueue};
@@ -330,11 +335,15 @@ bool RoboticArm::initMotor6(){
         ESP_LOGI(motorInitTag, "Motor 6 successfully initialized");
         return false;
     }
-    catch(...){
+    else{
         ESP_LOGE(motorInitTag, "Error initializing Motor 6");
         return true;
     }
 
 }
 
+// Sends a user command string to the central command task
+void RoboticArm::sendUserCommand(const char* cmdStr){
+    xQueueSend(userCmdRaw, cmdStr, 0);
+}
 // *********************************** PUBLIC **************************************

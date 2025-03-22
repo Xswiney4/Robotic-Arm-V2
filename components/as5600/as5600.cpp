@@ -2,9 +2,10 @@
 // ~~ Libraries ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 #include "as5600.h"
+#include "esp_log.h"
 
-#include <string>
-#include <iostream>
+
+static const char *as5600Tag = "AS5600 Driver";
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // ~~ Constructor/Destructor ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -74,29 +75,38 @@ void AS5600::checkMagnet(){
     // Get status register from device
     uint8_t status = readReg(REG_MAGNET_STATUS);
 
-    //std::cout << "Status Register: " << std::to_string(status) << std::endl;
+    // Read Error
+    if(status == 0xFF){
+        ESP_LOGE(as5600Tag, "I2C Read Error");
+        return;
+    }
+    
 
     // Seperate status indicators
     uint8_t md = (status >> 5) & 0x01;
     uint8_t ml = (status >> 4) & 0x01;
     uint8_t mh = (status >> 3) & 0x01;
 
-    std::string error = "";
+    bool error = false;
+
     // AGC minimum gain overflow, magnet too strong
     if (mh == 1){
-        error += "AGC minimum gain overflow, magnet too strong\n";
+        error = true;
+        ESP_LOGE(as5600Tag, "AGC minimum gain overflow, magnet too strong");
     }
     // AGC maximum gain overflow, magnet too weak
     if (ml == 1){
-        error += "AGC maximum gain overflow, magnet too weak\n";
+        error = true;
+        ESP_LOGE(as5600Tag, "AGC maximum gain overflow, magnet too weak");
     }
     // Magnet was not detected
     if (md == 0){
-        error += "Magnet was NOT detected\n";
+        error = true;
+        ESP_LOGE(as5600Tag, "Magnet was NOT detected");
     }
 
     // If an error was detected
-    if (error != ""){
+    if (error){
 
         uint8_t magnitudeLSB = readReg(REG_MAGNITUDE_MSB);
         uint8_t magnitudeMSB = readReg(REG_MAGNITUDE_LSB);
@@ -104,8 +114,9 @@ void AS5600::checkMagnet(){
 
         uint8_t agcVal = readReg(REG_AGC);
 
-        error = "The following errors were detected:\n" + error + "AGC Value = " + std::to_string(agcVal) + "/255\n" + "The magnet magnitude = " + std::to_string(magnitude) + "/65,535";
-        std::cout << error << std::endl;
+        ESP_LOGE(as5600Tag, "AGC Value = %d/255", agcVal);
+        ESP_LOGE(as5600Tag, "The magnet magnitude = %d/65,535", magnitude);
+
     }
 
 }

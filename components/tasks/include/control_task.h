@@ -6,7 +6,7 @@
 // User Commands
 void setEnd(UserCommand* cmd);
 void setEndSpeed(UserCommand* cmd);
-void setMotorAngle(UserCommand* cmd);
+void setMotorAngles(UserCommand* cmd);
 void setMotorSpeed(UserCommand* cmd);
 
 

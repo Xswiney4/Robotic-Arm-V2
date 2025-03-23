@@ -14,11 +14,11 @@ extern "C" void app_main(){
 
     RoboticArm robot;
 
-    robot.setMotorAngle(6, 0);
-    robot.setMotorAngle(6, 360);
-    robot.setMotorAngle(6, 180);
-    robot.setMotorAngle(6, 360);
-    robot.setMotorAngle(6, 0);
+    robot.setMotorAngles(-1, -1, -1, -1, -1, 0);
+    robot.setMotorAngles(-1, -1, -1, -1, -1, 360);
+    robot.setMotorAngles(-1, -1, -1, -1, -1, 180);
+    robot.setMotorAngles(-1, -1, -1, -1, -1, 270);
+    robot.setMotorAngles(-1, -1, -1, -1, -1, 0);
 
     
     while(true){

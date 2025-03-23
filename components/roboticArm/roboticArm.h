@@ -42,7 +42,7 @@ class RoboticArm{
         // User Commands
         void setEnd(float x, float y, float z, float pitch, float yaw, float roll);
         void setEndSpeed(float speed);
-        void setMotorAngle(int motor, float angle);
+        void setMotorAngles(float angle1, float angle2, float angle3, float angle4, float angle5, float angle6);
         void setMotorSpeed(int motor, float speed);
 
 };

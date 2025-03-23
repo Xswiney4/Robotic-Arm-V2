@@ -36,9 +36,6 @@ QueueHandle_t kinematicsCmd; // Queue for kinematics task    (UserCommand Struct
 QueueHandle_t desiredAngleQueue[6]; // Queue for stepper motor angles
 QueueHandle_t paramsQueue[6];       // Queue for stepper motor params
 
-// Task Notification
-TaskHandle_t KinematicsSolved; // Flags if Kinematics Solver is idle
-
 // Event Groups
 EventGroupHandle_t motorEnable; // Enables Motors
 EventGroupHandle_t motorIdle;   // Flags if motor is idle
@@ -132,9 +129,6 @@ bool RoboticArm::initRTOSComms(){
         paramsQueue[i]       = xQueueCreate(QUEUE_SIZE_MOTOR, sizeof(MotorParams));
     }
 
-    // Task Notification
-
-
     // Event Groups
     motorEnable = xEventGroupCreate();
     motorIdle = xEventGroupCreate();
@@ -168,9 +162,6 @@ bool RoboticArm::errorCheckComms(){
             error = true;
         }
     }
-
-    // Task Notifications
-
 
     // Event Groups
     if(motorEnable == NULL){
@@ -364,7 +355,8 @@ bool RoboticArm::initMotor6(){
 
 // Sends a UserCommand struct to the central control task
 void RoboticArm::sendUserCommand(UserCommand* cmd){
-    xQueueSend(controlCmd, cmd, 0);
+    xQueueSend(controlCmd, cmd, portMAX_DELAY);
+    xQueueSend(kinematicsCmd, cmd, portMAX_DELAY);
 }
 
 // *********************************** PUBLIC **************************************
@@ -393,12 +385,12 @@ void RoboticArm::setEndSpeed(float speed){
 
 }
 
-void RoboticArm::setMotorAngle(int motor, float angle){
+void RoboticArm::setMotorAngles(float angle1, float angle2, float angle3, float angle4, float angle5, float angle6){
 
     UserCommand cmd = {
         10,
-        "setMotorAngle",
-        {(float)motor, angle}
+        "setMotorAngles",
+        {angle1, angle2, angle3, angle4, angle5, angle6}
     };
     
     this -> sendUserCommand(&cmd);

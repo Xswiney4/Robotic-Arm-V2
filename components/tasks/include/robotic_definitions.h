@@ -25,7 +25,7 @@ struct UserCommand{
 
 // Queues
 extern QueueHandle_t controlCmd;       // Queue for user commands      (UserCommand Struct)
-extern QueueHandle_t kinematicsCmd; // Queue for kinematics task    (UserCommand Struct)
+extern QueueHandle_t kinematicsCmd;    // Queue for kinematics task    (UserCommand Struct)
 
 extern QueueHandle_t desiredAngleQueue[6];
 extern QueueHandle_t paramsQueue[6];

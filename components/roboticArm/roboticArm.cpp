@@ -30,15 +30,11 @@ static const char *motorInitTag = "Motor Initializer";
 
 // ~~~ FreeRTOS ~~~
 // Queues
-QueueHandle_t userCmdRaw;    // Queue for raw user commands  (Character Array)
-QueueHandle_t userCmd;       // Queue for user commands      (UserCommand Struct)
+QueueHandle_t controlCmd;       // Queue for user commands      (UserCommand Struct)
 QueueHandle_t kinematicsCmd; // Queue for kinematics task    (UserCommand Struct)
 
 QueueHandle_t desiredAngleQueue[6]; // Queue for stepper motor angles
 QueueHandle_t paramsQueue[6];       // Queue for stepper motor params
-
-// Queue Sets
-QueueSetHandle_t controlSet;    // Queues the control task will wait on
 
 // Task Notification
 TaskHandle_t KinematicsSolved; // Flags if Kinematics Solver is idle
@@ -127,8 +123,7 @@ bool RoboticArm::initAll(){
 bool RoboticArm::initRTOSComms(){
 
     // Queues
-    userCmdRaw = xQueueCreate(QUEUE_SIZE_USR_CMD, sizeof(char) * 64);
-    userCmd = xQueueCreate(QUEUE_SIZE_USR_CMD, sizeof(UserCommand));
+    controlCmd = xQueueCreate(QUEUE_SIZE_USR_CMD, sizeof(UserCommand));
     kinematicsCmd = xQueueCreate(QUEUE_SIZE_USR_CMD, sizeof(UserCommand));
 
     // Creates queues for each motor's desired angle
@@ -136,11 +131,6 @@ bool RoboticArm::initRTOSComms(){
         desiredAngleQueue[i] = xQueueCreate(QUEUE_SIZE_MOTOR, sizeof(float));
         paramsQueue[i]       = xQueueCreate(QUEUE_SIZE_MOTOR, sizeof(MotorParams));
     }
-
-    // Queue Sets
-    controlSet = xQueueCreateSet(QUEUE_SIZE_USR_CMD * 2);
-    xQueueAddToSet(userCmdRaw, controlSet);
-    xQueueAddToSet(userCmd, controlSet);
 
     // Task Notification
 
@@ -159,12 +149,8 @@ bool RoboticArm::errorCheckComms(){
     bool error = false;
 
     // Queues
-    if(userCmdRaw == NULL){
-        ESP_LOGE(roboticArmInitTag, "Failed to create queue: userCmdRaw");
-        error = true;
-    }
-    if(userCmd == NULL){
-        ESP_LOGE(roboticArmInitTag, "Failed to create queue: userCmd");
+    if(controlCmd == NULL){
+        ESP_LOGE(roboticArmInitTag, "Failed to create queue: controlCmd");
         error = true;
     }
     if(kinematicsCmd == NULL){
@@ -181,12 +167,6 @@ bool RoboticArm::errorCheckComms(){
             ESP_LOGE(roboticArmInitTag, "Failed to create queue: desiredAngleQueue[%d]", i);
             error = true;
         }
-    }
-
-    // Queue Sets
-    if(controlSet == NULL){
-        ESP_LOGE(roboticArmInitTag, "Failed to create queue set: controlSet");
-        error = true;
     }
 
     // Task Notifications
@@ -382,14 +362,9 @@ bool RoboticArm::initMotor6(){
 
 }
 
-// Sends a user command string to the central control task
-void RoboticArm::sendRawUserCommand(const char* cmdStr){
-    xQueueSend(userCmdRaw, cmdStr, 0);
-}
-
 // Sends a UserCommand struct to the central control task
 void RoboticArm::sendUserCommand(UserCommand* cmd){
-    xQueueSend(userCmd, cmd, 0);
+    xQueueSend(controlCmd, cmd, 0);
 }
 
 // *********************************** PUBLIC **************************************

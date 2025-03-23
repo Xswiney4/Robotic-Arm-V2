@@ -24,15 +24,11 @@ struct UserCommand{
 // ~~ FreeRTOS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 // Queues
-extern QueueHandle_t userCmdRaw;    // Queue for raw user commands  (Character Array)
-extern QueueHandle_t userCmd;       // Queue for user commands      (UserCommand Struct)
+extern QueueHandle_t controlCmd;       // Queue for user commands      (UserCommand Struct)
 extern QueueHandle_t kinematicsCmd; // Queue for kinematics task    (UserCommand Struct)
 
 extern QueueHandle_t desiredAngleQueue[6];
 extern QueueHandle_t paramsQueue[6];
-
-// Queue Sets
-extern QueueSetHandle_t controlSet;
 
 // Task Notification
 extern TaskHandle_t KinematicsSolved; // Flags if Kinematics Solver is idle

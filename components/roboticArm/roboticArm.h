@@ -31,7 +31,6 @@ class RoboticArm{
         bool initMotor6();      // Initializes motor task 6
 
         // Sends a user command to the central command task
-        void sendRawUserCommand(const char* cmdStr);
         void sendUserCommand(UserCommand* cmd);
 
     public:

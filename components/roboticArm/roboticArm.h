@@ -2,13 +2,15 @@
 #define ROBOTIC_ARM_H
 
 #include "pca9548a.h"
+#include "motor_task.h"
+#include "robotic_definitions.h"
 
 class RoboticArm{
 
     private:
 
         // Variables
-        PCA9548A* pca9548a;     // PCA9548A object pointer
+        PCA9548A pca9548a;     // PCA9548A object
 
         // Initializations (Returns true if error)
         bool initAll();             // Runs all initializations
@@ -29,7 +31,8 @@ class RoboticArm{
         bool initMotor6();      // Initializes motor task 6
 
         // Sends a user command string to the central command task
-        void sendUserCommand(const char* cmdStr);
+        void sendRawUserCommand(const char* cmdStr);
+        void sendUserCommand(UserCommand* cmd);
 
     public:
 
@@ -38,10 +41,10 @@ class RoboticArm{
         ~RoboticArm();
 
         // User Commands
-        void setEnd(double x, double y, double z, double pitch, double yaw, double roll);
-        void setEndSpeed(double speed);
-        void setMotorAngle(int motor, double angle);
-        void setMotorSpeed(int motor, double speed);
+        void setEnd(float x, float y, float z, float pitch, float yaw, float roll);
+        void setEndSpeed(float speed);
+        void setMotorAngle(int motor, float angle);
+        void setMotorSpeed(int motor, float speed);
 
 };
 

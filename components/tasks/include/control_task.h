@@ -20,13 +20,13 @@ const Command commands[] = {
 const int numCommands = sizeof(commands) / sizeof(commands[0]);  // Get array size dynamically
 
 // User Commands
-void setEnd(double x, double y, double z, double pitch, double yaw, double roll);
-void setEndSpeed(double speed);
-void setMotorAngle(int motor, double angle);
-void setMotorSpeed(int motor, double speed);
+void setEnd(UserCommand* cmd);
+void setEndSpeed(UserCommand* cmd);
+void setMotorAngle(UserCommand* cmd);
+void setMotorSpeed(UserCommand* cmd);
 
 // Handlers
-UserCommand userCmdDecoder(char *buffer); // Decodes a character string and returns a user Command structure
+UserCommand userCmdParser(char *buffer); // Decodes a character string and returns a user Command structure
 
 // Task Definition
 void controlTask(void *pvParameter);

@@ -54,11 +54,17 @@ void setMotorAngle(MotorParams* params, float angle){
 
     // Variables
     float currentAngle;
-    float lastAngle;
     float stepTriggerTime = 1800 / params->speed;
     TickType_t xFrequency = pdMS_TO_TICKS(stepTriggerTime);
 
-    currentAngle = params->as5600->getAngle();
+    // As long as lastAngle is defined, we use that to determine where the motor is at
+    if(params->lastAngle != -1){
+        currentAngle = params->lastAngle;
+    }
+    else{
+        currentAngle = params->as5600->getAngle();
+    }
+
     ESP_LOGI(pcTaskGetName(NULL), "Start Angle: %f",currentAngle);
 
     // Set the direction
@@ -70,7 +76,11 @@ void setMotorAngle(MotorParams* params, float angle){
     }
     else{
         // If the current angle is already at the desired, we reset
-        ESP_LOGI(pcTaskGetName(NULL), "Motor already at desired angle");
+
+        // Mark motor as ready to allow control task to pass
+        xEventGroupSetBits(motorReady, params->eventGroupBit);
+
+        ESP_LOGI(pcTaskGetName(NULL), "Motor already at desired angle: %f", angle);
         return;
     }
 
@@ -92,12 +102,12 @@ void setMotorAngle(MotorParams* params, float angle){
         vTaskDelayUntil(&xLastWakeTime, xFrequency); // Block until delay
 
         params->stepper->step(); // Take a step
-        lastAngle = currentAngle;
+        params->lastAngle = currentAngle;
         currentAngle = params->as5600->getAngle(); // Updates currentAngle
 
         // Checks to see if the AS5600 jumped
-        if(std::abs(lastAngle - currentAngle) > 100.0f){
-            if(lastAngle > 180){ // We're at the 360 threshold
+        if(std::abs(params->lastAngle - currentAngle) > 100.0f){
+            if(params->lastAngle > 180){ // We're at the 360 threshold
                 currentAngle = 360.0f;
             }
             else{ // We're at the 0 threshold
@@ -107,6 +117,7 @@ void setMotorAngle(MotorParams* params, float angle){
         ESP_LOGI(pcTaskGetName(NULL), "Current Angle: %f",currentAngle);
     }
 
+    params->lastAngle = currentAngle;
     ESP_LOGI(pcTaskGetName(NULL), "Motor has reached desired angle");
 
 }

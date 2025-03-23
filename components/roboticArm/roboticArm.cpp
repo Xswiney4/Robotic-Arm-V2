@@ -1,7 +1,6 @@
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // ~~ Libraries ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-#include "robotic_definitions.h"
 #include "config.h"
 #include "roboticArm.h"
 
@@ -14,7 +13,7 @@
 #include "communication_tasks.h"
 #include "control_task.h"
 #include "kinematics_task.h"
-#include "motor_task.h"
+// #include "motor_task.h"
 
 // ESP/FreeRTOS
 #include "freertos/FreeRTOS.h"
@@ -31,21 +30,15 @@ static const char *motorInitTag = "Motor Initializer";
 
 // ~~~ FreeRTOS ~~~
 // Queues
-QueueHandle_t userCmdRaw;  // Queue for raw user commands (Character Array)
-QueueHandle_t userCmd;  // Queue for user commands (UserCommand Struct)
+QueueHandle_t userCmdRaw;    // Queue for raw user commands  (Character Array)
+QueueHandle_t userCmd;       // Queue for user commands      (UserCommand Struct)
+QueueHandle_t kinematicsCmd; // Queue for kinematics task    (UserCommand Struct)
 
-QueueHandle_t j1sDesiredAngleQueue;  // Queue for stepper motor angle
-QueueHandle_t j1sParamsQueue;  // Queue for stepper motor params
-QueueHandle_t j2sDesiredAngleQueue;  // Queue for stepper motor angle
-QueueHandle_t j2sParamsQueue;  // Queue for stepper motor params
-QueueHandle_t j3sDesiredAngleQueue;  // Queue for stepper motor angle
-QueueHandle_t j3sParamsQueue;  // Queue for stepper motor params
-QueueHandle_t j4sDesiredAngleQueue;  // Queue for stepper motor angle
-QueueHandle_t j4sParamsQueue;  // Queue for stepper motor params
-QueueHandle_t j5sDesiredAngleQueue;  // Queue for stepper motor angle
-QueueHandle_t j5sParamsQueue;  // Queue for stepper motor params
-QueueHandle_t j6sDesiredAngleQueue;  // Queue for stepper motor angle
-QueueHandle_t j6sParamsQueue;  // Queue for stepper motor params
+QueueHandle_t desiredAngleQueue[6]; // Queue for stepper motor angles
+QueueHandle_t paramsQueue[6];       // Queue for stepper motor params
+
+// Queue Sets
+QueueSetHandle_t controlSet;    // Queues the control task will wait on
 
 // Task Notification
 TaskHandle_t KinematicsSolved; // Flags if Kinematics Solver is idle
@@ -61,16 +54,12 @@ EventGroupHandle_t motorReady;  // Signals motor is ready
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // ~~ Constructor/Destructor ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-RoboticArm::RoboticArm(){
-
-    // PCA9548A Creation
-    Pca9548aParams pca9548aParams = {I2C_SCL_PIN, I2C_SDA_PIN, PCA9548A_SLAVE_ADDR, I2C_FREQ, I2C_NUM_0};
-    PCA9548A pca9548a(pca9548aParams);
-
-    this->pca9548a = &pca9548a;
-
+RoboticArm::RoboticArm() 
+    : pca9548a(Pca9548aParams{I2C_SCL_PIN, I2C_SDA_PIN, PCA9548A_SLAVE_ADDR, I2C_FREQ, I2C_NUM_0})
+{
     initAll();
 }
+
 
 RoboticArm::~RoboticArm(){
 
@@ -138,21 +127,20 @@ bool RoboticArm::initAll(){
 bool RoboticArm::initRTOSComms(){
 
     // Queues
-    userCmdRaw = xQueueCreate(10, sizeof(char) * 64);
-    userCmd = xQueueCreate(10, sizeof(UserCommand));
+    userCmdRaw = xQueueCreate(QUEUE_SIZE_USR_CMD, sizeof(char) * 64);
+    userCmd = xQueueCreate(QUEUE_SIZE_USR_CMD, sizeof(UserCommand));
+    kinematicsCmd = xQueueCreate(QUEUE_SIZE_USR_CMD, sizeof(UserCommand));
 
-    j1sDesiredAngleQueue = xQueueCreate(MOTOR_QUEUE_SIZE, sizeof(float));
-    j1sParamsQueue = xQueueCreate(MOTOR_QUEUE_SIZE, sizeof(MotorParams));
-    j2sDesiredAngleQueue = xQueueCreate(MOTOR_QUEUE_SIZE, sizeof(float));
-    j2sParamsQueue = xQueueCreate(MOTOR_QUEUE_SIZE, sizeof(MotorParams));
-    j3sDesiredAngleQueue = xQueueCreate(MOTOR_QUEUE_SIZE, sizeof(float));
-    j3sParamsQueue = xQueueCreate(MOTOR_QUEUE_SIZE, sizeof(MotorParams));
-    j4sDesiredAngleQueue = xQueueCreate(MOTOR_QUEUE_SIZE, sizeof(float));
-    j4sParamsQueue = xQueueCreate(MOTOR_QUEUE_SIZE, sizeof(MotorParams));
-    j5sDesiredAngleQueue = xQueueCreate(MOTOR_QUEUE_SIZE, sizeof(float));
-    j5sParamsQueue = xQueueCreate(MOTOR_QUEUE_SIZE, sizeof(MotorParams));
-    j6sDesiredAngleQueue = xQueueCreate(MOTOR_QUEUE_SIZE, sizeof(float));
-    j6sParamsQueue = xQueueCreate(MOTOR_QUEUE_SIZE, sizeof(MotorParams));
+    // Creates queues for each motor's desired angle
+    for (int i = 0; i < 6; i++){
+        desiredAngleQueue[i] = xQueueCreate(QUEUE_SIZE_MOTOR, sizeof(float));
+        paramsQueue[i]       = xQueueCreate(QUEUE_SIZE_MOTOR, sizeof(MotorParams));
+    }
+
+    // Queue Sets
+    controlSet = xQueueCreateSet(QUEUE_SIZE_USR_CMD * 2);
+    xQueueAddToSet(userCmdRaw, controlSet);
+    xQueueAddToSet(userCmd, controlSet);
 
     // Task Notification
 
@@ -179,52 +167,25 @@ bool RoboticArm::errorCheckComms(){
         ESP_LOGE(roboticArmInitTag, "Failed to create queue: userCmd");
         error = true;
     }
-    if(j1sDesiredAngleQueue == NULL){
-        ESP_LOGE(roboticArmInitTag, "Failed to create queue: j1sDesiredAngleQueue");
+    if(kinematicsCmd == NULL){
+        ESP_LOGE(roboticArmInitTag, "Failed to create queue: kinematicsCmd");
         error = true;
     }
-    if(j1sParamsQueue == NULL){
-        ESP_LOGE(roboticArmInitTag, "Failed to create queue: j1sParamsQueue");
-        error = true;
+
+    for (int i = 0; i < 6; i++){
+        if(desiredAngleQueue[i] == NULL){
+            ESP_LOGE(roboticArmInitTag, "Failed to create queue: desiredAngleQueue[%d]", i);
+            error = true;
+        }
+        if(desiredAngleQueue[i] == NULL){
+            ESP_LOGE(roboticArmInitTag, "Failed to create queue: desiredAngleQueue[%d]", i);
+            error = true;
+        }
     }
-    if(j2sDesiredAngleQueue == NULL){
-        ESP_LOGE(roboticArmInitTag, "Failed to create queue: j2sDesiredAngleQueue");
-        error = true;
-    }
-    if(j2sParamsQueue == NULL){
-        ESP_LOGE(roboticArmInitTag, "Failed to create queue: j2sParamsQueue");
-        error = true;
-    }
-    if(j3sDesiredAngleQueue == NULL){
-        ESP_LOGE(roboticArmInitTag, "Failed to create queue: j3sDesiredAngleQueue");
-        error = true;
-    }
-    if(j3sParamsQueue == NULL){
-        ESP_LOGE(roboticArmInitTag, "Failed to create queue: j3sParamsQueue");
-        error = true;
-    }
-    if(j4sDesiredAngleQueue == NULL){
-        ESP_LOGE(roboticArmInitTag, "Failed to create queue: j4sDesiredAngleQueue");
-        error = true;
-    }
-    if(j4sParamsQueue == NULL){
-        ESP_LOGE(roboticArmInitTag, "Failed to create queue: j4sParamsQueue");
-        error = true;
-    }
-    if(j5sDesiredAngleQueue == NULL){
-        ESP_LOGE(roboticArmInitTag, "Failed to create queue: j5sDesiredAngleQueue");
-        error = true;
-    }
-    if(j5sParamsQueue == NULL){
-        ESP_LOGE(roboticArmInitTag, "Failed to create queue: j5sParamsQueue");
-        error = true;
-    }
-    if(j6sDesiredAngleQueue == NULL){
-        ESP_LOGE(roboticArmInitTag, "Failed to create queue: j6sDesiredAngleQueue");
-        error = true;
-    }
-    if(j6sParamsQueue == NULL){
-        ESP_LOGE(roboticArmInitTag, "Failed to create queue: j6sParamsQueue");
+
+    // Queue Sets
+    if(controlSet == NULL){
+        ESP_LOGE(roboticArmInitTag, "Failed to create queue set: controlSet");
         error = true;
     }
 
@@ -247,16 +208,19 @@ bool RoboticArm::errorCheckComms(){
 
 // Initializes communcations task
 bool RoboticArm::initCommunications(){
+    //xTaskCreate(communicationTask, TASK_NAME_COMMUNICATION, TASK_STACK_DEPTH_COMMUNICATION, NULL, TASK_PRIORITY_COMMUNICATION, NULL);
     return false;
 }
 
 // Initializes central control task
 bool RoboticArm::initControl(){
+    xTaskCreate(controlTask, TASK_NAME_CONTROL, TASK_STACK_DEPTH_CONTROL, NULL, TASK_PRIORITY_CONTROL, NULL);
     return false;
 }
 
 // Initializes kinematics calculations task
 bool RoboticArm::initKinematics(){
+    //xTaskCreate(kinematicsTask, TASK_NAME_KINEMATICS, TASK_STACK_DEPTH_KINEMATICS, NULL, TASK_PRIORITY_KINEMATICS, NULL);
     return false;
 }
 
@@ -306,12 +270,12 @@ bool RoboticArm::initAllMotors(){
 bool RoboticArm::initMotor1(){
 
     // Motor 1
-    if(this->pca9548a->pingDev(J1S_PORT, AS5600_ADDRESS)){
+    if(this->pca9548a.pingDev(J1S_PORT, AS5600_ADDRESS)){
         // Device Found
-        AS5600 j1sAS5600(this->pca9548a, J1S_PORT, AS5600_CONF);
-        StepperMotor j1sMotor(J1S_PIN_STEP, J1S_PIN_DIR);
-        MotorParams j1sParams = {&j1sMotor, &j1sAS5600, STEPPER_SPEED, BIT0, j1sDesiredAngleQueue, j1sParamsQueue};
-        xTaskCreate(motorTask, J1S_TASK_NAME, 2048, &j1sParams, 1, NULL);
+        AS5600* j1sAS5600 = new AS5600(&this->pca9548a, J1S_PORT, AS5600_CONF);
+        StepperMotor* j1sMotor = new StepperMotor(J1S_PIN_STEP, J1S_PIN_DIR);
+        MotorParams* j1sParams = new MotorParams{j1sMotor, j1sAS5600, STEPPER_SPEED, -1, J1S_BIT_MASK, desiredAngleQueue[0], desiredAngleQueue[0]};
+        xTaskCreate(motorTask, J1S_TASK_NAME, TASK_STACK_DEPTH_MOTOR, j1sParams, TASK_PRIORITY_MOTOR, NULL);
         ESP_LOGI(motorInitTag, "Motor 1 successfully initialized");
         return false;
     }
@@ -327,11 +291,11 @@ bool RoboticArm::initMotor1(){
 bool RoboticArm::initMotor2(){
 
     // Motor 2
-    if(this->pca9548a->pingDev(J2S_PORT, AS5600_ADDRESS)){
-        AS5600 j2sAS5600(this->pca9548a, J2S_PORT, AS5600_CONF);
-        StepperMotor j2sMotor(J2S_PIN_STEP, J2S_PIN_DIR);
-        MotorParams j2sParams = {&j2sMotor, &j2sAS5600, STEPPER_SPEED, BIT1, j2sDesiredAngleQueue, j2sParamsQueue};
-        xTaskCreate(motorTask, J2S_TASK_NAME, 2048, &j2sParams, 1, NULL);
+    if(this->pca9548a.pingDev(J2S_PORT, AS5600_ADDRESS)){
+        AS5600* j2sAS5600 = new AS5600(&this->pca9548a, J2S_PORT, AS5600_CONF);
+        StepperMotor* j2sMotor = new StepperMotor(J2S_PIN_STEP, J2S_PIN_DIR);
+        MotorParams* j2sParams = new MotorParams{j2sMotor, j2sAS5600, STEPPER_SPEED, -1, J2S_BIT_MASK, desiredAngleQueue[1], desiredAngleQueue[1]};
+        xTaskCreate(motorTask, J2S_TASK_NAME, TASK_STACK_DEPTH_MOTOR, j2sParams, TASK_PRIORITY_MOTOR, NULL);
         ESP_LOGI(motorInitTag, "Motor 2 successfully initialized");
         return false;
     }
@@ -346,11 +310,11 @@ bool RoboticArm::initMotor2(){
 bool RoboticArm::initMotor3(){
 
     // Motor 3
-    if(this->pca9548a->pingDev(J3S_PORT, AS5600_ADDRESS)){
-        AS5600 j3sAS5600(this->pca9548a, J3S_PORT, AS5600_CONF);
-        StepperMotor j3sMotor(J3S_PIN_STEP, J3S_PIN_DIR);
-        MotorParams j3sParams = {&j3sMotor, &j3sAS5600, STEPPER_SPEED, BIT2, j3sDesiredAngleQueue, j3sParamsQueue};
-        xTaskCreate(motorTask, J3S_TASK_NAME, 2048, &j3sParams, 1, NULL);
+    if(this->pca9548a.pingDev(J3S_PORT, AS5600_ADDRESS)){
+        AS5600* j3sAS5600 = new AS5600(&this->pca9548a, J3S_PORT, AS5600_CONF);
+        StepperMotor* j3sMotor = new StepperMotor(J3S_PIN_STEP, J3S_PIN_DIR);
+        MotorParams* j3sParams = new MotorParams{j3sMotor, j3sAS5600, STEPPER_SPEED, -1, J3S_BIT_MASK, desiredAngleQueue[2], desiredAngleQueue[2]};
+        xTaskCreate(motorTask, J3S_TASK_NAME, TASK_STACK_DEPTH_MOTOR, j3sParams, TASK_PRIORITY_MOTOR, NULL);
         ESP_LOGI(motorInitTag, "Motor 3 successfully initialized");
         return false;
     }
@@ -365,11 +329,11 @@ bool RoboticArm::initMotor3(){
 bool RoboticArm::initMotor4(){
 
     // Motor 4
-    if(this->pca9548a->pingDev(J4S_PORT, AS5600_ADDRESS)){
-        AS5600 j4sAS5600(this->pca9548a, J4S_PORT, AS5600_CONF);
-        StepperMotor j4sMotor(J4S_PIN_STEP, J4S_PIN_DIR);
-        MotorParams j4sParams = {&j4sMotor, &j4sAS5600, STEPPER_SPEED, BIT3, j4sDesiredAngleQueue, j4sParamsQueue};
-        xTaskCreate(motorTask, J4S_TASK_NAME, 2048, &j4sParams, 1, NULL);
+    if(this->pca9548a.pingDev(J4S_PORT, AS5600_ADDRESS)){
+        AS5600* j4sAS5600 = new AS5600(&this->pca9548a, J4S_PORT, AS5600_CONF);
+        StepperMotor* j4sMotor = new StepperMotor(J4S_PIN_STEP, J4S_PIN_DIR);
+        MotorParams* j4sParams = new MotorParams{j4sMotor, j4sAS5600, STEPPER_SPEED, -1, J4S_BIT_MASK, desiredAngleQueue[3], desiredAngleQueue[3]};
+        xTaskCreate(motorTask, J4S_TASK_NAME, TASK_STACK_DEPTH_MOTOR, j4sParams, TASK_PRIORITY_MOTOR, NULL);
         ESP_LOGI(motorInitTag, "Motor 4 successfully initialized");
         return false;
     }
@@ -384,11 +348,11 @@ bool RoboticArm::initMotor4(){
 bool RoboticArm::initMotor5(){
 
     // Motor 5
-    if(this->pca9548a->pingDev(J5S_PORT, AS5600_ADDRESS)){
-        AS5600 j5sAS5600(this->pca9548a, J5S_PORT, AS5600_CONF);
-        StepperMotor j5sMotor(J5S_PIN_STEP, J5S_PIN_DIR);
-        MotorParams j5sParams = {&j5sMotor, &j5sAS5600, STEPPER_SPEED, BIT4, j5sDesiredAngleQueue, j5sParamsQueue};
-        xTaskCreate(motorTask, J5S_TASK_NAME, 2048, &j5sParams, 1, NULL);
+    if(this->pca9548a.pingDev(J5S_PORT, AS5600_ADDRESS)){
+        AS5600* j5sAS5600 = new AS5600(&this->pca9548a, J5S_PORT, AS5600_CONF);
+        StepperMotor* j5sMotor = new StepperMotor(J5S_PIN_STEP, J5S_PIN_DIR);
+        MotorParams* j5sParams = new MotorParams{j5sMotor, j5sAS5600, STEPPER_SPEED, -1, J5S_BIT_MASK, desiredAngleQueue[4], desiredAngleQueue[4]};
+        xTaskCreate(motorTask, J5S_TASK_NAME, TASK_STACK_DEPTH_MOTOR, j5sParams, TASK_PRIORITY_MOTOR, NULL);
         ESP_LOGI(motorInitTag, "Motor 5 successfully initialized");
         return false;
     }
@@ -403,11 +367,11 @@ bool RoboticArm::initMotor5(){
 bool RoboticArm::initMotor6(){
 
     // Motor 6
-    if(this->pca9548a->pingDev(J6S_PORT, AS5600_ADDRESS)){
-        AS5600 j6sAS5600(this->pca9548a, J6S_PORT, AS5600_CONF);
-        StepperMotor j6sMotor(J6S_PIN_STEP, J6S_PIN_DIR);
-        MotorParams j6sParams = {&j6sMotor, &j6sAS5600, STEPPER_SPEED, BIT5, j6sDesiredAngleQueue, j6sParamsQueue};
-        xTaskCreate(motorTask, J6S_TASK_NAME, 2048, &j6sParams, 1, NULL);
+    if(this->pca9548a.pingDev(J6S_PORT, AS5600_ADDRESS)){
+        AS5600* j6sAS5600 = new AS5600(&this->pca9548a, J6S_PORT, AS5600_CONF);
+        StepperMotor* j6sMotor = new StepperMotor(J6S_PIN_STEP, J6S_PIN_DIR);
+        MotorParams* j6sParams = new MotorParams{j6sMotor, j6sAS5600, STEPPER_SPEED, -1, J6S_BIT_MASK, desiredAngleQueue[5], desiredAngleQueue[6]};
+        xTaskCreate(motorTask, J6S_TASK_NAME, TASK_STACK_DEPTH_MOTOR, j6sParams, TASK_PRIORITY_MOTOR, NULL);
         ESP_LOGI(motorInitTag, "Motor 6 successfully initialized");
         return false;
     }
@@ -418,8 +382,62 @@ bool RoboticArm::initMotor6(){
 
 }
 
-// Sends a user command string to the central command task
-void RoboticArm::sendUserCommand(const char* cmdStr){
+// Sends a user command string to the central control task
+void RoboticArm::sendRawUserCommand(const char* cmdStr){
     xQueueSend(userCmdRaw, cmdStr, 0);
 }
+
+// Sends a UserCommand struct to the central control task
+void RoboticArm::sendUserCommand(UserCommand* cmd){
+    xQueueSend(userCmd, cmd, 0);
+}
+
 // *********************************** PUBLIC **************************************
+
+void RoboticArm::setEnd(float x, float y, float z, float pitch, float yaw, float roll){
+    
+    UserCommand cmd = {
+        0,
+        "setEnd",
+        {x, y, z, pitch, yaw, roll}
+    };
+    
+    this -> sendUserCommand(&cmd);
+
+}
+
+void RoboticArm::setEndSpeed(float speed){
+
+    UserCommand cmd = {
+        1,
+        "setEndSpeed",
+        {speed}
+    };
+    
+    this -> sendUserCommand(&cmd);
+
+}
+
+void RoboticArm::setMotorAngle(int motor, float angle){
+
+    UserCommand cmd = {
+        10,
+        "setMotorAngle",
+        {(float)motor, angle}
+    };
+    
+    this -> sendUserCommand(&cmd);
+
+}
+
+void RoboticArm::setMotorSpeed(int motor, float speed){
+
+    UserCommand cmd = {
+        11,
+        "setMotorSpeed",
+        {(float)motor, speed}
+    };
+    
+    this -> sendUserCommand(&cmd);
+
+}

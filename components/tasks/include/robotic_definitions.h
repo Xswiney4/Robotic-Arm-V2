@@ -16,7 +16,7 @@
 struct UserCommand{
     int commandNum = -1;
     const char* name = "NULL";
-    double params[6] = {0,0,0,0,0,0};
+    float params[6] = {0,0,0,0,0,0};
 };
 
 
@@ -24,21 +24,15 @@ struct UserCommand{
 // ~~ FreeRTOS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 // Queues
-extern QueueHandle_t userCmdRaw;  // Queue for raw user commands (Character Array)
-extern QueueHandle_t userCmd;  // Queue for user commands (UserCommand Struct)
+extern QueueHandle_t userCmdRaw;    // Queue for raw user commands  (Character Array)
+extern QueueHandle_t userCmd;       // Queue for user commands      (UserCommand Struct)
+extern QueueHandle_t kinematicsCmd; // Queue for kinematics task    (UserCommand Struct)
 
-extern QueueHandle_t j1sDesiredAngleQueue;  // Queue for stepper motor angle
-extern QueueHandle_t j1sParamsQueue;  // Queue for stepper motor params
-extern QueueHandle_t j2sDesiredAngleQueue;  // Queue for stepper motor angle
-extern QueueHandle_t j2sParamsQueue;  // Queue for stepper motor params
-extern QueueHandle_t j3sDesiredAngleQueue;  // Queue for stepper motor angle
-extern QueueHandle_t j3sParamsQueue;  // Queue for stepper motor params
-extern QueueHandle_t j4sDesiredAngleQueue;  // Queue for stepper motor angle
-extern QueueHandle_t j4sParamsQueue;  // Queue for stepper motor params
-extern QueueHandle_t j5sDesiredAngleQueue;  // Queue for stepper motor angle
-extern QueueHandle_t j5sParamsQueue;  // Queue for stepper motor params
-extern QueueHandle_t j6sDesiredAngleQueue;  // Queue for stepper motor angle
-extern QueueHandle_t j6sParamsQueue;  // Queue for stepper motor params
+extern QueueHandle_t desiredAngleQueue[6];
+extern QueueHandle_t paramsQueue[6];
+
+// Queue Sets
+extern QueueSetHandle_t controlSet;
 
 // Task Notification
 extern TaskHandle_t KinematicsSolved; // Flags if Kinematics Solver is idle

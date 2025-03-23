@@ -15,6 +15,7 @@ struct MotorParams{
 
     // Motor Parameters
     float speed; // In degrees/second
+    float lastAngle = -1;    // Last measured angle
 
     // FreeRTOS
     uint8_t eventGroupBit;

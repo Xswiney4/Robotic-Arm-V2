@@ -17,7 +17,6 @@
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // ~~ Definitions ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-char cmdBuffer[64];
 static const char *controlTag = "Control Task";
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -30,12 +29,17 @@ static const char *controlTag = "Control Task";
 Sets the endpoint given a position (x, y, z) and orientation (pitch, yaw, roll) of the end effector
 The control structure is as follows:
 - UserCommand is sent over to Kinematics Solver to be solved
-- Wait until all motors are idle AND Kinematic Solver flags 'solved'
+- Wait until all motors are ready AND Kinematic Solver flags 'solved'
 - Enable all motors
 - Break
 */
-void setEnd(double x, double y, double z, double pitch, double yaw, double roll){
-
+void setEnd(UserCommand* cmd){
+    // double x =      cmd->params[0];
+    // double y =      cmd->params[1];
+    // double z =      cmd->params[2];
+    // double pitch =  cmd->params[3];
+    // double yaw =    cmd->params[4];
+    // double roll =   cmd->params[5];
 }
 
 /*
@@ -43,19 +47,31 @@ Sets the endpoint speed in m/s
 The structure is as follows:
 - 
 */
-void setEndSpeed(double speed){
-    
+void setEndSpeed(UserCommand* cmd){
+    // double endSpeed = cmd->params[0];
 }
 
 /*
 Sets the angle of a given motor in degrees
 The structure is as follows:
-- UserCommand is sent over to Kinematics Solver to be solved
-- Wait until given motor is idle AND Kinematic Solver flags 'solved'
+- Angle is sent over to motor
+- Wait until given motor is ready
 - Enable given motor
 - Break
 */
-void setMotorAngle(int motor, double angle){
+void setMotorAngle(UserCommand* cmd){
+    int motor =     (int)cmd->params[0];
+    uint8_t motorBitMask = (1 << (motor - 1));
+
+    // Send angle to the motor
+    ESP_LOGI(controlTag, "Set angle: %f", cmd -> params[1]);
+    xQueueSend(desiredAngleQueue[motor - 1], &cmd -> params[1], 0);
+
+    // Wait until the set motor marks it's ready
+    xEventGroupWaitBits(motorReady, motorBitMask, pdTRUE, pdFALSE, portMAX_DELAY);
+
+    // Enable Motor
+    xEventGroupSetBits(motorEnable, motorBitMask);
 
 }
 
@@ -63,11 +79,12 @@ void setMotorAngle(int motor, double angle){
 Sets the given motor speed in m/s
 The structure is as follows:
 - UserCommand is sent over to Kinematics Solver to be solved
-- Wait until given motor is idle AND Kinematic Solver flags 'solved'
+- Wait until given motor is ready AND Kinematic Solver flags 'solved'
 - Break
 */
-void setMotorSpeed(int motor, double speed){
-    
+void setMotorSpeed(UserCommand* cmd){
+    // int motor =     (int)cmd->params[0];
+    // double speed =       cmd->params[1];
 }
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -90,7 +107,7 @@ The commands and their given parameters are specified here:
 https://docs.google.com/spreadsheets/d/1nJw_hCjyDbuuJXKSwHuH-XOVeJgRIX9mN4UZ95cLr8M/edit?gid=162912065#gid=162912065
 */
 
-UserCommand userCmdDecoder(char *buffer){
+UserCommand userCmdParser(char *buffer){
     
     // Buffers
     UserCommand cmd;
@@ -196,17 +213,31 @@ UserCommand userCmdDecoder(char *buffer){
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // ~~ Task Definitions ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 void controlTask(void *pvParameter){
+
+    // Task Variables
+    QueueSetMemberHandle_t activeQueue;
     UserCommand cmd;
+    char cmdBuffer[64];
+
+
     while(true){
 
-        // Waits until a User Command has been received
-        xQueueReceive(userCmdRaw, &cmdBuffer, portMAX_DELAY);
-        ESP_LOGI(controlTag, "User Command Input: \n %s", cmdBuffer);
+        // Wait until either of the queues in the set have something
+        activeQueue = xQueueSelectFromSet(controlSet, portMAX_DELAY);
 
-        // Once received, we decode the message, and then respond accordingly
-        ESP_LOGI(controlTag, "Decoding Message...");
-        cmd = userCmdDecoder(cmdBuffer);
+        // Decode which queue was activated
+        if(activeQueue == userCmdRaw){
+            // If it's a raw user command, we parse it and then put it into the cmd variable
+            xQueueReceive(userCmdRaw, &cmdBuffer, 0);
+            ESP_LOGI(controlTag, "User Command Received: \n    %s", cmdBuffer);
+            cmd = userCmdParser(cmdBuffer);
+        }
+        else if(activeQueue == userCmd){
+            // If it's a user command struct, we receive and put it into the cmd variable
+            xQueueReceive(userCmd, &cmd, 0);
+        }
 
+        // Now we decode the command struct
         switch (cmd.commandNum){
             // Invalid Command
             case -1:
@@ -214,22 +245,22 @@ void controlTask(void *pvParameter){
                 
             case 0:
                 ESP_LOGI(controlTag, "Successfully Started setEnd()");
-                setEnd(cmd.params[0], cmd.params[1], cmd.params[2], cmd.params[3], cmd.params[4], cmd.params[5]);
+                setEnd(&cmd);
                 break;
             
             case 1:
                 ESP_LOGI(controlTag, "Successfully Started setEndSpeed()");
-                setEndSpeed(cmd.params[0]);
+                setEndSpeed(&cmd);
                 break;
             
             case 10:
                 ESP_LOGI(controlTag, "Successfully Started setMotorAngle()");
-                setMotorAngle(cmd.params[0], cmd.params[1]);
+                setMotorAngle(&cmd);
                 break;
 
             case 11:
                 ESP_LOGI(controlTag, "Successfully Started setMotorSpeed()");
-                setMotorSpeed(cmd.params[0], cmd.params[1]);
+                setMotorSpeed(&cmd);
                 break;
 
             default:

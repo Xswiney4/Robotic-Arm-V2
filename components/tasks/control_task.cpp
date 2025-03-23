@@ -64,7 +64,7 @@ void setMotorAngle(UserCommand* cmd){
     uint8_t motorBitMask = (1 << (motor - 1));
 
     // Send angle to the motor
-    ESP_LOGI(controlTag, "Set angle: %f", cmd -> params[1]);
+    ESP_LOGD(controlTag, "Set angle: %f", cmd -> params[1]);
     xQueueSend(desiredAngleQueue[motor - 1], &cmd -> params[1], 0);
 
     // Wait until the set motor marks it's ready

@@ -65,7 +65,7 @@ void setMotorAngle(MotorParams* params, float angle){
         currentAngle = params->as5600->getAngle();
     }
 
-    ESP_LOGI(pcTaskGetName(NULL), "Start Angle: %f",currentAngle);
+    ESP_LOGD(pcTaskGetName(NULL), "Start Angle: %f",currentAngle);
 
     // Set the direction
     if(currentAngle - tolerance > angle){
@@ -80,7 +80,7 @@ void setMotorAngle(MotorParams* params, float angle){
         // Mark motor as ready to allow control task to pass
         xEventGroupSetBits(motorReady, params->eventGroupBit);
 
-        ESP_LOGI(pcTaskGetName(NULL), "Motor already at desired angle: %f", angle);
+        ESP_LOGD(pcTaskGetName(NULL), "Motor already at desired angle: %f", angle);
         return;
     }
 
@@ -114,11 +114,11 @@ void setMotorAngle(MotorParams* params, float angle){
                 currentAngle = 0.0f;
             }
         }
-        ESP_LOGI(pcTaskGetName(NULL), "Current Angle: %f",currentAngle);
+        ESP_LOGD(pcTaskGetName(NULL), "Current Angle: %f",currentAngle);
     }
 
     params->lastAngle = currentAngle;
-    ESP_LOGI(pcTaskGetName(NULL), "Motor has reached desired angle");
+    ESP_LOGD(pcTaskGetName(NULL), "Motor has reached desired angle");
 
 }
 

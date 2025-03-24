@@ -8,6 +8,7 @@ void setEnd(UserCommand* cmd);
 void setEndSpeed(UserCommand* cmd);
 void setMotorAngles(UserCommand* cmd);
 void setMotorSpeed(UserCommand* cmd);
+void sleep(UserCommand* cmd);
 
 
 // Task Definition

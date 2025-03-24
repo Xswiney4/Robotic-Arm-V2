@@ -15,6 +15,7 @@ const Command commands[] = {
     {"setEndSpeed", 1, 1},
     {"setMotorAngle", 10, 2},
     {"setMotorSpeed", 11, 2},
+    {"sleep", 20, 1},
 };
 const int numCommands = sizeof(commands) / sizeof(commands[0]);  // Get array size dynamically
 
@@ -29,5 +30,6 @@ UserCommand userCmdParser(char *buffer);
 void communicationsTask(void *pvParameter);
 
 // Other Utils
+void exportUserCommand(UserCommand* cmd);
 
 #endif

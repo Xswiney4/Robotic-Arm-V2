@@ -408,3 +408,14 @@ void RoboticArm::setMotorSpeed(int motor, float speed){
     this -> sendUserCommand(&cmd);
 
 }
+
+// Puts the robotic arm to sleep for a time in ms
+void RoboticArm::sleep(int ms){
+    UserCommand cmd = {
+        20,
+        "sleep",
+        {(float)ms}
+    };
+
+    this -> sendUserCommand(&cmd);
+}

@@ -106,6 +106,9 @@ void setMotorAngles(UserCommand* cmd){
     // Enable Motors
     xEventGroupSetBits(motorEnable, motorBitMask);
 
+    // Clears the 'motorIdle' flag
+    xEventGroupClearBits(motorIdle, motorBitMask);
+
     // Wait until all motor's are idle before continuing
     xEventGroupWaitBits(motorIdle, motorBitMask, pdFALSE, pdTRUE, portMAX_DELAY);
 
@@ -121,6 +124,12 @@ The structure is as follows:
 void setMotorSpeed(UserCommand* cmd){
     // int motor =     (int)cmd->params[0];
     // double speed =       cmd->params[1];
+}
+
+// Puts the controller to sleep for a given time in ms
+void sleep(UserCommand* cmd){
+    ESP_LOGD(controlTag, "Delaying control task for %dms", (int)cmd->params[0]);
+    vTaskDelay(pdMS_TO_TICKS((int)cmd->params[0]));
 }
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -162,6 +171,11 @@ void controlTask(void *pvParameter){
             case 11:
                 ESP_LOGI(controlTag, "Successfully Started setMotorSpeed()");
                 setMotorSpeed(&cmd);
+                break;
+
+            case 20:
+                ESP_LOGI(controlTag, "Successfully Started sleep()");
+                sleep(&cmd);
                 break;
 
             default:

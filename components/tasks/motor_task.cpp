@@ -90,9 +90,6 @@ void setMotorAngle(MotorParams* params, float angle){
     // Waits until it's enable flag is set, and clears the flag
     xEventGroupWaitBits(motorEnable, params->eventGroupBit, pdTRUE, pdFALSE, portMAX_DELAY);
 
-    // Clears the 'motorIdle' flag
-    xEventGroupClearBits(motorIdle, params->eventGroupBit);
-
     // RTOS Tick Setup
     TickType_t xLastWakeTime = xTaskGetTickCount();
 

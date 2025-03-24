@@ -168,3 +168,9 @@ void communicationsTask(void *pvParameter){
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // ~~ Other Utils ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+// Sends command over to control and kinematics task
+void exportUserCommand(UserCommand* cmd){
+    xQueueSend(controlCmd, cmd, portMAX_DELAY);
+    xQueueSend(kinematicsCmd, cmd, portMAX_DELAY);
+}

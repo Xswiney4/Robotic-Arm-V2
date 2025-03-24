@@ -44,6 +44,7 @@ class RoboticArm{
         void setEndSpeed(float speed);
         void setMotorAngles(float angle1, float angle2, float angle3, float angle4, float angle5, float angle6);
         void setMotorSpeed(int motor, float speed);
+        void sleep(int ms);
 
 };
 

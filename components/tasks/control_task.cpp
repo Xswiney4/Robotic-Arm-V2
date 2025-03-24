@@ -151,30 +151,31 @@ void controlTask(void *pvParameter){
         switch (cmd.commandNum){
             // Invalid Command
             case -1:
+                ESP_LOGE(controlTag, "Invalid command");
                 break;
                 
             case 0:
-                ESP_LOGI(controlTag, "Successfully Started setEnd()");
+                ESP_LOGD(controlTag, "Successfully Started setEnd()");
                 setEnd(&cmd);
                 break;
             
             case 1:
-                ESP_LOGI(controlTag, "Successfully Started setEndSpeed()");
+                ESP_LOGD(controlTag, "Successfully Started setEndSpeed()");
                 setEndSpeed(&cmd);
                 break;
             
             case 10:
-                ESP_LOGI(controlTag, "Successfully Started setMotorAngles()");
+                ESP_LOGD(controlTag, "Successfully Started setMotorAngles()");
                 setMotorAngles(&cmd);
                 break;
 
             case 11:
-                ESP_LOGI(controlTag, "Successfully Started setMotorSpeed()");
+                ESP_LOGD(controlTag, "Successfully Started setMotorSpeed()");
                 setMotorSpeed(&cmd);
                 break;
 
             case 20:
-                ESP_LOGI(controlTag, "Successfully Started sleep()");
+                ESP_LOGD(controlTag, "Successfully Started sleep()");
                 sleep(&cmd);
                 break;
 

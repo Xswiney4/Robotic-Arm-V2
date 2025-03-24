@@ -46,7 +46,7 @@
 
 // Global Joint Params
 #define STEPPER_UPDATE_RESOLUTION 5 // updates/degree (servo smoothness)
-#define STEPPER_SPEED 90 // deg/sec
+#define STEPPER_SPEED 300 // deg/sec
 
 // ~~ Global AS5600 Config ~~
 

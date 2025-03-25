@@ -11,6 +11,7 @@ class RoboticArm{
 
         // Variables
         PCA9548A pca9548a;     // PCA9548A object
+        MotorParams* motorParams[6]; // Pointers to all my motor parameter objects 
 
         // Initializations (Returns true if error)
         bool initAll();             // Runs all initializations

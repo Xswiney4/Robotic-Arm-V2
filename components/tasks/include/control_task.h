@@ -14,7 +14,10 @@ void sleep(UserCommand* cmd);
 // Task Definition
 void controlTask(void *pvParameter);
 
-// Other Utils
+// Helper Functions
+void primeMotor(int motor, float desiredAngle, float speed);
+void enableMotors();
+void waitTilMotorsIdle();
 
 
 #endif

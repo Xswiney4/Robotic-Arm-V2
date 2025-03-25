@@ -185,7 +185,7 @@ bool RoboticArm::initCommunications(){
 
 // Initializes central control task
 bool RoboticArm::initControl(){
-    xTaskCreate(controlTask, TASK_NAME_CONTROL, TASK_STACK_DEPTH_CONTROL, NULL, TASK_PRIORITY_CONTROL, NULL);
+    xTaskCreate(controlTask, TASK_NAME_CONTROL, TASK_STACK_DEPTH_CONTROL, motorParams, TASK_PRIORITY_CONTROL, NULL);
     return false;
 }
 
@@ -245,8 +245,16 @@ bool RoboticArm::initMotor1(){
         // Device Found
         AS5600* j1sAS5600 = new AS5600(&this->pca9548a, J1S_PORT, AS5600_CONF);
         StepperMotor* j1sMotor = new StepperMotor(J1S_PIN_STEP, J1S_PIN_DIR);
-        MotorParams* j1sParams = new MotorParams{j1sMotor, j1sAS5600, STEPPER_SPEED, -1, J1S_BIT_MASK, desiredAngleQueue[0], desiredAngleQueue[0]};
-        xTaskCreate(motorTask, J1S_TASK_NAME, TASK_STACK_DEPTH_MOTOR, j1sParams, TASK_PRIORITY_MOTOR, NULL);
+
+        this->motorParams[0] = new MotorParams;
+        this->motorParams[0]->as5600 = j1sAS5600;
+        this->motorParams[0]->stepper = j1sMotor;
+        this->motorParams[0]->currentAngle = j1sAS5600->getAngle();
+        this->motorParams[0]->eventGroupBit = J1S_BIT_MASK;
+        this->motorParams[0]->desiredAngleQueueHandle = desiredAngleQueue[0];
+        this->motorParams[0]->targetSpeed = STEPPER_SPEED;
+
+        xTaskCreate(motorTask, J1S_TASK_NAME, TASK_STACK_DEPTH_MOTOR, this->motorParams[0], TASK_PRIORITY_MOTOR, NULL);
         ESP_LOGI(motorInitTag, "Motor 1 successfully initialized");
         return false;
     }
@@ -265,8 +273,16 @@ bool RoboticArm::initMotor2(){
     if(this->pca9548a.pingDev(J2S_PORT, AS5600_ADDRESS)){
         AS5600* j2sAS5600 = new AS5600(&this->pca9548a, J2S_PORT, AS5600_CONF);
         StepperMotor* j2sMotor = new StepperMotor(J2S_PIN_STEP, J2S_PIN_DIR);
-        MotorParams* j2sParams = new MotorParams{j2sMotor, j2sAS5600, STEPPER_SPEED, -1, J2S_BIT_MASK, desiredAngleQueue[1], desiredAngleQueue[1]};
-        xTaskCreate(motorTask, J2S_TASK_NAME, TASK_STACK_DEPTH_MOTOR, j2sParams, TASK_PRIORITY_MOTOR, NULL);
+
+        this->motorParams[1] = new MotorParams;
+        this->motorParams[1]->as5600 = j2sAS5600;
+        this->motorParams[1]->stepper = j2sMotor;
+        this->motorParams[1]->currentAngle = j2sAS5600->getAngle();
+        this->motorParams[1]->eventGroupBit = J2S_BIT_MASK;
+        this->motorParams[1]->desiredAngleQueueHandle = desiredAngleQueue[1];
+        this->motorParams[1]->targetSpeed = STEPPER_SPEED;
+
+        xTaskCreate(motorTask, J2S_TASK_NAME, TASK_STACK_DEPTH_MOTOR, this->motorParams[1], TASK_PRIORITY_MOTOR, NULL);
         ESP_LOGI(motorInitTag, "Motor 2 successfully initialized");
         return false;
     }
@@ -284,8 +300,16 @@ bool RoboticArm::initMotor3(){
     if(this->pca9548a.pingDev(J3S_PORT, AS5600_ADDRESS)){
         AS5600* j3sAS5600 = new AS5600(&this->pca9548a, J3S_PORT, AS5600_CONF);
         StepperMotor* j3sMotor = new StepperMotor(J3S_PIN_STEP, J3S_PIN_DIR);
-        MotorParams* j3sParams = new MotorParams{j3sMotor, j3sAS5600, STEPPER_SPEED, -1, J3S_BIT_MASK, desiredAngleQueue[2], desiredAngleQueue[2]};
-        xTaskCreate(motorTask, J3S_TASK_NAME, TASK_STACK_DEPTH_MOTOR, j3sParams, TASK_PRIORITY_MOTOR, NULL);
+        
+        this->motorParams[2] = new MotorParams;
+        this->motorParams[2]->as5600 = j3sAS5600;
+        this->motorParams[2]->stepper = j3sMotor;
+        this->motorParams[2]->currentAngle = j3sAS5600->getAngle();
+        this->motorParams[2]->eventGroupBit = J3S_BIT_MASK;
+        this->motorParams[2]->desiredAngleQueueHandle = desiredAngleQueue[2];
+        this->motorParams[2]->targetSpeed = STEPPER_SPEED;
+
+        xTaskCreate(motorTask, J3S_TASK_NAME, TASK_STACK_DEPTH_MOTOR, this->motorParams[2], TASK_PRIORITY_MOTOR, NULL);
         ESP_LOGI(motorInitTag, "Motor 3 successfully initialized");
         return false;
     }
@@ -303,8 +327,16 @@ bool RoboticArm::initMotor4(){
     if(this->pca9548a.pingDev(J4S_PORT, AS5600_ADDRESS)){
         AS5600* j4sAS5600 = new AS5600(&this->pca9548a, J4S_PORT, AS5600_CONF);
         StepperMotor* j4sMotor = new StepperMotor(J4S_PIN_STEP, J4S_PIN_DIR);
-        MotorParams* j4sParams = new MotorParams{j4sMotor, j4sAS5600, STEPPER_SPEED, -1, J4S_BIT_MASK, desiredAngleQueue[3], desiredAngleQueue[3]};
-        xTaskCreate(motorTask, J4S_TASK_NAME, TASK_STACK_DEPTH_MOTOR, j4sParams, TASK_PRIORITY_MOTOR, NULL);
+        
+        this->motorParams[3] = new MotorParams;
+        this->motorParams[3]->as5600 = j4sAS5600;
+        this->motorParams[3]->stepper = j4sMotor;
+        this->motorParams[3]->currentAngle = j4sAS5600->getAngle();
+        this->motorParams[3]->eventGroupBit = J4S_BIT_MASK;
+        this->motorParams[3]->desiredAngleQueueHandle = desiredAngleQueue[3];
+        this->motorParams[3]->targetSpeed = STEPPER_SPEED;
+
+        xTaskCreate(motorTask, J4S_TASK_NAME, TASK_STACK_DEPTH_MOTOR, this->motorParams[3], TASK_PRIORITY_MOTOR, NULL);
         ESP_LOGI(motorInitTag, "Motor 4 successfully initialized");
         return false;
     }
@@ -322,8 +354,16 @@ bool RoboticArm::initMotor5(){
     if(this->pca9548a.pingDev(J5S_PORT, AS5600_ADDRESS)){
         AS5600* j5sAS5600 = new AS5600(&this->pca9548a, J5S_PORT, AS5600_CONF);
         StepperMotor* j5sMotor = new StepperMotor(J5S_PIN_STEP, J5S_PIN_DIR);
-        MotorParams* j5sParams = new MotorParams{j5sMotor, j5sAS5600, STEPPER_SPEED, -1, J5S_BIT_MASK, desiredAngleQueue[4], desiredAngleQueue[4]};
-        xTaskCreate(motorTask, J5S_TASK_NAME, TASK_STACK_DEPTH_MOTOR, j5sParams, TASK_PRIORITY_MOTOR, NULL);
+        
+        this->motorParams[4] = new MotorParams;
+        this->motorParams[4]->as5600 = j5sAS5600;
+        this->motorParams[4]->stepper = j5sMotor;
+        this->motorParams[4]->currentAngle = j5sAS5600->getAngle();
+        this->motorParams[4]->eventGroupBit = J5S_BIT_MASK;
+        this->motorParams[4]->desiredAngleQueueHandle = desiredAngleQueue[4];
+        this->motorParams[4]->targetSpeed = STEPPER_SPEED;
+
+        xTaskCreate(motorTask, J5S_TASK_NAME, TASK_STACK_DEPTH_MOTOR, this->motorParams[4], TASK_PRIORITY_MOTOR, NULL);
         ESP_LOGI(motorInitTag, "Motor 5 successfully initialized");
         return false;
     }
@@ -341,8 +381,16 @@ bool RoboticArm::initMotor6(){
     if(this->pca9548a.pingDev(J6S_PORT, AS5600_ADDRESS)){
         AS5600* j6sAS5600 = new AS5600(&this->pca9548a, J6S_PORT, AS5600_CONF);
         StepperMotor* j6sMotor = new StepperMotor(J6S_PIN_STEP, J6S_PIN_DIR);
-        MotorParams* j6sParams = new MotorParams{j6sMotor, j6sAS5600, STEPPER_SPEED, -1, J6S_BIT_MASK, desiredAngleQueue[5], desiredAngleQueue[6]};
-        xTaskCreate(motorTask, J6S_TASK_NAME, TASK_STACK_DEPTH_MOTOR, j6sParams, TASK_PRIORITY_MOTOR, NULL);
+        
+        this->motorParams[5] = new MotorParams;
+        this->motorParams[5]->as5600 = j6sAS5600;
+        this->motorParams[5]->stepper = j6sMotor;
+        this->motorParams[5]->currentAngle = j6sAS5600->getAngle();
+        this->motorParams[5]->eventGroupBit = J6S_BIT_MASK;
+        this->motorParams[5]->desiredAngleQueueHandle = desiredAngleQueue[5];
+        this->motorParams[5]->targetSpeed = STEPPER_SPEED;
+
+        xTaskCreate(motorTask, J6S_TASK_NAME, TASK_STACK_DEPTH_MOTOR, this->motorParams[5], TASK_PRIORITY_MOTOR, NULL);
         ESP_LOGI(motorInitTag, "Motor 6 successfully initialized");
         return false;
     }

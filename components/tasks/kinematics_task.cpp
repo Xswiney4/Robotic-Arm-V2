@@ -20,12 +20,12 @@ static const char *kinematicsTag = "Kinematics Task";
 void setEndKinCalculation(UserCommand* cmd){
 
     // Variable Declaration
-    float x = cmd->params[0];
-    float y = cmd->params[1];
-    float z = cmd->params[2];
-    float pitch = cmd->params[3];
-    float yaw = cmd->params[4];
-    float roll = cmd->params[5];
+    // float x = cmd->params[0];
+    // float y = cmd->params[1];
+    // float z = cmd->params[2];
+    // float pitch = cmd->params[3];
+    // float yaw = cmd->params[4];
+    // float roll = cmd->params[5];
 
 
 }

@@ -11,15 +11,12 @@
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // ~~~ FreeRTOS Config ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-#define QUEUE_SIZE_MOTOR    5   // Size of the motor's queues
 #define QUEUE_SIZE_USR_CMD  10
 
-#define TASK_PRIORITY_MOTOR             1
 #define TASK_PRIORITY_COMMUNICATION     5
 #define TASK_PRIORITY_CONTROL           2
 #define TASK_PRIORITY_KINEMATICS        3
 
-#define TASK_STACK_DEPTH_MOTOR          3072
 #define TASK_STACK_DEPTH_COMMUNICATION  2048
 #define TASK_STACK_DEPTH_CONTROL        4096
 #define TASK_STACK_DEPTH_KINEMATICS     2048
@@ -27,6 +24,14 @@
 #define TASK_NAME_COMMUNICATION     "Communications Driver"
 #define TASK_NAME_CONTROL           "Controls Driver"
 #define TASK_NAME_KINEMATICS        "Kinematics Driver"
+
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// ~~~ Motor Task Config ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+#define TASK_PRIORITY_MOTOR         1
+#define QUEUE_SIZE_MOTOR            5   // Size of the motor's queues
+#define TASK_STACK_DEPTH_MOTOR      3072
+#define MOTOR_ANGLE_TOLERANCE       1.5f
 
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

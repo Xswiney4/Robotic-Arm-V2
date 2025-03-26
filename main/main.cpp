@@ -1,5 +1,6 @@
 
 #include "roboticArm.h"
+#include "config.h"
 
 #include <chrono> // For time in ms
 #include <thread> // For sleeping
@@ -10,7 +11,6 @@
 
 
 extern "C" void app_main(){
-
 
     RoboticArm robot;
 

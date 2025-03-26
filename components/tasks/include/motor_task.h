@@ -7,29 +7,12 @@
 #include "as5600.h"
 #include "driver/gpio.h"
 
-struct MotorParams{
-
-    // Objects
-    StepperMotor* stepper;
-    AS5600* as5600;
-
-    // Motor Parameters
-    float speed; // In degrees/second
-    float lastAngle = -1;    // Last measured angle
-
-    // FreeRTOS
-    uint8_t eventGroupBit;
-    QueueHandle_t desiredAngleQueueHandle;
-    QueueHandle_t paramsQueueHandle;
-    
-};
-
 
 // Task Definition
 void motorTask(void *pvParameter);
 
 // Motor Functions
-void setMotorAngle(MotorParams* params, float angle);
+void setMotorAngle(MotorParams* params);
 
 // Other Utils
 

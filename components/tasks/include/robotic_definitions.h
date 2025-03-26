@@ -9,6 +9,9 @@
 #include "freertos/event_groups.h"
 #include "freertos/queue.h"
 
+#include "stepper.h"
+#include "as5600.h"
+
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // ~~ Structures ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -17,6 +20,26 @@ struct UserCommand{
     int commandNum = -1;
     const char* name = "NULL";
     float params[6] = {0,0,0,0,0,0};
+};
+
+struct MotorParams{
+
+    // Objects
+    StepperMotor* stepper;
+    AS5600* as5600;
+
+    // Motor Parameters
+    float currentAngle;
+
+    // FreeRTOS
+    uint8_t eventGroupBit;
+    QueueHandle_t desiredAngleQueueHandle;
+
+    // Target Variables
+    float targetAngle    = -1;
+    float targetSpeed    = -1;
+    float targetStepFreq = -1;
+    
 };
 
 

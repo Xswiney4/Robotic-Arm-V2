@@ -58,56 +58,34 @@ The structure is as follows:
 - Enable given motor
 - Break
 */
-void setMotorAngles(UserCommand* cmd){
-    float m1Angle =    cmd->params[0];
-    float m2Angle =    cmd->params[1];
-    float m3Angle =    cmd->params[2];
-    float m4Angle =    cmd->params[3];
-    float m5Angle =    cmd->params[4];
-    float m6Angle =    cmd->params[5];
+void setMotorAngles(UserCommand* cmd, MotorParams* motorParams){
+    // float m1Angle =    cmd->params[0];
+    // float m2Angle =    cmd->params[1];
+    // float m3Angle =    cmd->params[2];
+    // float m4Angle =    cmd->params[3];
+    // float m5Angle =    cmd->params[4];
+    // float m6Angle =    cmd->params[5];
     
     uint8_t motorBitMask = 0x00;
 
-    // Disable Task switching until all motor's are setup
-    vTaskSuspendAll();
+    // Loop going through each parameter input
+    for(int i = 0; i < 6; i++){
+        if(cmd->params[i] != -1){
+            // If parameter is valid
 
-    // Sends each motor it's desired angle, and adds the motor to the bit mask
-    if(m1Angle != -1){
-        motorBitMask |= J1S_BIT_MASK;
-        xQueueSend(desiredAngleQueue[0], &m1Angle, 0);
-    }
-    if(m2Angle != -1){
-        motorBitMask |= J2S_BIT_MASK;
-        xQueueSend(desiredAngleQueue[1], &m2Angle, 0);
-    }
-    if(m3Angle != -1){
-        motorBitMask |= J3S_BIT_MASK;
-        xQueueSend(desiredAngleQueue[2], &m3Angle, 0);
-    }
-    if(m4Angle != -1){
-        motorBitMask |= J4S_BIT_MASK;
-        xQueueSend(desiredAngleQueue[3], &m4Angle, 0);
-    }
-    if(m5Angle != -1){
-        motorBitMask |= J5S_BIT_MASK;
-        xQueueSend(desiredAngleQueue[4], &m5Angle, 0);
-    }
-    if(m6Angle != -1){
-        motorBitMask |= J6S_BIT_MASK;
-        xQueueSend(desiredAngleQueue[5], &m6Angle, 0);
-    }
+            // Sends each motor it's desired angle, and adds the motor to the bit mask
+            motorBitMask |= motorParams[i].eventGroupBit;
+            
+            motorParams[i].targetAngle = cmd->params[i];
 
-    // Enable Task switching
-    xTaskResumeAll();
-
-    // Wait until all set motors marks they're ready
-    xEventGroupWaitBits(motorReady, motorBitMask, pdTRUE, pdTRUE, portMAX_DELAY);
-
-    // Enable Motors
-    xEventGroupSetBits(motorEnable, motorBitMask);
+        }
+    }
 
     // Clears the 'motorIdle' flag
     xEventGroupClearBits(motorIdle, motorBitMask);
+    
+    // Enable Motors
+    xEventGroupSetBits(motorEnable, motorBitMask);
 
     // Wait until all motor's are idle before continuing
     xEventGroupWaitBits(motorIdle, motorBitMask, pdFALSE, pdTRUE, portMAX_DELAY);
@@ -137,7 +115,12 @@ void sleep(UserCommand* cmd){
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // ~~ Task Definitions ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 void controlTask(void *pvParameter){
+
+    // Cast Motor Params
+    MotorParams *motorParams = (MotorParams *)pvParameter;
+
 
     // Task Variables
     UserCommand cmd;
@@ -166,7 +149,7 @@ void controlTask(void *pvParameter){
             
             case 10:
                 ESP_LOGD(controlTag, "Successfully Started setMotorAngles()");
-                setMotorAngles(&cmd);
+                setMotorAngles(&cmd, motorParams);
                 break;
 
             case 11:

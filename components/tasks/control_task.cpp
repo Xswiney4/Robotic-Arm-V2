@@ -51,7 +51,7 @@ void setEndSpeed(UserCommand* cmd){
 }
 
 /*
-Sets the angle of a given motor in degrees
+Sets the angle of a given motor in degrees, it uses STEPPER_SPEED as the speed for the motors
 The structure is as follows:
 - Angle is sent over to motor
 - Wait until given motor is ready

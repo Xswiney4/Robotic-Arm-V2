@@ -14,7 +14,10 @@ void motorTask(void *pvParameter);
 // Motor Functions
 void setMotorAngle(MotorParams* params);
 
-// Other Utils
+// Motor Helper Functions
+void setDir(MotorParams* params);
+void updateAngle(MotorParams* params);
+
 
 
 #endif

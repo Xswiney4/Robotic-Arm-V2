@@ -36,9 +36,11 @@ struct MotorParams{
     QueueHandle_t desiredAngleQueueHandle;
 
     // Target Variables
-    float targetAngle    = -1;
-    float targetSpeed    = -1;
-    float targetStepFreq = -1;
+    float targetAngle    = -1;  // Deg
+
+    // One of these need to be defined for the motor to move
+    float targetSpeed    = -1;  // Deg/Sec
+    TickType_t xFrequency = -1;  // Hz
     
 };
 

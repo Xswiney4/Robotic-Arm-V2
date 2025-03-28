@@ -31,7 +31,7 @@
 #define TASK_PRIORITY_MOTOR         1
 #define QUEUE_SIZE_MOTOR            5   // Size of the motor's queues
 #define TASK_STACK_DEPTH_MOTOR      3072
-#define MOTOR_ANGLE_TOLERANCE       1.5f
+#define MOTOR_ANGLE_TOLERANCE       2.0f
 
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -74,11 +74,11 @@ constexpr uint8_t AS5600_PWMF = 0b00;
 
 // Slow Filter
 // 00 = 16x ; 01 = 8x; 10 = 4x; 11 = 2x
-constexpr uint8_t AS5600_SF = 0b00;
+constexpr uint8_t AS5600_SF = 0b10;
 
-/* Fast Filter Threshold
-000 = slow filter only, 001 = 6 LSBs, 010 = 7 LSBs, 011 = 9 LSBs,100 = 18 LSBs, 101
-= 21 LSBs, 110 = 24 LSBs, 111 = 10 LSBs*/
+/* Fast Filter Threshold (Slow-to-fast filter / Fast-to-slow filter LSB's)
+000 = slow filter only, 001 = 6/1 LSBs, 010 = 7/1 LSBs, 011 = 9/1 LSBs,100 = 18/2 LSBs, 101
+= 21/2 LSBs, 110 = 24/2 LSBs, 111 = 10/4 LSBs*/
 constexpr uint8_t AS5600_FTH = 0b000;
 
 // Watchdog

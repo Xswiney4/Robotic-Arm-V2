@@ -10,9 +10,10 @@ static const char *pca9584Tag = "PCA9548A Driver";
 // ~~ Constructor/Destructor ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 // Constructor: Creates and initializes object
-PCA9548A::PCA9548A(const Pca9548aParams& params): params(params){
+PCA9548A::PCA9548A(const Pca9548aParams& params): params(params), activePort(0xFF){
     
     i2cInit();
+    this->setPort(0xFF);
 
 }
 
@@ -50,10 +51,11 @@ void PCA9548A::i2cInit(){
 // ~~ Port Switch ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 // Sets the port the PCA9548A is set to.
-// THIS IS NOT EXCLUSIVE TO PREVENT REDUNDANT MUTEX CALLS: BLOCK THE I2C BUS BEFORE USING
+// THIS IS NOT EXCLUSIVE TO PREVENT REDUNDANCY: BLOCK THE I2C BUS BEFORE USING
 void PCA9548A::setPort(uint8_t port){
 
     esp_err_t err = i2c_master_write_to_device(params.i2cPort, params.slaveAddr, &port, 1, 50);
+    this->activePort = port;
 
     // Check for errors
     if (err != ESP_OK) {
@@ -69,6 +71,11 @@ void PCA9548A::setPort(uint8_t port){
 
 // Sets the port the PCA9548A is set to. This blocks I2C bus
 void PCA9548A::setPortSafe(uint8_t port){
+
+    // If the port is already active, return
+    if(port == this->activePort){
+        return;
+    }
 
     // Blocks I2C Bus
     xSemaphoreTake(i2cMutex, portMAX_DELAY);
@@ -93,8 +100,10 @@ uint8_t PCA9548A::readByte(uint8_t port, uint8_t addr, uint8_t reg){
     // Blocks I2C Bus
     xSemaphoreTake(i2cMutex, portMAX_DELAY);
 
-    // Sets the port
-    this->setPort(port);
+    // Sets the port if it's different
+    if(this->activePort != port){
+        this->setPort(port);
+    }
 
     // Set slave device register
     err = i2c_master_write_to_device(params.i2cPort, addr, &reg, 1, 50);
@@ -124,14 +133,38 @@ uint8_t PCA9548A::readByte(uint8_t port, uint8_t addr, uint8_t reg){
     
 }
 
+esp_err_t PCA9548A::readBytes(uint8_t port, uint8_t addr, uint8_t reg, uint8_t* data, int numDataBytes){
+
+    esp_err_t err;
+
+    // Blocks I2C Bus
+    xSemaphoreTake(i2cMutex, portMAX_DELAY);
+
+    // Sets the port if it's different
+    if(this->activePort != port){
+        this->setPort(port);
+    }
+
+    // Set slave device register
+    err = i2c_master_write_read_device(params.i2cPort, addr, &reg, 1, data, numDataBytes, 50);
+    
+    // Releases I2C Bus
+    xSemaphoreGive(i2cMutex);
+
+    return err;
+
+}
+
 // Writes data to a given slave over a given port on the PCA9548A
 void PCA9548A::write(uint8_t port, uint8_t addr, uint8_t* data, int numDataBytes){
 
     // Blocks I2C Bus
     xSemaphoreTake(i2cMutex, portMAX_DELAY);
 
-    // Sets the port
-    this->setPort(port);
+    // Sets the port if it's different
+    if(this->activePort != port){
+        this->setPort(port);
+    }
     
     // Set slave device register
     esp_err_t err = i2c_master_write_to_device(params.i2cPort, addr, data, numDataBytes, 50);
@@ -157,8 +190,10 @@ bool PCA9548A::pingDev(uint8_t port, uint8_t addr){
     // Blocks I2C Bus
     xSemaphoreTake(i2cMutex, portMAX_DELAY);
 
-    // Sets the port
-    this->setPort(port);
+    // Sets the port if it's different
+    if(this->activePort != port){
+        this->setPort(port);
+    }
 
     // Runs Custom I2C Command
     esp_err_t err = i2c_master_cmd_begin(params.i2cPort, cmd, 50);

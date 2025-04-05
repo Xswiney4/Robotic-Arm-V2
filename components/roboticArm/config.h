@@ -39,7 +39,7 @@
 
 // I2C Params
 #define I2C_PORT        I2C_NUM_0  // ESP32 Port 0
-#define I2C_FREQ        100000     // Hz (Standard Mode)
+#define I2C_FREQ        400000     // Hz (Standard Mode)
 #define I2C_SCL_PIN     GPIO_NUM_22
 #define I2C_SDA_PIN     GPIO_NUM_21
 

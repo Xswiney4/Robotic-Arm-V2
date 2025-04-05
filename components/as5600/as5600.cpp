@@ -127,13 +127,19 @@ void AS5600::checkMagnet(){
 // Sets the current of angle of the encoder to the 0 position
 void AS5600::zero(){
 
+    // Data buffer
+    // buffer[0] = rawAngleMSB
+    // buffer[1] = rawAngleLSB
+    uint8_t buffer[2];
+
     // Get the raw angle values of the device
-    uint8_t rawAngleMSB = readReg(REG_RAW_ANGLE_MSB);
-    uint8_t rawAngleLSB = readReg(REG_RAW_ANGLE_LSB);
+    if(pca9548a -> readBytes(this->pca9548aPort, AS5600_ADDRESS, REG_RAW_ANGLE_MSB, buffer, 2) != ESP_OK){
+        ESP_LOGE(as5600Tag, "Error zeroing");
+    }
 
     // Write raw angles to ZPOS (Start position)
-    writeReg(REG_ZPOS_MSB, rawAngleMSB);
-    writeReg(REG_ZPOS_LSB, rawAngleLSB);
+    writeReg(REG_ZPOS_MSB, buffer[0]);
+    writeReg(REG_ZPOS_LSB, buffer[1]);
 
     // Write raw angles to MPOS (End position)
     //writeReg(REG_MPOS_MSB, rawAngleMSB - 1);
@@ -147,21 +153,26 @@ void AS5600::zero(){
 // Returns the rotational step of the encoder (0 - 4095)
 uint16_t AS5600::getStep(){
 
-    // Get angle value
-    uint8_t angleMSB = readReg(REG_ANGLE_MSB);
-    uint8_t angleLSB = readReg(REG_ANGLE_LSB);
+    // Data buffer
+    uint8_t buffer[2];
 
-    return (angleMSB << 8) | angleLSB;
+    if(pca9548a -> readBytes(this->pca9548aPort, AS5600_ADDRESS, REG_ANGLE_MSB, buffer, 2) != ESP_OK){
+        ESP_LOGE(as5600Tag, "Error reading step");
+    }
+
+    return (buffer[0] << 8) | buffer[1];
 }
 
 // Returns the rotational step of the encoder (0 - 4095)
 uint16_t AS5600::getRawStep(){
 
-    // Get angle value
-    uint8_t angleMSB = readReg(REG_RAW_ANGLE_MSB);
-    uint8_t angleLSB = readReg(REG_RAW_ANGLE_LSB);
+    // Data buffer
+    uint8_t buffer[2];
 
-    return (angleMSB << 8) | angleLSB;
+    // Get angle value
+    pca9548a -> readBytes(this->pca9548aPort, AS5600_ADDRESS, REG_RAW_ANGLE_MSB, buffer, 2);
+
+    return (buffer[0] << 8) | buffer[1];
 }
 
 // Returns the angle of the encoder

@@ -41,6 +41,9 @@ class PCA9548A{
         Pca9548aParams params; // PCA params;
         SemaphoreHandle_t i2cMutex;
 
+        // Active Port
+        uint8_t activePort;
+
         // Initialization
         void i2cInit();
         void devInit();
@@ -60,6 +63,7 @@ class PCA9548A{
 
         // Read/Write
         uint8_t readByte(uint8_t port, uint8_t addr, uint8_t reg);
+        esp_err_t readBytes(uint8_t port, uint8_t addr, uint8_t reg, uint8_t* data, int numDataBytes);
         void write(uint8_t port, uint8_t addr, uint8_t* data, int numDataBytes);
 
         // Ping Function

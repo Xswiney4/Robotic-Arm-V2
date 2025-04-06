@@ -1,8 +1,8 @@
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // ~~ Libraries ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
 #include "stepper.h"
 
+// Utils
 #include <thread> // For sleeping
 #include <iostream>
 #include <chrono>
@@ -44,8 +44,6 @@ void StepperMotor::setupGPIO(){
 // Sets the direction of the motor
 void StepperMotor::setDir(bool clockwise){
     gpio_set_level(this->dirPin, clockwise);
-    std::this_thread::sleep_for(std::chrono::microseconds(5));
-    
 }
 
 // Takes a step
@@ -53,9 +51,9 @@ void StepperMotor::step(){
     
     // Set pin high, then delay
     gpio_set_level(this->stepPin, 1);
-    std::this_thread::sleep_for(std::chrono::microseconds(4));
+    std::this_thread::sleep_for(std::chrono::microseconds(2));
 
-    // Set pin low, then delay
+    // Set pin low
     gpio_set_level(this->stepPin, 0);
-    std::this_thread::sleep_for(std::chrono::microseconds(4));
+    
 }

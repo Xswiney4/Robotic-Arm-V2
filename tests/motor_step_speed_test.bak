@@ -16,19 +16,21 @@ extern "C" void app_main(){
 
     RoboticArm robot;
 
+    
     // Once every tick (1/ms)
-    TickType_t xFrequency = pdMS_TO_TICKS(1);
+    TickType_t xFrequency = pdMS_TO_TICKS(1800.0f / STEPPER_SPEED);
 
     // RTOS Tick Setup
     TickType_t xLastWakeTime = xTaskGetTickCount();
 
-    // Start timer
-    auto start = std::chrono::high_resolution_clock::now();
-
     float currentAngle = robot.motorParams[5].as5600->getAngle();
 
-    robot.motorParams[5].stepper->setDir(true); // Take a step
-    //robot.motorParams[1].stepper->setDir(true); // Take a step
+    //robot.motorParams[5].stepper->setDir(true); // Take a step
+    robot.motorParams[1].stepper->setDir(true); // Take a step
+
+
+    // Start timer
+    auto start = std::chrono::high_resolution_clock::now();
 
     // Take steps until we reach the target
     for(int i = 0; i < TOTAL_STEPS; i++){
@@ -36,9 +38,10 @@ extern "C" void app_main(){
         vTaskDelayUntil(&xLastWakeTime, xFrequency); // Block until delay
 
         robot.motorParams[5].stepper->step(); // Take a step
-        //robot.motorParams[1].stepper->step(); // Take a step
+        robot.motorParams[1].stepper->step(); // Take a step
 
-        //currentAngle = robot.motorParams[5].as5600->getAngle();
+        currentAngle = robot.motorParams[5].as5600->getAngle();
+        currentAngle = robot.motorParams[1].as5600->getAngle();
 
     }
 

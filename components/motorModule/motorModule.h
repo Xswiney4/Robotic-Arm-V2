@@ -37,6 +37,7 @@ struct MotorParams{
     // Motor Parameters
     float gearRatio = GEAR_RATIO_1_TO_1;
     float microstepping = MICROSTEPPING_FULL;
+    float baseDegreesPerStep = 1.8f;    // Degrees the motor move's per step at full steps.
 
     // Bit Mask
     uint8_t bitMask;
@@ -44,8 +45,9 @@ struct MotorParams{
 };
 
 struct TargetParams{
-    int numSteps;     // Degrees
-    TickType_t xFrequency; // Hz
+    int numSteps;           // Total steps to traverse
+    float targetAngle;      // Target angle to reach, used for validation
+    TickType_t xFrequency;  // Hz
 };
 
 class MotorModule{
@@ -56,15 +58,12 @@ class MotorModule{
         TargetParams targetParams;
         std::optional<AS5600> as5600;
         portMUX_TYPE stepMux = portMUX_INITIALIZER_UNLOCKED;
+        float degreesPerStep;   // Degrees the output moves for each step
 
         // Raw Angles
         float lastCurrentAngle;  // Last measured as5600 measurement
         float currentAngle;
-
-        // Input
         float startAngle;     // Angle system started on before moving
-
-        // Output
         bool currentDir;
 
         // Setup
@@ -103,6 +102,7 @@ class MotorModule{
         void setAngle(float angle, TickType_t xFrequency);
         void setAngle(int numSteps, float speed);
         void setAngle(int numSteps, TickType_t xFrequency);
+        void setAngle(TargetParams params);
 
 };
 

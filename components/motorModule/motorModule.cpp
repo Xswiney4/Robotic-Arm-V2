@@ -25,6 +25,7 @@ MotorModule::MotorModule(MotorParams params) : motorParams(params){
     // Sets defaults
     setDir(CLOCKWISE);
     currentAngle = as5600->getAngle();
+    degreesPerStep = motorParams.baseDegreesPerStep / motorParams.microstepping / motorParams.gearRatio;
     
     // Calibration
     calibrate();
@@ -69,17 +70,21 @@ void MotorModule::calibrate(){
 
 void MotorModule::setupTargetSteps(int numSteps){
     targetParams.numSteps = numSteps;
+    targetParams.targetAngle = numSteps * degreesPerStep;
     ESP_LOGD(pcTaskGetName(NULL), "Set numSteps to: %d", numSteps);
 }
 
 // Sets the target angle parameter
 void MotorModule::setupTargetAngle(float targetAngle){
 
+    // Save target angle for validation
+    targetParams.targetAngle = targetAngle;
+
     // Difference the input motor needs to move in order for the output angle to reach the target
-    float inputDiff = motorParams.gearRatio * (targetAngle - currentAngle);
+    float inputDiff = targetAngle - updateAngle();
 
     // Calculate the number of steps needed
-    targetParams.numSteps = (int)roundf(inputDiff * motorParams.microstepping / 1.8f);
+    targetParams.numSteps = (int)roundf(inputDiff / degreesPerStep);
 
     // Debug log
     ESP_LOGD(pcTaskGetName(NULL), "Calculated %d steps required to go from %.2f to %.2f", targetParams.numSteps, currentAngle, targetAngle);
@@ -237,9 +242,37 @@ float MotorModule::updateAngle(){
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // ~~ Validation ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-// Checks to ensure the current step matches the input angle, and adjusts the step count if necessary
+// Checks to ensure the current step matches the input angle, and adjusts the step count if necessary.
+// Returns true if currentAngle matches the targetAngle
 bool MotorModule::validateCurrentStep(){
-    return true;
+    
+    // Critical section ensures the motor doesn't step while validating
+    taskENTER_CRITICAL(&stepMux);
+
+    // Measure the currentAngle
+    updateAngle();
+    ESP_LOGV(pcTaskGetName(NULL), "Current Angle updated to: %.2f", currentAngle);
+
+    // Calculate the expected amount of steps left
+    int stepsLeft = (int)roundf(fabs(targetParams.targetAngle - currentAngle) / degreesPerStep);
+    ESP_LOGV(pcTaskGetName(NULL), "stepsLeft calculated to be: %d", stepsLeft);
+
+    // Check if we've reached the target
+    if(stepsLeft == 0){
+        taskEXIT_CRITICAL(&stepMux);
+        return true;
+    }
+
+    int missedSteps = targetParams.numSteps - stepsLeft;
+
+    // Add missed steps to numSteps
+    targetParams.numSteps += missedSteps;
+    ESP_LOGD(pcTaskGetName(NULL), "%d missing step(s) found... adding to the stepCount", missedSteps);
+
+    // Exit critical section
+    taskEXIT_CRITICAL(&stepMux);
+
+    return false;
 }
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -267,9 +300,15 @@ void MotorModule::setAngle(int numSteps, float speed){
     moveToTarget();
 }
 
-// Moves the stepper motor to it's target (Fastest)
+// Moves the stepper motor to it's target (Fast)
 void MotorModule::setAngle(int numSteps, TickType_t xFrequency){
     setupTargetSteps(numSteps);
     setupTargetFrequency(xFrequency);
+    moveToTarget();
+}
+
+// Moves the stepper motor to it's target (Fastest)
+void MotorModule::setAngle(TargetParams params){
+    targetParams = params;
     moveToTarget();
 }

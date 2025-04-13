@@ -56,7 +56,7 @@ extern QueueHandle_t desiredAngleQueue[6];
 extern QueueHandle_t paramsQueue[6];
 
 // Task Notification
-extern TaskHandle_t KinematicsSolved; // Flags if Kinematics Solver is idle
+extern TaskHandle_t kinematicsSolved; // Flags if Kinematics Solver is idle
 
 // Event Groups
 extern EventGroupHandle_t motorEnable; // Enables Motors

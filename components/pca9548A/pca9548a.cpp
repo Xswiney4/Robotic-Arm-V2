@@ -13,7 +13,7 @@ static const char *pca9584Tag = "PCA9548A Driver";
 PCA9548A::PCA9548A(const Pca9548aParams& params): params(params), activePort(0xFF){
     
     i2cInit();
-    this->setPort(0xFF);
+    this->setPortSafe(0xFF);
 
 }
 

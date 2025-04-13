@@ -16,6 +16,12 @@
 #define GEAR_RATIO_10_TO_1      10.0f
 #define GEAR_RATIO_15_TO_1      15.0f
 
+// Microstepping
+#define MICROSTEPPING_FULL          1.0f
+#define MICROSTEPPING_HALF          2.0f
+#define MICROSTEPPING_QUARTER       4.0f
+#define MICROSTEPPING_EIGHTH        8.0f
+#define MICROSTEPPING_SIXTEENTH     16.0f
 
 struct MotorParams{
 
@@ -30,6 +36,7 @@ struct MotorParams{
 
     // Motor Parameters
     float gearRatio = GEAR_RATIO_1_TO_1;
+    float microstepping = MICROSTEPPING_FULL;
 
     // Bit Mask
     uint8_t bitMask;
@@ -37,32 +44,45 @@ struct MotorParams{
 };
 
 struct TargetParams{
-    float targetAngle = -1.0f;     // Degrees
-    TickType_t xFrequency = -1; // Hz
+    int numSteps;     // Degrees
+    TickType_t xFrequency; // Hz
 };
 
-class MotorGearboxSystem{
+class MotorModule{
     private:
 
         // Private Variables
         MotorParams motorParams;
         TargetParams targetParams;
         std::optional<AS5600> as5600;
+        portMUX_TYPE stepMux = portMUX_INITIALIZER_UNLOCKED;
 
-        // Angle Variables
+        // Raw Angles
+        float lastCurrentAngle;  // Last measured as5600 measurement
+        float currentAngle;
+
+        // Input
+        float startAngle;     // Angle system started on before moving
+
+        // Output
         bool currentDir;
-        float inputAngle;
-        float maxAngle;
 
         // Setup
         void setupGPIO();
         void setupAS5600();
         void calibrate();
+
+        // Servo Controls through Setup
+        void setupTargetSteps(int numSteps);
+        void setupTargetAngle(float targetAngle);
+        void setupTargetSpeed(float speed);
+        void setupTargetFrequency(TickType_t xFrequency);
+        void moveToTarget();
         
     public:
         // Constructor/Destructor
-        MotorGearboxSystem(MotorParams params);
-        ~MotorGearboxSystem();
+        MotorModule(MotorParams params);
+        ~MotorModule();
 
         // Bit Mask
         uint8_t bitMask;
@@ -73,19 +93,16 @@ class MotorGearboxSystem{
         void setDir(bool dir);
 
         // Angle Measurements
-        float getRawAngle();
-        float getAngle();
-
-        // Servo Controls through Setup
-        void setupTargetAngle(float angle);
-        void setupTargetSpeed(float speed);
-        void setupTargetFrequency(TickType_t xFrequency);
-        void resetTarget();
-        void start();
+        float updateAngle();
+        
+        // Validation
+        bool validateCurrentStep();
 
         // Auto-Start Controls
-        void setTargetAngle(float angle, float speed);
-        void setTargetAngle(float angle, TickType_t xFrequency);
+        void setAngle(float angle, float speed);
+        void setAngle(float angle, TickType_t xFrequency);
+        void setAngle(int numSteps, float speed);
+        void setAngle(int numSteps, TickType_t xFrequency);
 
 };
 

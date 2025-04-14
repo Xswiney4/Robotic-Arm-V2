@@ -22,29 +22,6 @@ struct UserCommand{
     float params[6] = {0,0,0,0,0,0};
 };
 
-struct MotorParams{
-
-    // Objects
-    StepperMotor* stepper;
-    AS5600* as5600;
-
-    // Motor Parameters
-    float currentAngle;
-
-    // FreeRTOS
-    uint8_t eventGroupBit;
-    QueueHandle_t desiredAngleQueueHandle;
-
-    // Target Variables
-    float targetAngle    = -1;  // Deg
-
-    // One of these need to be defined for the motor to move
-    float targetSpeed    = -1;  // Deg/Sec
-    TickType_t xFrequency = -1;  // Hz
-    
-};
-
-
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // ~~ FreeRTOS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -52,8 +29,7 @@ struct MotorParams{
 extern QueueHandle_t controlCmd;       // Queue for user commands      (UserCommand Struct)
 extern QueueHandle_t kinematicsCmd;    // Queue for kinematics task    (UserCommand Struct)
 
-extern QueueHandle_t desiredAngleQueue[6];
-extern QueueHandle_t paramsQueue[6];
+extern QueueHandle_t motorTargetsQueue[6];
 
 // Task Notification
 extern TaskHandle_t kinematicsSolved; // Flags if Kinematics Solver is idle

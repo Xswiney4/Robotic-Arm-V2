@@ -2,6 +2,7 @@
 #define ARM_CONFIG_H
 
 #include <cstdint>
+#include "motorModule.h"
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // ~~~ Robotic Arm Config ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -16,14 +17,17 @@
 #define TASK_PRIORITY_COMMUNICATION     5
 #define TASK_PRIORITY_CONTROL           2
 #define TASK_PRIORITY_KINEMATICS        3
+#define TASK_PRIORITY_STEP_MONITOR      2
 
 #define TASK_STACK_DEPTH_COMMUNICATION  2048
 #define TASK_STACK_DEPTH_CONTROL        4096
 #define TASK_STACK_DEPTH_KINEMATICS     2048
+#define TASK_STACK_DEPTH_STEP_MONITOR   2048
 
 #define TASK_NAME_COMMUNICATION     "Communications Driver"
 #define TASK_NAME_CONTROL           "Controls Driver"
 #define TASK_NAME_KINEMATICS        "Kinematics Driver"
+#define TASK_NAME_STEP_MONITOR      "Motor Monitor"
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // ~~~ Motor Task Config ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -32,7 +36,7 @@
 #define QUEUE_SIZE_MOTOR            5   // Size of the motor's queues
 #define TASK_STACK_DEPTH_MOTOR      3072
 #define MOTOR_ANGLE_TOLERANCE       2.0f
-
+#define ALL_MOTORS_BIT_MASK         0x3F
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // ~~~ Device Parameters ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -50,8 +54,9 @@
 // ~~~ Joint Parameters ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 // Global Joint Params
-#define STEPPER_UPDATE_RESOLUTION 5 // updates/degree (servo smoothness)
-#define STEPPER_SPEED 300.0f // deg/sec
+#define STEPPER_UPDATE_RESOLUTION   5 // updates/degree (servo smoothness)
+#define STEPPER_SPEED               300.0f // deg/sec
+#define STEP_MONITOR_CHECK_TIME     50.0f // Hz 
 
 // ~~ Global AS5600 Config ~~
 
@@ -103,6 +108,9 @@ constexpr uint16_t AS5600_CONF =
 #define J1S_PORT        PCA9548A_PORT_7
 #define J1S_PIN_DIR     GPIO_NUM_19
 #define J1S_PIN_STEP    GPIO_NUM_23
+#define J1S_GEAR_RATIO  GEAR_RATIO_1_TO_1
+#define J1S_MICROSTEP   MICROSTEPPING_FULL
+#define J1S_DEG_P_STEP  1.8f
 #define J1S_BIT_MASK    BIT0
 
 // Joint 2 Params
@@ -110,6 +118,9 @@ constexpr uint16_t AS5600_CONF =
 #define J2S_PORT        PCA9548A_PORT_6
 #define J2S_PIN_DIR     GPIO_NUM_5
 #define J2S_PIN_STEP    GPIO_NUM_18
+#define J2S_GEAR_RATIO  GEAR_RATIO_1_TO_1
+#define J2S_MICROSTEP   MICROSTEPPING_FULL
+#define J2S_DEG_P_STEP  1.8f
 #define J2S_BIT_MASK    BIT1
 
 // Joint 3 Params
@@ -117,6 +128,9 @@ constexpr uint16_t AS5600_CONF =
 #define J3S_PORT        PCA9548A_PORT_5
 #define J3S_PIN_DIR     GPIO_NUM_2
 #define J3S_PIN_STEP    GPIO_NUM_4
+#define J3S_GEAR_RATIO  GEAR_RATIO_1_TO_1
+#define J3S_MICROSTEP   MICROSTEPPING_FULL
+#define J3S_DEG_P_STEP  1.8f
 #define J3S_BIT_MASK    BIT2
 
 // Joint 4 Params
@@ -124,6 +138,9 @@ constexpr uint16_t AS5600_CONF =
 #define J4S_PORT        PCA9548A_PORT_4
 #define J4S_PIN_DIR     GPIO_NUM_26
 #define J4S_PIN_STEP    GPIO_NUM_25
+#define J4S_GEAR_RATIO  GEAR_RATIO_1_TO_1
+#define J4S_MICROSTEP   MICROSTEPPING_FULL
+#define J4S_DEG_P_STEP  1.8f
 #define J4S_BIT_MASK    BIT3
 
 // Joint 5 Params
@@ -131,6 +148,9 @@ constexpr uint16_t AS5600_CONF =
 #define J5S_PORT        PCA9548A_PORT_3
 #define J5S_PIN_DIR     GPIO_NUM_14
 #define J5S_PIN_STEP    GPIO_NUM_27
+#define J5S_GEAR_RATIO  GEAR_RATIO_1_TO_1
+#define J5S_MICROSTEP   MICROSTEPPING_FULL
+#define J5S_DEG_P_STEP  1.8f
 #define J5S_BIT_MASK    BIT4
 
 // Joint 6 Params
@@ -138,6 +158,9 @@ constexpr uint16_t AS5600_CONF =
 #define J6S_PORT        PCA9548A_PORT_2
 #define J6S_PIN_DIR     GPIO_NUM_13
 #define J6S_PIN_STEP    GPIO_NUM_12
+#define J6S_GEAR_RATIO  GEAR_RATIO_1_TO_1
+#define J6S_MICROSTEP   MICROSTEPPING_FULL
+#define J6S_DEG_P_STEP  1.8f
 #define J6S_BIT_MASK    BIT5
 
 // End Effector Params

@@ -3,20 +3,18 @@
 
 #include "robotic_definitions.h"
 #include "pca9548a.h"
-#include "stepper.h"
-#include "as5600.h"
 #include "driver/gpio.h"
 
 
 // Task Definition
 void motorTask(void *pvParameter);
+void stepMonitorTask(void *pvParameter);
 
 // Motor Functions
-void setMotorAngle(MotorParams* params);
+
 
 // Motor Helper Functions
-void setDir(MotorParams* params);
-void updateAngle(MotorParams* params);
+
 
 
 

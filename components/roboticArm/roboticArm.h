@@ -2,7 +2,7 @@
 #define ROBOTIC_ARM_H
 
 #include "pca9548a.h"
-#include "motor_task.h"
+#include "motorModule.h"
 #include "robotic_definitions.h"
 
 class RoboticArm{
@@ -10,8 +10,8 @@ class RoboticArm{
     private:
 
         // Variables
-        PCA9548A pca9548a;     // PCA9548A object
-        MotorParams motorParams[6]; // Pointers to all my motor parameter objects 
+        PCA9548A pca9548a;      // PCA9548A object
+        MotorModule* motors[6]; // Pointers to all my motor objects 
 
         // Initializations (Returns true if error)
         bool initAll();             // Runs all initializations
@@ -30,6 +30,8 @@ class RoboticArm{
         bool initMotor4();      // Initializes motor task 4
         bool initMotor5();      // Initializes motor task 5
         bool initMotor6();      // Initializes motor task 6
+
+        bool initMotorMonitor();    // Initializes the motor task monitor
 
         // Sends a user command to the central command task
         void sendUserCommand(UserCommand* cmd);

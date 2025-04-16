@@ -19,16 +19,47 @@
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // ~~ Task Definitions ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-// Responsible for driving the motor
+// Responsible for driving a single motor
 void motorTask(void *pvParameter){
 
     // Cast Motor Params
     MotorModule *motor = (MotorModule *)pvParameter;
-    ESP_LOGI(pcTaskGetName(NULL), "Motor Initialized");
+
     
+    // Get motor number
+    int motorNum = 0;
+    for(; motorNum < 10; motorNum++){
+        if(motor->bitMask & (1 << motorNum)){
+            break;
+        }
+    }
+
+    // Check if no motor number is found
+    if(motorNum == 9){
+        ESP_LOGE(pcTaskGetName(NULL), "Motor number not found, deleting task...");
+        vTaskDelete(NULL);
+    }
+    else{
+        ESP_LOGI(pcTaskGetName(NULL), "Motor %d Initialized", motorNum);
+    }
+
+    // Task Variables
+    TargetParams target;
+    
+    // Task
     while(true){
 
-        // Wait for motor targetParms
+        // Wait for targetParams
+        xQueueReceive(motorTargetsQueue[motorNum], &target, portMAX_DELAY);
+
+        // Wait for an enable signal from the control task
+        xEventGroupWaitBits(motorEnable, motor->bitMask, pdFALSE, pdTRUE, portMAX_DELAY);
+
+        // Move to target
+        motor->setAngle(target);
+
+        // Remove the enable signal
+        xEventGroupClearBits(motorEnable, motor->bitMask);
 
     }
 }

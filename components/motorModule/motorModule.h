@@ -39,8 +39,8 @@ struct MotorParams{
     float microstepping = MICROSTEPPING_FULL;
     float baseDegreesPerStep = 1.8f;    // Degrees the motor move's per step at full steps.
 
-    // Bit Mask
-    uint8_t bitMask;
+    // FreeRTOS Variables
+    uint8_t bitMask = 0;
     
 };
 

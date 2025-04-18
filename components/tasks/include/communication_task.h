@@ -19,17 +19,37 @@ const Command commands[] = {
 };
 const int numCommands = sizeof(commands) / sizeof(commands[0]);  // Get array size dynamically
 
-// Initializations
-void initBluetooth();
-void initUART();
+class CommunicationTask{
+    private:
 
-// Handlers
-UserCommand userCmdParser(char *buffer);
+        // Initialization
+        void initBluetooth();
+        void initUART();
 
-// Task Definition
-void communicationsTask(void *pvParameter);
+        // Task Definition
+        static void taskEntry(void* pvParameters);
+        void communicationTask();
 
-// Other Utils
-void exportUserCommand(UserCommand* cmd);
+        // Task Handle
+        TaskHandle_t taskHandle = nullptr;
+
+        // Handlers
+        UserCommand userCmdParser(char *buffer);
+
+        // Other Utils
+        void exportUserCommand(UserCommand* cmd);
+
+    public:
+
+        // Task Controls
+        void start();
+        void stop();
+        void restart();
+
+        // Constructor/Destructor
+        CommunicationTask();
+        ~CommunicationTask();
+
+};
 
 #endif

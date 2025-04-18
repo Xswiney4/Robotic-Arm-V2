@@ -2,6 +2,7 @@
 // ~~ Libraries ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #include "robotic_definitions.h"
 #include "communication_task.h"
+#include "config.h"
 
 // ESP/FreeRTOS
 #include "freertos/FreeRTOS.h"
@@ -14,20 +15,29 @@
 
 // Bluetooth
 
-
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// ~~ Definitions ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// ~~ Constructor/Destructor ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-static const char *communicationsTag = "Control Task";
+// Constructor
+CommunicationTask::CommunicationTask(){
+
+}
+
+// Destructor
+CommunicationTask::~CommunicationTask(){
+
+}
+
+// ********************************* PRIVATE **************************************
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // ~~ Initializations ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-void initBluetooth(){
+void CommunicationTask::initBluetooth(){
 
 }
 
-void initUART(){
+void CommunicationTask::initUART(){
 
 }
 
@@ -51,7 +61,7 @@ The commands and their given parameters are specified here:
 https://docs.google.com/spreadsheets/d/1nJw_hCjyDbuuJXKSwHuH-XOVeJgRIX9mN4UZ95cLr8M/edit?gid=162912065#gid=162912065
 */
 
-UserCommand userCmdParser(char *buffer){
+UserCommand CommunicationTask::userCmdParser(char *buffer){
     
     // Buffers
     UserCommand cmd;
@@ -75,7 +85,7 @@ UserCommand userCmdParser(char *buffer){
     
     // Error Check
     if(!found){
-        ESP_LOGE(communicationsTag, "Invalid User Command - Could not find '(' within string");
+        ESP_LOGE(TASK_NAME_COMMUNICATION, "Invalid User Command - Could not find '(' within string");
         return {-1};
     }
     // At this point, cmdBuff is our command
@@ -95,7 +105,7 @@ UserCommand userCmdParser(char *buffer){
 
     // Error Check
     if(!found){
-        ESP_LOGE(communicationsTag, "Invalid User Command - Command not found");
+        ESP_LOGE(TASK_NAME_COMMUNICATION, "Invalid User Command - Command not found");
         return {-1};
     }
     
@@ -117,7 +127,7 @@ UserCommand userCmdParser(char *buffer){
                     paramBuff[paramBuffPointer] = '\0'; // Close up string
                     cmd.params[paramNum] = std::strtod(paramBuff, &paramEndPtr); // Converts paramBuff into a double and saves
                     if(*paramEndPtr != '\0'){
-                        ESP_LOGE(communicationsTag, "Invalid User Command - Double Conversion Failed");
+                        ESP_LOGE(TASK_NAME_COMMUNICATION, "Invalid User Command - Double Conversion Failed");
                         return {-1};
                     }
                     paramBuffPointer = 0;
@@ -129,13 +139,13 @@ UserCommand userCmdParser(char *buffer){
                 case ')':
                     // Checks to ensure we're on the the last parameter
                     if(paramNum != commands[j].numParams - 1){
-                        ESP_LOGE(communicationsTag, "Invalid User Command - Invalid Parameter Count");
+                        ESP_LOGE(TASK_NAME_COMMUNICATION, "Invalid User Command - Invalid Parameter Count");
                         return {-1};
                     }
                     paramBuff[paramBuffPointer] = '\0'; // Close up string
                     cmd.params[paramNum] = std::strtod(paramBuff, &paramEndPtr); // Converts paramBuff into a double and saves
                     if(*paramEndPtr != '\0'){
-                        ESP_LOGE(communicationsTag, "Invalid User Command - Double Conversion Failed");
+                        ESP_LOGE(TASK_NAME_COMMUNICATION, "Invalid User Command - Double Conversion Failed");
                         return {-1};
                     }
                     paramFound = true;
@@ -157,12 +167,16 @@ UserCommand userCmdParser(char *buffer){
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // ~~ Task Definition ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+void CommunicationTask::taskEntry(void* pvParameters){
+    CommunicationTask* self = static_cast<CommunicationTask*>(pvParameters);
+    self->communicationTask();
+}
 /*
 This task is responsible for managing and decoding all external communcations with the robotic arm. This includes
 any bluetooth or UART control commands. These commands are parsed and sent to both the control task and the
 kinematics task
 */
-void communicationsTask(void *pvParameter){
+void CommunicationTask::communicationTask(){
 
 }
 
@@ -170,7 +184,37 @@ void communicationsTask(void *pvParameter){
 // ~~ Other Utils ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 // Sends command over to control and kinematics task
-void exportUserCommand(UserCommand* cmd){
+void CommunicationTask::exportUserCommand(UserCommand* cmd){
     xQueueSend(controlCmd, cmd, portMAX_DELAY);
     xQueueSend(kinematicsCmd, cmd, portMAX_DELAY);
+}
+
+
+// *********************************** PUBLIC **************************************
+
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// ~~ Task Controls ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+// Starts the task
+void CommunicationTask::start(){
+    if(taskHandle != nullptr){
+        ESP_LOGE(TASK_NAME_COMMUNICATION, "Task is already running, returning...");
+        return;
+    }
+    xTaskCreate(&CommunicationTask::taskEntry, TASK_NAME_COMMUNICATION, TASK_STACK_DEPTH_COMMUNICATION, NULL, TASK_PRIORITY_COMMUNICATION, NULL);
+    ESP_LOGI(TASK_NAME_COMMUNICATION, "Task started");
+}
+
+// Stops the task
+void CommunicationTask::stop(){
+    vTaskDelete(taskHandle);
+    ESP_LOGI(TASK_NAME_COMMUNICATION, "Task Stopped");
+}
+
+// Restarts the task, if it's running
+void CommunicationTask::restart(){
+    if(taskHandle != nullptr){
+        stop();
+    }
+    start();
 }

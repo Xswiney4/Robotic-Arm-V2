@@ -11,12 +11,13 @@
 #include <thread>
 #include <chrono>
 #include <cmath>
+#include <math.h>
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // ~~ Constructor/Destructor ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 // Constructor: Creates and initializes object
-MotorModule::MotorModule(MotorParams params) : motorParams(params){
+MotorModule::MotorModule(MotorParams params) : motorParams(params), bitMask(params.bitMask){
     
     // General Setup
     setupGPIO();
@@ -25,6 +26,7 @@ MotorModule::MotorModule(MotorParams params) : motorParams(params){
     // Sets defaults
     setDir(CLOCKWISE);
     currentAngle = as5600->getAngle();
+    motorNum = log2f(bitMask);
     degreesPerStep = motorParams.baseDegreesPerStep / motorParams.microstepping / motorParams.gearRatio;
     
     // Calibration
@@ -94,7 +96,7 @@ void MotorModule::setupTargetAngle(float targetAngle){
 void MotorModule::setupTargetSpeed(float speed){
 
     // Calculates the step time in ms
-    float stepPeriodMs = 1800.0f / (speed * motorParams.gearRatio);
+    float stepPeriodMs = 1800.0f / (speed * motorParams.gearRatio * motorParams.microstepping);
 
     // If the step time is not a whole number
     if(stepPeriodMs != (int)(stepPeriodMs)){
@@ -129,10 +131,6 @@ void MotorModule::moveToTarget(){
         return;
     }
 
-    // Measure the start of the movement (This is used for validation)
-    startAngle = updateAngle();
-    ESP_LOGD(pcTaskGetName(NULL), "Starting angle is: %.2f", startAngle);
-
     // First we set the direction, based on the sign of numSteps
     if(targetParams.numSteps < 0.0f){
         setDir(CLOCKWISE);
@@ -166,16 +164,18 @@ void MotorModule::moveToTarget(){
             break;
         }
 
+        if(targetParams.numSteps < 0){
+            toggleDir();
+            taskENTER_CRITICAL(&stepMux);
+            targetParams.numSteps = abs(targetParams.numSteps);
+            taskEXIT_CRITICAL(&stepMux);
+        }
+
         
         // Block for delay
         vTaskDelayUntil(&xLastWakeTime, targetParams.xFrequency);
 
-        // Updates the angle before it passes 180 degrees
-        if(targetParams.numSteps % (int)(80.0f * motorParams.microstepping) == 0){
-            updateAngle();
-        }
     }
-    ESP_LOGD(pcTaskGetName(NULL), "End Angle: %.2f", updateAngle());
 
 }
 // *********************************** PUBLIC **************************************
@@ -205,6 +205,14 @@ void MotorModule::setDir(bool dir){
     gpio_set_level(motorParams.dirPin, dir);
     currentDir = dir;
     ESP_LOGD(pcTaskGetName(NULL), "Direction set to: %s", dir == CLOCKWISE ? "Clockwise" : "Counterclockwise");
+}
+
+// Toggle the direction
+void MotorModule::toggleDir(){
+    currentDir = !currentDir;
+    gpio_set_level(motorParams.dirPin, currentDir);
+    ESP_LOGD(pcTaskGetName(NULL), "Direction set to: %s", currentDir == CLOCKWISE ? "Clockwise" : "Counterclockwise");
+
 }
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -246,31 +254,42 @@ float MotorModule::updateAngle(){
 // Returns true if currentAngle matches the targetAngle
 bool MotorModule::validateCurrentStep(){
     
-    // Critical section ensures the motor doesn't step while validating
-    taskENTER_CRITICAL(&stepMux);
-
     // Measure the currentAngle
     updateAngle();
-    ESP_LOGV(pcTaskGetName(NULL), "Current Angle updated to: %.2f", currentAngle);
+    ESP_LOGD(pcTaskGetName(NULL), "Current Angle updated to: %.2f", currentAngle);
 
     // Calculate the expected amount of steps left
-    int stepsLeft = (int)roundf(fabs(targetParams.targetAngle - currentAngle) / degreesPerStep);
-    ESP_LOGV(pcTaskGetName(NULL), "stepsLeft calculated to be: %d", stepsLeft);
+    int expectedSteps = roundf(fabs(targetParams.targetAngle - currentAngle) / degreesPerStep);
+    ESP_LOGD(pcTaskGetName(NULL), "expectedSteps calculated to be: %d", expectedSteps);
 
     // Check if we've reached the target
-    if(stepsLeft == 0){
-        taskEXIT_CRITICAL(&stepMux);
+    if(expectedSteps == 0){
         return true;
     }
 
-    int missedSteps = targetParams.numSteps - stepsLeft;
+    int missedSteps = expectedSteps - targetParams.numSteps;
+
+    // Return if no steps were lost
+    if(missedSteps == 0){
+        ESP_LOGD(pcTaskGetName(NULL), "No steps missing");
+        return false;
+    }
+
+    // Critical section ensures the motor doesn't step while updating numSteps
+    taskENTER_CRITICAL(&stepMux);
 
     // Add missed steps to numSteps
     targetParams.numSteps += missedSteps;
-    ESP_LOGD(pcTaskGetName(NULL), "%d missing step(s) found... adding to the stepCount", missedSteps);
+
+    // Check for overcorrection
+    if(targetParams.numSteps < 0){
+        targetParams.numSteps = 0;
+    }
 
     // Exit critical section
     taskEXIT_CRITICAL(&stepMux);
+
+    ESP_LOGI(pcTaskGetName(NULL), "%d missing step(s) found on motor %d... adding to the stepCount", missedSteps, motorNum);
 
     return false;
 }

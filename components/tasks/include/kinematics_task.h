@@ -4,7 +4,8 @@
 #include "robotic_definitions.h"
 
 // User Commands
-void setEndKinCalculation(UserCommand* cmd);
+void setEndKinCalc(UserCommand* cmd, MotorModule** motors, float* virtMotorAngle);
+void setMotorAnglesKinCalc(UserCommand* cmd, MotorModule** motors, float* virtMotorAngle);
 
 // Task Definition
 void kinematicsTask(void *pvParameter);

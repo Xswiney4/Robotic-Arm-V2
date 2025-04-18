@@ -1,6 +1,7 @@
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // ~~ Libraries ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #include "control_task.h"
+#include "motorModule.h"
 #include "config.h"
 
 // ESP/FreeRTOS
@@ -58,7 +59,7 @@ The structure is as follows:
 - Enable given motor
 - Break
 */
-void setMotorAngles(UserCommand* cmd, MotorParams* motorParams){
+void setMotorAngles(UserCommand* cmd){
     // float m1Angle =    cmd->params[0];
     // float m2Angle =    cmd->params[1];
     // float m3Angle =    cmd->params[2];
@@ -70,22 +71,23 @@ void setMotorAngles(UserCommand* cmd, MotorParams* motorParams){
 
     // Loop going through each parameter input
     for(int i = 0; i < 6; i++){
-        if(cmd->params[i] != -1){
-            // If parameter is valid
+        // If parameter is valid
+        if(cmd->params[i] != -1.0f){
 
-            // Sends each motor it's desired angle, and adds the motor to the bit mask
-            motorBitMask |= motorParams[i].eventGroupBit;
-            
-            motorParams[i].targetAngle = cmd->params[i];
-
+            // Adds the motor to the global bit mask
+            motorBitMask |= (1 << i);
         }
     }
 
-    // Clears the 'motorIdle' flag
-    xEventGroupClearBits(motorIdle, motorBitMask);
+    // Log
+    ESP_LOGD(controlTag, "Motor Bit Mask: 0x%2X", motorBitMask);
+
+    // Wait for all motors to be ready (Once they recieve targets from the kinematics task)
+    xEventGroupWaitBits(motorReady, motorBitMask, pdTRUE, pdTRUE, portMAX_DELAY);
     
     // Enable Motors
-    xEventGroupSetBits(motorEnable, motorBitMask);
+    xEventGroupClearBits(motorIdle, motorBitMask);
+    xEventGroupSetBits(motorEnabled, motorBitMask);
 
     // Wait until all motor's are idle before continuing
     xEventGroupWaitBits(motorIdle, motorBitMask, pdFALSE, pdTRUE, portMAX_DELAY);
@@ -118,12 +120,10 @@ void sleep(UserCommand* cmd){
 
 void controlTask(void *pvParameter){
 
-    // Cast Motor Params
-    MotorParams *motorParams = (MotorParams *)pvParameter;
-
-
     // Task Variables
     UserCommand cmd;
+
+    ESP_LOGI(controlTag, "Control Task Initialized");
 
     while(true){
 
@@ -149,7 +149,7 @@ void controlTask(void *pvParameter){
             
             case 10:
                 ESP_LOGD(controlTag, "Successfully Started setMotorAngles()");
-                setMotorAngles(&cmd, motorParams);
+                setMotorAngles(&cmd);
                 break;
 
             case 11:

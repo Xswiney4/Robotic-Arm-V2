@@ -37,7 +37,7 @@ QueueHandle_t kinematicsCmd; // Queue for kinematics task    (UserCommand Struct
 QueueHandle_t motorTargetsQueue[6]; // Queue for stepper motor angles
 
 // Event Groups
-EventGroupHandle_t motorEnable; // Enables Motors
+EventGroupHandle_t motorEnabled; // Enables Motors
 EventGroupHandle_t motorIdle;   // Flags if motor is idle
 EventGroupHandle_t motorReady;  // Signals motor is ready
 
@@ -138,7 +138,7 @@ bool RoboticArm::initRTOSComms(){
     }
 
     // Event Groups
-    motorEnable = xEventGroupCreate();
+    motorEnabled = xEventGroupCreate();
     motorIdle = xEventGroupCreate();
     motorReady = xEventGroupCreate();
 
@@ -170,8 +170,8 @@ bool RoboticArm::errorCheckComms(){
     }
 
     // Event Groups
-    if(motorEnable == NULL){
-        ESP_LOGE(roboticArmInitTag, "Failed to create event group: motorEnable");
+    if(motorEnabled == NULL){
+        ESP_LOGE(roboticArmInitTag, "Failed to create event group: motorEnabled");
         error = true;
     }
     if(motorIdle == NULL){
@@ -197,7 +197,7 @@ bool RoboticArm::initControl(){
 
 // Initializes kinematics calculations task
 bool RoboticArm::initKinematics(){
-    //xTaskCreate(kinematicsTask, TASK_NAME_KINEMATICS, TASK_STACK_DEPTH_KINEMATICS, NULL, TASK_PRIORITY_KINEMATICS, NULL);
+    xTaskCreate(kinematicsTask, TASK_NAME_KINEMATICS, TASK_STACK_DEPTH_KINEMATICS, motors, TASK_PRIORITY_KINEMATICS, NULL);
     return false;
 }
 

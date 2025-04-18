@@ -35,7 +35,7 @@ extern QueueHandle_t motorTargetsQueue[6];
 extern TaskHandle_t kinematicsSolved; // Flags if Kinematics Solver is idle
 
 // Event Groups
-extern EventGroupHandle_t motorEnable; // Enables Motors
+extern EventGroupHandle_t motorEnabled; // Enables Motors
 extern EventGroupHandle_t motorIdle;   // Flags if motor is idle
 extern EventGroupHandle_t motorReady;  // Signals motor is ready
 

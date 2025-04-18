@@ -17,12 +17,12 @@
 #define TASK_PRIORITY_COMMUNICATION     5
 #define TASK_PRIORITY_CONTROL           2
 #define TASK_PRIORITY_KINEMATICS        3
-#define TASK_PRIORITY_STEP_MONITOR      2
+#define TASK_PRIORITY_STEP_MONITOR      1
 
 #define TASK_STACK_DEPTH_COMMUNICATION  2048
 #define TASK_STACK_DEPTH_CONTROL        4096
 #define TASK_STACK_DEPTH_KINEMATICS     2048
-#define TASK_STACK_DEPTH_STEP_MONITOR   2048
+#define TASK_STACK_DEPTH_STEP_MONITOR   4096
 
 #define TASK_NAME_COMMUNICATION     "Communications Driver"
 #define TASK_NAME_CONTROL           "Controls Driver"
@@ -32,11 +32,11 @@
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // ~~~ Motor Task Config ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-#define TASK_PRIORITY_MOTOR         1
+#define TASK_PRIORITY_MOTOR         2
 #define QUEUE_SIZE_MOTOR            5   // Size of the motor's queues
 #define TASK_STACK_DEPTH_MOTOR      3072
-#define MOTOR_ANGLE_TOLERANCE       2.0f
-#define ALL_MOTORS_BIT_MASK         0x3F
+#define MOTOR_ANGLE_TOLERANCE       2.5f
+#define ALL_MOTORS_BIT_MASK         (J1S_BIT_MASK | J2S_BIT_MASK | J3S_BIT_MASK | J4S_BIT_MASK | J5S_BIT_MASK | J6S_BIT_MASK)
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // ~~~ Device Parameters ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -56,7 +56,7 @@
 // Global Joint Params
 #define STEPPER_UPDATE_RESOLUTION   5 // updates/degree (servo smoothness)
 #define STEPPER_SPEED               300.0f // deg/sec
-#define STEP_MONITOR_CHECK_TIME     50.0f // Hz 
+#define STEP_MONITOR_CHECK_TIME     10.0f // Hz 
 
 // ~~ Global AS5600 Config ~~
 
@@ -79,12 +79,12 @@ constexpr uint8_t AS5600_PWMF = 0b00;
 
 // Slow Filter
 // 00 = 16x ; 01 = 8x; 10 = 4x; 11 = 2x
-constexpr uint8_t AS5600_SF = 0b10;
+constexpr uint8_t AS5600_SF = 0b11;
 
 /* Fast Filter Threshold (Slow-to-fast filter / Fast-to-slow filter LSB's)
 000 = slow filter only, 001 = 6/1 LSBs, 010 = 7/1 LSBs, 011 = 9/1 LSBs,100 = 18/2 LSBs, 101
 = 21/2 LSBs, 110 = 24/2 LSBs, 111 = 10/4 LSBs*/
-constexpr uint8_t AS5600_FTH = 0b000;
+constexpr uint8_t AS5600_FTH = 0b110;
 
 // Watchdog
 // 0 = OFF, 1 = ON

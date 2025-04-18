@@ -58,7 +58,6 @@ class MotorModule{
         TargetParams targetParams;
         std::optional<AS5600> as5600;
         portMUX_TYPE stepMux = portMUX_INITIALIZER_UNLOCKED;
-        float degreesPerStep;   // Degrees the output moves for each step
 
         // Raw Angles
         float lastCurrentAngle;  // Last measured as5600 measurement
@@ -83,13 +82,17 @@ class MotorModule{
         MotorModule(MotorParams params);
         ~MotorModule();
 
-        // Bit Mask
+        float degreesPerStep;   // Degrees the output moves for each step
+
+        // Motor Identification
         uint8_t bitMask;
+        int motorNum;
 
         // Motor Controls
         void step();
         void step(bool dir);
         void setDir(bool dir);
+        void toggleDir();
 
         // Angle Measurements
         float updateAngle();

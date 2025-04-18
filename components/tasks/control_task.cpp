@@ -12,13 +12,6 @@
 
 // Utils
 
-
-
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// ~~ Definitions ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-static const char *controlTag = "Control Task";
-
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // ~~ Initializations ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -80,7 +73,7 @@ void setMotorAngles(UserCommand* cmd){
     }
 
     // Log
-    ESP_LOGD(controlTag, "Motor Bit Mask: 0x%2X", motorBitMask);
+    ESP_LOGD(TASK_NAME_CONTROL, "Motor Bit Mask: 0x%2X", motorBitMask);
 
     // Wait for all motors to be ready (Once they recieve targets from the kinematics task)
     xEventGroupWaitBits(motorReady, motorBitMask, pdTRUE, pdTRUE, portMAX_DELAY);
@@ -108,7 +101,7 @@ void setMotorSpeed(UserCommand* cmd){
 
 // Puts the controller to sleep for a given time in ms
 void sleep(UserCommand* cmd){
-    ESP_LOGD(controlTag, "Delaying control task for %dms", (int)cmd->params[0]);
+    ESP_LOGD(TASK_NAME_CONTROL, "Delaying control task for %dms", (int)cmd->params[0]);
     vTaskDelay(pdMS_TO_TICKS((int)cmd->params[0]));
 }
 
@@ -123,7 +116,7 @@ void controlTask(void *pvParameter){
     // Task Variables
     UserCommand cmd;
 
-    ESP_LOGI(controlTag, "Control Task Initialized");
+    ESP_LOGI(TASK_NAME_CONTROL, "Control Task Initialized");
 
     while(true){
 
@@ -134,36 +127,36 @@ void controlTask(void *pvParameter){
         switch (cmd.commandNum){
             // Invalid Command
             case -1:
-                ESP_LOGE(controlTag, "Invalid command");
+                ESP_LOGE(TASK_NAME_CONTROL, "Invalid command");
                 break;
                 
             case 0:
-                ESP_LOGD(controlTag, "Successfully Started setEnd()");
+                ESP_LOGD(TASK_NAME_CONTROL, "Successfully Started setEnd()");
                 setEnd(&cmd);
                 break;
             
             case 1:
-                ESP_LOGD(controlTag, "Successfully Started setEndSpeed()");
+                ESP_LOGD(TASK_NAME_CONTROL, "Successfully Started setEndSpeed()");
                 setEndSpeed(&cmd);
                 break;
             
             case 10:
-                ESP_LOGD(controlTag, "Successfully Started setMotorAngles()");
+                ESP_LOGD(TASK_NAME_CONTROL, "Successfully Started setMotorAngles()");
                 setMotorAngles(&cmd);
                 break;
 
             case 11:
-                ESP_LOGD(controlTag, "Successfully Started setMotorSpeed()");
+                ESP_LOGD(TASK_NAME_CONTROL, "Successfully Started setMotorSpeed()");
                 setMotorSpeed(&cmd);
                 break;
 
             case 20:
-                ESP_LOGD(controlTag, "Successfully Started sleep()");
+                ESP_LOGD(TASK_NAME_CONTROL, "Successfully Started sleep()");
                 sleep(&cmd);
                 break;
 
             default:
-                ESP_LOGE(controlTag, "Unknown cmd.commandNum");
+                ESP_LOGE(TASK_NAME_CONTROL, "Unknown cmd.commandNum");
                 break;
         }
 

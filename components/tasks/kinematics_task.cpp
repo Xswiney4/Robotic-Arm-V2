@@ -14,11 +14,6 @@
 #include <cmath>
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// ~~ Definitions ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-static const char *kinematicsTag = "Kinematics Task";
-
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // ~~ User Commands ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 // Converts a position and orientation into joint angles, and then sends them to the control task
@@ -105,7 +100,7 @@ void kinematicsTask(void *pvParameter){
         }
     }
 
-    ESP_LOGI(kinematicsTag, "Kinematics Task Initialized");
+    ESP_LOGI(TASK_NAME_KINEMATICS, "Kinematics Task Initialized");
 
     while(true){
 
@@ -116,21 +111,21 @@ void kinematicsTask(void *pvParameter){
         switch (cmd.commandNum){
             // Invalid Command
             case -1:
-                ESP_LOGE(kinematicsTag, "Invalid command");
+                ESP_LOGE(TASK_NAME_KINEMATICS, "Invalid command");
                 break;
                 
             case 0:
-                ESP_LOGI(kinematicsTag, "Successfully Started setEndKinCalc()");
+                ESP_LOGI(TASK_NAME_KINEMATICS, "Successfully Started setEndKinCalc()");
                 setEndKinCalc(&cmd, motors, virtMotorAngle);
                 break;
 
             case 10:
-                ESP_LOGI(kinematicsTag, "Successfully Started setMotorAnglesKinCalc()");
+                ESP_LOGI(TASK_NAME_KINEMATICS, "Successfully Started setMotorAnglesKinCalc()");
                 setMotorAnglesKinCalc(&cmd, motors, virtMotorAngle);
                 break;
 
             default:
-                ESP_LOGD(kinematicsTag, "No processing required, throwing out command");
+                ESP_LOGD(TASK_NAME_KINEMATICS, "No processing required, throwing out command");
                 break;
         }
 

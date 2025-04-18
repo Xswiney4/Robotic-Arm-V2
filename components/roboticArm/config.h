@@ -54,7 +54,6 @@
 // ~~~ Joint Parameters ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 // Global Joint Params
-#define STEPPER_UPDATE_RESOLUTION   5 // updates/degree (servo smoothness)
 #define STEPPER_SPEED               300.0f // deg/sec
 #define STEP_MONITOR_CHECK_TIME     10.0f // Hz 
 

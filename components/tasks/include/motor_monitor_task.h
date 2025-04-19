@@ -1,22 +1,20 @@
-#ifndef MOTOR_TASK_H
-#define MOTOR_TASK_H
+#ifndef MOTOR_MONITOR_TASK_H
+#define MOTOR_MONITOR_TASK_H
 
 #include "robotic_definitions.h"
 #include "motorModule.h"
 
-class MotorTask{
+class MotorMonitorTask{
     private:
-
         // Task Handle
         TaskHandle_t taskHandle = nullptr;
-        const char* taskName;
 
         // Motors
-        MotorModule* motor;
+        MotorModule** motors;
 
-        // Motor Task Definition
+        // Task Definition
         static void taskEntry(void* pvParameters);
-        void motorTask();
+        void stepMonitorTask();
 
     public:
 
@@ -26,8 +24,8 @@ class MotorTask{
         void restart();
 
         // Constructor/Destructor
-        MotorTask(const char* taskName, MotorModule* motor);
-        ~MotorTask();
+        MotorMonitorTask(MotorModule** motors);
+        ~MotorMonitorTask();
 
 
 };

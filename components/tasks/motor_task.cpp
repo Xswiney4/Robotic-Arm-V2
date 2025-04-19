@@ -2,7 +2,6 @@
 // ~~ Libraries ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //#include "robotic_definitions.h"
 #include "config.h"
-#include "motorModule.h"
 #include "motor_task.h"
 
 // ESP/FreeRTOS
@@ -14,13 +13,31 @@
 #include <cmath>
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// ~~ Constructor/Destructor ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+// Constructor
+MotorTask::MotorTask(const char* taskName, MotorModule* motor) : taskName(taskName), motor(motor){
+
+}
+
+// Destructor
+MotorTask::~MotorTask(){
+
+}
+
+// ********************************* PRIVATE **************************************
+
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // ~~ Task Definitions ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-// Responsible for driving a single motor
-void motorTask(void *pvParameter){
+void MotorTask::taskEntry(void* pvParameter){
+    MotorTask* self = static_cast<MotorTask*>(pvParameter);
+    self->motor = (MotorModule* )pvParameter;
+    self->motorTask();
+}
 
-    // Cast Motor Params
-    MotorModule* motor = (MotorModule* )pvParameter;
+// Responsible for driving a single motor
+void MotorTask::motorTask(){
 
     ESP_LOGI(pcTaskGetName(NULL), "Motor Initialized");
 
@@ -55,45 +72,32 @@ void motorTask(void *pvParameter){
     }
 }
 
-// Responsible for monitoring and validating the step count of all the motors
-void stepMonitorTask(void *pvParameter){
+// *********************************** PUBLIC **************************************
 
-    // Cast Motor Objects
-    MotorModule** motors = (MotorModule** )pvParameter;
-    ESP_LOGI(pcTaskGetName(NULL), "Step Monitor Task Initialized");
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// ~~ Task Controls ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    EventBits_t uxBits;
-
-    // Step Rate Setup
-    TickType_t xFrequency = pdMS_TO_TICKS(1000.0f / STEP_MONITOR_CHECK_TIME);
-    TickType_t xLastWakeTime = xTaskGetTickCount();
-    
-    while(true){
-
-        // Wait for a motor to be enabled
-        uxBits = xEventGroupWaitBits(motorEnabled, ALL_MOTORS_BIT_MASK, pdFALSE, pdFALSE, portMAX_DELAY);
-
-        // Check all motors
-        for(int i = 0; i < 6; i++){
-            if(uxBits & (1 << i)){
-                // If the motor is enabled, validate
-                motors[i]->validateCurrentStep();
-
-                // Delay the next validation until the next FreeRTOS tick
-                // (The goal is have one validation event occur per tick)
-                vTaskDelay(1);
-            }
-        }
-        
-        // After checking all motors, delay for a time
-        vTaskDelayUntil(&xLastWakeTime, xFrequency);
+// Starts the task
+void MotorTask::start(){
+    if(taskHandle != nullptr){
+        ESP_LOGE(taskName, "Task is already running, returning...");
+        return;
     }
+    xTaskCreate(&MotorTask::taskEntry, taskName, TASK_STACK_DEPTH_MOTOR, NULL, TASK_PRIORITY_MOTOR, &taskHandle);
+    ESP_LOGI(taskName, "Task started");
 }
 
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// ~~ Motor Functions ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Stops the task
+void MotorTask::stop(){
+    vTaskDelete(taskHandle);
+    ESP_LOGI(taskName, "Task Stopped");
+}
 
-
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// ~~ Motor Helper Functions ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Restarts the task, if it's running
+void MotorTask::restart(){
+    if(taskHandle != nullptr){
+        stop();
+    }
+    start();
+}
 

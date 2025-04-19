@@ -201,7 +201,7 @@ void CommunicationTask::start(){
         ESP_LOGE(TASK_NAME_COMMUNICATION, "Task is already running, returning...");
         return;
     }
-    xTaskCreate(&CommunicationTask::taskEntry, TASK_NAME_COMMUNICATION, TASK_STACK_DEPTH_COMMUNICATION, NULL, TASK_PRIORITY_COMMUNICATION, NULL);
+    xTaskCreate(&CommunicationTask::taskEntry, TASK_NAME_COMMUNICATION, TASK_STACK_DEPTH_COMMUNICATION, NULL, TASK_PRIORITY_COMMUNICATION, &taskHandle);
     ESP_LOGI(TASK_NAME_COMMUNICATION, "Task started");
 }
 

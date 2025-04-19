@@ -14,73 +14,30 @@
 #include <cmath>
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// ~~ User Commands ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// ~~ Constructor/Destructor ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-// Converts a position and orientation into joint angles, and then sends them to the control task
-void setEndKinCalc(UserCommand* cmd, MotorModule** motors, float virtMotorAngle[]){
-
-    // Variable Declaration
-    // float x = cmd->params[0];
-    // float y = cmd->params[1];
-    // float z = cmd->params[2];
-    // float pitch = cmd->params[3];
-    // float yaw = cmd->params[4];
-    // float roll = cmd->params[5];
-
+// Constructor
+KinematicsTask::KinematicsTask(){
 
 }
 
-// Converts a position and orientation into joint angles, and then sends them to the control task
-void setMotorAnglesKinCalc(UserCommand* cmd, MotorModule** motors, float virtMotorAngle[]){
-
-    // Variable Declaration
-    // float m1Angle =    cmd->params[0];
-    // float m2Angle =    cmd->params[1];
-    // float m3Angle =    cmd->params[2];
-    // float m4Angle =    cmd->params[3];
-    // float m5Angle =    cmd->params[4];
-    // float m6Angle =    cmd->params[5];
-
-    // Loop going through each parameter input
-    for(int i = 0; i < 6; i++){
-        // If parameter is valid
-        if(cmd->params[i] != -1){
-
-            TargetParams target;
-
-            // Difference the input motor needs to move in order for the output angle to reach the target
-            float inputDiff = cmd->params[i] - virtMotorAngle[i];
-
-            // Calculate the number of steps needed
-            target.numSteps = (int)roundf(inputDiff / motors[i]->degreesPerStep);
-            
-            
-            // Calculates the step time in ms
-            float stepPeriodMs = 1800.0f / (STEPPER_SPEED * motors[i]->degreesPerStep);
-
-            target.xFrequency = pdMS_TO_TICKS(stepPeriodMs);
-            target.targetAngle = cmd->params[i];
-
-
-            // Send target to motor
-            xQueueSend(motorTargetsQueue[i], &target, portMAX_DELAY);
-
-            // Set the virtMotorAngle and
-            virtMotorAngle[i] = cmd->params[i];
-
-        }
-    }
+// Destructor
+KinematicsTask::~KinematicsTask(){
 
 }
+
+// ********************************* PRIVATE **************************************
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // ~~ Task Definition ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+void KinematicsTask::taskEntry(void* pvParameter){
+    KinematicsTask* self = static_cast<KinematicsTask*>(pvParameter);
+    self->motors = (MotorModule** )pvParameter;
+    self->kinematicsTask();
+}
 
-void kinematicsTask(void *pvParameter){
-
-    // Cast Motor Objects
-    MotorModule** motors = (MotorModule** )pvParameter;
+void KinematicsTask::kinematicsTask(){
 
     // Task Variables
     UserCommand cmd;
@@ -131,4 +88,93 @@ void kinematicsTask(void *pvParameter){
 
     }
 
+}
+
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// ~~ User Commands ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+// Converts a position and orientation into joint angles, and then sends them to the control task
+void KinematicsTask::setEndKinCalc(UserCommand* cmd, MotorModule** motors, float virtMotorAngle[]){
+
+    // Variable Declaration
+    // float x = cmd->params[0];
+    // float y = cmd->params[1];
+    // float z = cmd->params[2];
+    // float pitch = cmd->params[3];
+    // float yaw = cmd->params[4];
+    // float roll = cmd->params[5];
+
+
+}
+
+// Converts a position and orientation into joint angles, and then sends them to the control task
+void KinematicsTask::setMotorAnglesKinCalc(UserCommand* cmd, MotorModule** motors, float virtMotorAngle[]){
+
+    // Variable Declaration
+    // float m1Angle =    cmd->params[0];
+    // float m2Angle =    cmd->params[1];
+    // float m3Angle =    cmd->params[2];
+    // float m4Angle =    cmd->params[3];
+    // float m5Angle =    cmd->params[4];
+    // float m6Angle =    cmd->params[5];
+
+    // Loop going through each parameter input
+    for(int i = 0; i < 6; i++){
+        // If parameter is valid
+        if(cmd->params[i] != -1){
+
+            TargetParams target;
+
+            // Difference the input motor needs to move in order for the output angle to reach the target
+            float inputDiff = cmd->params[i] - virtMotorAngle[i];
+
+            // Calculate the number of steps needed
+            target.numSteps = (int)roundf(inputDiff / motors[i]->degreesPerStep);
+            
+            
+            // Calculates the step time in ms
+            float stepPeriodMs = 1800.0f / (STEPPER_SPEED * motors[i]->degreesPerStep);
+
+            target.xFrequency = pdMS_TO_TICKS(stepPeriodMs);
+            target.targetAngle = cmd->params[i];
+
+
+            // Send target to motor
+            xQueueSend(motorTargetsQueue[i], &target, portMAX_DELAY);
+
+            // Set the virtMotorAngle and
+            virtMotorAngle[i] = cmd->params[i];
+
+        }
+    }
+
+}
+
+// *********************************** PUBLIC **************************************
+
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// ~~ Task Controls ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+// Starts the task
+void KinematicsTask::start(){
+    if(taskHandle != nullptr){
+        ESP_LOGE(TASK_NAME_KINEMATICS, "Task is already running, returning...");
+        return;
+    }
+    xTaskCreate(&KinematicsTask::taskEntry, TASK_NAME_KINEMATICS, TASK_STACK_DEPTH_KINEMATICS, NULL, TASK_PRIORITY_KINEMATICS, &taskHandle);
+    ESP_LOGI(TASK_NAME_KINEMATICS, "Task started");
+}
+
+// Stops the task
+void KinematicsTask::stop(){
+    vTaskDelete(taskHandle);
+    ESP_LOGI(TASK_NAME_KINEMATICS, "Task Stopped");
+}
+
+// Restarts the task, if it's running
+void KinematicsTask::restart(){
+    if(taskHandle != nullptr){
+        stop();
+    }
+    start();
 }

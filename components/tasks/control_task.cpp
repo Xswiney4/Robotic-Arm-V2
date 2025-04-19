@@ -192,7 +192,7 @@ void ControlTask::start(){
         ESP_LOGE(TASK_NAME_CONTROL, "Task is already running, returning...");
         return;
     }
-    xTaskCreate(&ControlTask::taskEntry, TASK_NAME_CONTROL, TASK_STACK_DEPTH_CONTROL, NULL, TASK_PRIORITY_CONTROL, NULL);
+    xTaskCreate(&ControlTask::taskEntry, TASK_NAME_CONTROL, TASK_STACK_DEPTH_CONTROL, NULL, TASK_PRIORITY_CONTROL, &taskHandle);
     ESP_LOGI(TASK_NAME_CONTROL, "Task started");
 }
 

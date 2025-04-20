@@ -15,6 +15,7 @@
 #include "control_task.h"
 #include "kinematics_task.h"
 #include "motor_task.h"
+#include "motor_monitor_task.h"
 
 // ESP/FreeRTOS
 #include "freertos/FreeRTOS.h"
@@ -185,19 +186,22 @@ bool RoboticArm::errorCheckComms(){
 
 // Initializes communcations task
 bool RoboticArm::initCommunications(){
-    //xTaskCreate(communicationTask, TASK_NAME_COMMUNICATION, TASK_STACK_DEPTH_COMMUNICATION, NULL, TASK_PRIORITY_COMMUNICATION, NULL);
+    communicationTask.init();
+    communicationTask.start();
     return false;
 }
 
 // Initializes central control task
 bool RoboticArm::initControl(){
-    xTaskCreate(controlTask, TASK_NAME_CONTROL, TASK_STACK_DEPTH_CONTROL, NULL, TASK_PRIORITY_CONTROL, NULL);
+    controlTask.init();
+    controlTask.start();
     return false;
 }
 
 // Initializes kinematics calculations task
 bool RoboticArm::initKinematics(){
-    xTaskCreate(kinematicsTask, TASK_NAME_KINEMATICS, TASK_STACK_DEPTH_KINEMATICS, motors, TASK_PRIORITY_KINEMATICS, NULL);
+    kinematicsTask.init(motors);
+    kinematicsTask.start();
     return false;
 }
 
@@ -270,7 +274,8 @@ bool RoboticArm::initMotor1(){
         motors[0] = new MotorModule(params);
 
         // Task Creation
-        xTaskCreate(motorTask, J1S_TASK_NAME, TASK_STACK_DEPTH_MOTOR, motors[0], TASK_PRIORITY_MOTOR, NULL);
+        motorTask[0].init(J1S_TASK_NAME, motors[0]);
+        motorTask[0].start();
         ESP_LOGI(motorInitTag, "Motor 1 successfully initialized");
 
         return false;
@@ -310,7 +315,8 @@ bool RoboticArm::initMotor2(){
         motors[1] = new MotorModule(params);
 
         // Task Creation
-        xTaskCreate(motorTask, J2S_TASK_NAME, TASK_STACK_DEPTH_MOTOR, motors[1], TASK_PRIORITY_MOTOR, NULL);
+        motorTask[1].init(J2S_TASK_NAME, motors[1]);
+        motorTask[1].start();
         ESP_LOGI(motorInitTag, "Motor 2 successfully initialized");
         
         return false;
@@ -349,7 +355,8 @@ bool RoboticArm::initMotor3(){
         motors[2] = new MotorModule(params);
 
         // Task Creation
-        xTaskCreate(motorTask, J3S_TASK_NAME, TASK_STACK_DEPTH_MOTOR, motors[2], TASK_PRIORITY_MOTOR, NULL);
+        motorTask[2].init(J3S_TASK_NAME, motors[2]);
+        motorTask[2].start();
         ESP_LOGI(motorInitTag, "Motor 3 successfully initialized");
         
         return false;
@@ -388,7 +395,8 @@ bool RoboticArm::initMotor4(){
         motors[3] = new MotorModule(params);
 
         // Task Creation
-        xTaskCreate(motorTask, J4S_TASK_NAME, TASK_STACK_DEPTH_MOTOR, motors[3], TASK_PRIORITY_MOTOR, NULL);
+        motorTask[3].init(J4S_TASK_NAME, motors[3]);
+        motorTask[3].start();
         ESP_LOGI(motorInitTag, "Motor 4 successfully initialized");
         
         return false;
@@ -427,7 +435,8 @@ bool RoboticArm::initMotor5(){
         motors[4] = new MotorModule(params);
 
         // Task Creation
-        xTaskCreate(motorTask, J5S_TASK_NAME, TASK_STACK_DEPTH_MOTOR, motors[4], TASK_PRIORITY_MOTOR, NULL);
+        motorTask[4].init(J5S_TASK_NAME, motors[4]);
+        motorTask[4].start();
         ESP_LOGI(motorInitTag, "Motor 5 successfully initialized");
         
         return false;
@@ -466,7 +475,8 @@ bool RoboticArm::initMotor6(){
         motors[5] = new MotorModule(params);
 
         // Task Creation
-        xTaskCreate(motorTask, J6S_TASK_NAME, TASK_STACK_DEPTH_MOTOR, motors[5], TASK_PRIORITY_MOTOR, NULL);
+        motorTask[5].init(J6S_TASK_NAME, motors[5]);
+        motorTask[5].start();
         ESP_LOGI(motorInitTag, "Motor 6 successfully initialized");
         
         return false;
@@ -480,7 +490,8 @@ bool RoboticArm::initMotor6(){
 
 // Initializes the motor task monitor
 bool RoboticArm::initMotorMonitor(){
-    xTaskCreate(stepMonitorTask, TASK_NAME_STEP_MONITOR, TASK_STACK_DEPTH_STEP_MONITOR, motors, TASK_PRIORITY_STEP_MONITOR, NULL);
+    motorMonitorTask.init(motors);
+    motorMonitorTask.start();
     return false;
 }
 

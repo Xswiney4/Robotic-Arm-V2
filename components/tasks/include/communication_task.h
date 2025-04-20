@@ -5,6 +5,7 @@ class CommunicationTask{
     private:
 
         // Initialization
+        bool isInitialized = false;
         void initBluetooth();
         void initUART();
 
@@ -31,6 +32,9 @@ class CommunicationTask{
         // Constructor/Destructor
         CommunicationTask();
         ~CommunicationTask();
+
+        // Initialization
+        void init();
 
 };
 

@@ -16,7 +16,7 @@
 // ~~ Constructor/Destructor ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 // Constructor
-MotorMonitorTask::MotorMonitorTask(MotorModule** motors) : motors(motors){
+MotorMonitorTask::MotorMonitorTask(){
 
 }
 
@@ -75,7 +75,11 @@ void MotorMonitorTask::stepMonitorTask(){
 
 // Starts the task
 void MotorMonitorTask::start(){
-    if(taskHandle != nullptr){
+    if(!isInitialized){
+        ESP_LOGE(TASK_NAME_STEP_MONITOR, "Task has not been initialized yet, returning...");
+        return;
+    }
+    else if(taskHandle != nullptr){
         ESP_LOGE(TASK_NAME_STEP_MONITOR, "Task is already running, returning...");
         return;
     }
@@ -95,4 +99,17 @@ void MotorMonitorTask::restart(){
         stop();
     }
     start();
+}
+
+// Initializes class parameters
+void MotorMonitorTask::init(MotorModule** motors){
+    if(isInitialized){
+        ESP_LOGE(TASK_NAME_STEP_MONITOR, "Task has already been initialized");
+        return;
+    }
+    else{
+        this->motors = motors;
+        isInitialized = true;
+        ESP_LOGI(TASK_NAME_STEP_MONITOR, "Task has been succesfully initizlized");
+    }
 }

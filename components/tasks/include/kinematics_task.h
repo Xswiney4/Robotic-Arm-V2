@@ -6,6 +6,9 @@
 class KinematicsTask{
     private:
 
+        // Initialization
+        bool isInitialized = false;
+
         // Task Handle
         TaskHandle_t taskHandle = nullptr;
 
@@ -32,6 +35,11 @@ class KinematicsTask{
         // Constructor/Destructor
         KinematicsTask();
         ~KinematicsTask();
+
+        // Initialization
+        void init(MotorModule** motors);
+
+        
 
 };
 

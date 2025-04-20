@@ -33,7 +33,6 @@ KinematicsTask::~KinematicsTask(){
 
 void KinematicsTask::taskEntry(void* pvParameter){
     KinematicsTask* self = static_cast<KinematicsTask*>(pvParameter);
-    self->motors = (MotorModule** )pvParameter;
     self->kinematicsTask();
 }
 
@@ -157,7 +156,11 @@ void KinematicsTask::setMotorAnglesKinCalc(UserCommand* cmd, MotorModule** motor
 
 // Starts the task
 void KinematicsTask::start(){
-    if(taskHandle != nullptr){
+    if(!isInitialized){
+        ESP_LOGE(TASK_NAME_KINEMATICS, "Task has not been initialized yet, returning...");
+        return;
+    }
+    else if(taskHandle != nullptr){
         ESP_LOGE(TASK_NAME_KINEMATICS, "Task is already running, returning...");
         return;
     }
@@ -177,4 +180,17 @@ void KinematicsTask::restart(){
         stop();
     }
     start();
+}
+
+// Initializes class parameters
+void KinematicsTask::init(MotorModule** motors){
+    if(isInitialized){
+        ESP_LOGE(TASK_NAME_KINEMATICS, "Task has already been initialized");
+        return;
+    }
+    else{
+        this->motors = motors;
+        isInitialized = true;
+        ESP_LOGI(TASK_NAME_KINEMATICS, "Task has been succesfully initizlized");
+    }
 }

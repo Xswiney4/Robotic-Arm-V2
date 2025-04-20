@@ -6,6 +6,9 @@
 
 class MotorMonitorTask{
     private:
+        // Initialization
+        bool isInitialized = false;
+
         // Task Handle
         TaskHandle_t taskHandle = nullptr;
 
@@ -24,8 +27,11 @@ class MotorMonitorTask{
         void restart();
 
         // Constructor/Destructor
-        MotorMonitorTask(MotorModule** motors);
+        MotorMonitorTask();
         ~MotorMonitorTask();
+
+        // Initialization
+        void init(MotorModule** motors);
 
 
 };

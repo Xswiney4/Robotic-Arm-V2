@@ -188,7 +188,11 @@ void ControlTask::sleep(UserCommand* cmd){
 
 // Starts the task
 void ControlTask::start(){
-    if(taskHandle != nullptr){
+    if(!isInitialized){
+        ESP_LOGE(TASK_NAME_CONTROL, "Task has not been initialized yet, returning...");
+        return;
+    }
+    else if(taskHandle != nullptr){
         ESP_LOGE(TASK_NAME_CONTROL, "Task is already running, returning...");
         return;
     }
@@ -208,4 +212,16 @@ void ControlTask::restart(){
         stop();
     }
     start();
+}
+
+// Initializes class parameters
+void ControlTask::init(){
+    if(isInitialized){
+        ESP_LOGE(TASK_NAME_CONTROL, "Task has already been initialized");
+        return;
+    }
+    else{
+        isInitialized = true;
+        ESP_LOGI(TASK_NAME_CONTROL, "Task has been succesfully initizlized");
+    }
 }

@@ -16,7 +16,7 @@
 // ~~ Constructor/Destructor ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 // Constructor
-MotorTask::MotorTask(const char* taskName, MotorModule* motor) : taskName(taskName), motor(motor){
+MotorTask::MotorTask(){
 
 }
 
@@ -79,7 +79,11 @@ void MotorTask::motorTask(){
 
 // Starts the task
 void MotorTask::start(){
-    if(taskHandle != nullptr){
+    if(!isInitialized){
+        ESP_LOGE(taskName, "Task has not been initialized yet, returning...");
+        return;
+    }
+    else if(taskHandle != nullptr){
         ESP_LOGE(taskName, "Task is already running, returning...");
         return;
     }
@@ -101,3 +105,16 @@ void MotorTask::restart(){
     start();
 }
 
+// Initializes class parameters
+void MotorTask::init(const char* taskName, MotorModule* motor){
+    if(isInitialized){
+        ESP_LOGE(taskName, "Task has already been initialized");
+        return;
+    }
+    else{
+        this->taskName = taskName;
+        this->motor = motor;
+        isInitialized = true;
+        ESP_LOGI(taskName, "Task has been succesfully initizlized");
+    }
+}

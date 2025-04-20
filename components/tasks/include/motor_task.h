@@ -7,6 +7,9 @@
 class MotorTask{
     private:
 
+        // Initialization
+        bool isInitialized = false;
+        
         // Task Handle
         TaskHandle_t taskHandle = nullptr;
         const char* taskName;
@@ -26,8 +29,11 @@ class MotorTask{
         void restart();
 
         // Constructor/Destructor
-        MotorTask(const char* taskName, MotorModule* motor);
+        MotorTask();
         ~MotorTask();
+
+        // Initialization
+        void init(const char* taskName, MotorModule* motor);
 
 
 };

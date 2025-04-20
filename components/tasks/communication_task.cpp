@@ -197,7 +197,11 @@ void CommunicationTask::exportUserCommand(UserCommand* cmd){
 
 // Starts the task
 void CommunicationTask::start(){
-    if(taskHandle != nullptr){
+    if(!isInitialized){
+        ESP_LOGE(TASK_NAME_COMMUNICATION, "Task has not been initialized yet, returning...");
+        return;
+    }
+    else if(taskHandle != nullptr){
         ESP_LOGE(TASK_NAME_COMMUNICATION, "Task is already running, returning...");
         return;
     }
@@ -217,4 +221,16 @@ void CommunicationTask::restart(){
         stop();
     }
     start();
+}
+
+// Initializes class parameters
+void CommunicationTask::init(){
+    if(isInitialized){
+        ESP_LOGE(TASK_NAME_KINEMATICS, "Task has already been initialized");
+        return;
+    }
+    else{
+        isInitialized = true;
+        ESP_LOGI(TASK_NAME_KINEMATICS, "Task has been succesfully initizlized");
+    }
 }

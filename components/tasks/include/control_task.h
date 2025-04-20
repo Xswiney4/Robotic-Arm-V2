@@ -6,6 +6,9 @@
 class ControlTask{
     private:
 
+        // Initialization
+        bool isInitialized = false;
+
         // Task Handle
         TaskHandle_t taskHandle = nullptr;
 
@@ -35,6 +38,9 @@ class ControlTask{
         // Constructor/Destructor
         ControlTask();
         ~ControlTask();
+
+        // Initialization
+        void init();
 
 };
 

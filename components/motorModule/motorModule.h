@@ -69,6 +69,10 @@ class MotorModule{
         void setupGPIO();
         void setupAS5600();
         void calibrate();
+        
+        // Helper Methods
+        int degToSteps(float degrees);
+        float stepsToDeg(int steps);
 
         // Servo Controls through Setup
         void setupTargetSteps(int numSteps);

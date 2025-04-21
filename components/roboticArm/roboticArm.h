@@ -5,6 +5,13 @@
 #include "motorModule.h"
 #include "robotic_definitions.h"
 
+// Tasks Definitions
+#include "communication_task.h"
+#include "control_task.h"
+#include "kinematics_task.h"
+#include "motor_task.h"
+#include "motor_monitor_task.h"
+
 class RoboticArm{
 
     private:

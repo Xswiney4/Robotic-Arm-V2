@@ -132,7 +132,7 @@ void KinematicsTask::setMotorAnglesKinCalc(UserCommand* cmd, MotorModule** motor
             
             
             // Calculates the step time in ms
-            float stepPeriodMs = 1800.0f / (STEPPER_SPEED * motors[i]->degreesPerStep);
+            float stepPeriodMs = 1000.0f * motors[i]->degreesPerStep / STEPPER_SPEED;
 
             target.xFrequency = pdMS_TO_TICKS(stepPeriodMs);
             target.targetAngle = cmd->params[i];
@@ -164,7 +164,7 @@ void KinematicsTask::start(){
         ESP_LOGE(TASK_NAME_KINEMATICS, "Task is already running, returning...");
         return;
     }
-    xTaskCreate(&KinematicsTask::taskEntry, TASK_NAME_KINEMATICS, TASK_STACK_DEPTH_KINEMATICS, NULL, TASK_PRIORITY_KINEMATICS, &taskHandle);
+    xTaskCreate(&KinematicsTask::taskEntry, TASK_NAME_KINEMATICS, TASK_STACK_DEPTH_KINEMATICS, this, TASK_PRIORITY_KINEMATICS, &taskHandle);
     ESP_LOGI(TASK_NAME_KINEMATICS, "Task started");
 }
 
@@ -191,6 +191,6 @@ void KinematicsTask::init(MotorModule** motors){
     else{
         this->motors = motors;
         isInitialized = true;
-        ESP_LOGI(TASK_NAME_KINEMATICS, "Task has been succesfully initizlized");
+        ESP_LOGI(TASK_NAME_KINEMATICS, "Task has been succesfully initialized");
     }
 }

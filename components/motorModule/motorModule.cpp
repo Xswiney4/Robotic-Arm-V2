@@ -67,12 +67,25 @@ void MotorModule::calibrate(){
 }
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// ~~ Helper Methods ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+// Converts degrees to steps
+int MotorModule::degToSteps(float degrees){
+    return roundf(degrees / degreesPerStep);
+}
+
+// Converts steps to degrees
+float MotorModule::stepsToDeg(int steps){
+    return steps * degreesPerStep;
+}
+
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // ~~ Servo Controls through Setup ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
 void MotorModule::setupTargetSteps(int numSteps){
     targetParams.numSteps = numSteps;
-    targetParams.targetAngle = numSteps * degreesPerStep;
+    targetParams.targetAngle = stepsToDeg(numSteps);
     ESP_LOGD(pcTaskGetName(NULL), "Set numSteps to: %d", numSteps);
 }
 
@@ -86,7 +99,7 @@ void MotorModule::setupTargetAngle(float targetAngle){
     float inputDiff = targetAngle - updateAngle();
 
     // Calculate the number of steps needed
-    targetParams.numSteps = (int)roundf(inputDiff / degreesPerStep);
+    targetParams.numSteps = degToSteps(inputDiff);
 
     // Debug log
     ESP_LOGD(pcTaskGetName(NULL), "Calculated %d steps required to go from %.2f to %.2f", targetParams.numSteps, currentAngle, targetAngle);
@@ -96,7 +109,7 @@ void MotorModule::setupTargetAngle(float targetAngle){
 void MotorModule::setupTargetSpeed(float speed){
 
     // Calculates the step time in ms
-    float stepPeriodMs = 1800.0f / (speed * motorParams.gearRatio * motorParams.microstepping);
+    float stepPeriodMs = 1000.0f * degreesPerStep / speed;
 
     // If the step time is not a whole number
     if(stepPeriodMs != (int)(stepPeriodMs)){
@@ -174,6 +187,17 @@ void MotorModule::moveToTarget(){
         
         // Block for delay
         vTaskDelayUntil(&xLastWakeTime, targetParams.xFrequency);
+
+    }
+
+    // Angle logging if we're in debugging/verbose modes
+    if(CONFIG_LOG_DEFAULT_LEVEL >= 3){
+
+        vTaskDelay(500);
+
+        float a = updateAngle();
+        float err = targetParams.targetAngle - a;
+        ESP_LOGI(pcTaskGetName(NULL), "Actual: %.3f | Target: %.3f | Error: %f", a, targetParams.targetAngle, err);
 
     }
 
@@ -259,7 +283,7 @@ bool MotorModule::validateCurrentStep(){
     ESP_LOGD(pcTaskGetName(NULL), "Current Angle updated to: %.2f", currentAngle);
 
     // Calculate the expected amount of steps left
-    int expectedSteps = roundf(fabs(targetParams.targetAngle - currentAngle) / degreesPerStep);
+    int expectedSteps = fabs(degToSteps(targetParams.targetAngle - currentAngle));
     ESP_LOGD(pcTaskGetName(NULL), "expectedSteps calculated to be: %d", expectedSteps);
 
     // Check if we've reached the target
@@ -289,7 +313,7 @@ bool MotorModule::validateCurrentStep(){
     // Exit critical section
     taskEXIT_CRITICAL(&stepMux);
 
-    ESP_LOGI(pcTaskGetName(NULL), "%d missing step(s) found on motor %d... adding to the stepCount", missedSteps, motorNum);
+    ESP_LOGD(pcTaskGetName(NULL), "%d missing step(s) found on motor %d... adding to the stepCount", missedSteps, motorNum);
 
     return false;
 }

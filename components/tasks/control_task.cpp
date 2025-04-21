@@ -196,7 +196,7 @@ void ControlTask::start(){
         ESP_LOGE(TASK_NAME_CONTROL, "Task is already running, returning...");
         return;
     }
-    xTaskCreate(&ControlTask::taskEntry, TASK_NAME_CONTROL, TASK_STACK_DEPTH_CONTROL, NULL, TASK_PRIORITY_CONTROL, &taskHandle);
+    xTaskCreate(&ControlTask::taskEntry, TASK_NAME_CONTROL, TASK_STACK_DEPTH_CONTROL, this, TASK_PRIORITY_CONTROL, &taskHandle);
     ESP_LOGI(TASK_NAME_CONTROL, "Task started");
 }
 
@@ -222,6 +222,6 @@ void ControlTask::init(){
     }
     else{
         isInitialized = true;
-        ESP_LOGI(TASK_NAME_CONTROL, "Task has been succesfully initizlized");
+        ESP_LOGI(TASK_NAME_CONTROL, "Task has been succesfully initialized");
     }
 }

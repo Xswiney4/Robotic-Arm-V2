@@ -10,13 +10,6 @@
 // #include "motorModule.h" **Defined in header**
 // #include "pca9548a.h" **Defined in header**
 
-// Tasks Definitions
-#include "communication_task.h"
-#include "control_task.h"
-#include "kinematics_task.h"
-#include "motor_task.h"
-#include "motor_monitor_task.h"
-
 // ESP/FreeRTOS
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"

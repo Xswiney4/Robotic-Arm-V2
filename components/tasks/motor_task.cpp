@@ -32,7 +32,6 @@ MotorTask::~MotorTask(){
 
 void MotorTask::taskEntry(void* pvParameter){
     MotorTask* self = static_cast<MotorTask*>(pvParameter);
-    self->motor = (MotorModule* )pvParameter;
     self->motorTask();
 }
 
@@ -87,7 +86,7 @@ void MotorTask::start(){
         ESP_LOGE(taskName, "Task is already running, returning...");
         return;
     }
-    xTaskCreate(&MotorTask::taskEntry, taskName, TASK_STACK_DEPTH_MOTOR, NULL, TASK_PRIORITY_MOTOR, &taskHandle);
+    xTaskCreate(&MotorTask::taskEntry, taskName, TASK_STACK_DEPTH_MOTOR, this, TASK_PRIORITY_MOTOR, &taskHandle);
     ESP_LOGI(taskName, "Task started");
 }
 
@@ -115,6 +114,6 @@ void MotorTask::init(const char* taskName, MotorModule* motor){
         this->taskName = taskName;
         this->motor = motor;
         isInitialized = true;
-        ESP_LOGI(taskName, "Task has been succesfully initizlized");
+        ESP_LOGI(taskName, "Task has been succesfully initialized");
     }
 }

@@ -177,7 +177,7 @@ any bluetooth or UART control commands. These commands are parsed and sent to bo
 kinematics task
 */
 void CommunicationTask::communicationTask(){
-
+    vTaskDelay(portMAX_DELAY);
 }
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -205,7 +205,7 @@ void CommunicationTask::start(){
         ESP_LOGE(TASK_NAME_COMMUNICATION, "Task is already running, returning...");
         return;
     }
-    xTaskCreate(&CommunicationTask::taskEntry, TASK_NAME_COMMUNICATION, TASK_STACK_DEPTH_COMMUNICATION, NULL, TASK_PRIORITY_COMMUNICATION, &taskHandle);
+    xTaskCreate(&CommunicationTask::taskEntry, TASK_NAME_COMMUNICATION, TASK_STACK_DEPTH_COMMUNICATION, this, TASK_PRIORITY_COMMUNICATION, &taskHandle);
     ESP_LOGI(TASK_NAME_COMMUNICATION, "Task started");
 }
 
@@ -231,6 +231,6 @@ void CommunicationTask::init(){
     }
     else{
         isInitialized = true;
-        ESP_LOGI(TASK_NAME_KINEMATICS, "Task has been succesfully initizlized");
+        ESP_LOGI(TASK_NAME_KINEMATICS, "Task has been succesfully initialized");
     }
 }

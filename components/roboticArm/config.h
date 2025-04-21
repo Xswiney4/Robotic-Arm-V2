@@ -19,9 +19,9 @@
 #define TASK_PRIORITY_KINEMATICS        3
 #define TASK_PRIORITY_STEP_MONITOR      1
 
-#define TASK_STACK_DEPTH_COMMUNICATION  2048
+#define TASK_STACK_DEPTH_COMMUNICATION  4096
 #define TASK_STACK_DEPTH_CONTROL        4096
-#define TASK_STACK_DEPTH_KINEMATICS     2048
+#define TASK_STACK_DEPTH_KINEMATICS     4096
 #define TASK_STACK_DEPTH_STEP_MONITOR   4096
 
 #define TASK_NAME_COMMUNICATION     "Communications Driver"
@@ -55,7 +55,7 @@
 
 // Global Joint Params
 #define STEPPER_SPEED               300.0f // deg/sec
-#define STEP_MONITOR_CHECK_TIME     10.0f // Hz 
+#define STEP_MONITOR_CHECK_TIME     20.0f // Hz 
 
 // ~~ Global AS5600 Config ~~
 
@@ -158,7 +158,7 @@ constexpr uint16_t AS5600_CONF =
 #define J6S_PIN_DIR     GPIO_NUM_13
 #define J6S_PIN_STEP    GPIO_NUM_12
 #define J6S_GEAR_RATIO  GEAR_RATIO_1_TO_1
-#define J6S_MICROSTEP   MICROSTEPPING_FULL
+#define J6S_MICROSTEP   MICROSTEPPING_QUARTER
 #define J6S_DEG_P_STEP  1.8f
 #define J6S_BIT_MASK    BIT5
 

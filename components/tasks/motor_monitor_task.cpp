@@ -83,7 +83,7 @@ void MotorMonitorTask::start(){
         ESP_LOGE(TASK_NAME_STEP_MONITOR, "Task is already running, returning...");
         return;
     }
-    xTaskCreate(&MotorMonitorTask::taskEntry, TASK_NAME_STEP_MONITOR, TASK_STACK_DEPTH_STEP_MONITOR, NULL, TASK_PRIORITY_STEP_MONITOR, &taskHandle);
+    xTaskCreate(&MotorMonitorTask::taskEntry, TASK_NAME_STEP_MONITOR, TASK_STACK_DEPTH_STEP_MONITOR, this, TASK_PRIORITY_STEP_MONITOR, &taskHandle);
     ESP_LOGI(TASK_NAME_STEP_MONITOR, "Task started");
 }
 
@@ -110,6 +110,6 @@ void MotorMonitorTask::init(MotorModule** motors){
     else{
         this->motors = motors;
         isInitialized = true;
-        ESP_LOGI(TASK_NAME_STEP_MONITOR, "Task has been succesfully initizlized");
+        ESP_LOGI(TASK_NAME_STEP_MONITOR, "Task has been succesfully initialized");
     }
 }

@@ -9,7 +9,6 @@
 #include "freertos/event_groups.h"
 #include "freertos/queue.h"
 
-#include "stepper.h"
 #include "as5600.h"
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -47,6 +47,9 @@ class RoboticArm{
 
         bool initMotorMonitor();    // Initializes the motor task monitor
 
+        // Robot Task Call
+        void runTask(const char* name, void* args);
+        
         // Sends a user command to the central command task
         void sendUserCommand(UserCommand* cmd);
 

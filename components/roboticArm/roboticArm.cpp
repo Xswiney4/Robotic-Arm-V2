@@ -6,7 +6,6 @@
 
 // Component Definitions
 #include "as5600.h"
-#include "stepper.h"
 // #include "motorModule.h" **Defined in header**
 // #include "pca9548a.h" **Defined in header**
 

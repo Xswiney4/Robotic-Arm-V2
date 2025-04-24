@@ -9,22 +9,26 @@
 #include <iomanip>
 #include "esp_log.h"
 #include <cmath>
+#include <random>
 
+#define SLEEP_TIME 500
+#define NUMTRIALS 20
 
 extern "C" void app_main(){
 
+    // Create a random number generator
+    std::random_device rd;
+    std::mt19937 gen(rd()); // Standard mersenne_twister_engine
+    std::uniform_real_distribution<float> dist(0.0f, 360.0f);
+
     RoboticArm robot;
 
-    robot.setMotorAngles(-1, 360, -1, -1, -1, 0);
-    robot.sleep(1000);
-    robot.setMotorAngles(-1, 0, -1, -1, -1, 360);
-    robot.sleep(1000);
-    robot.setMotorAngles(-1, 180, -1, -1, -1, 180);
-    robot.sleep(1000);
-    robot.setMotorAngles(-1, 90, -1, -1, -1, 270);
-    robot.sleep(1000);
-    robot.setMotorAngles(-1, 360, -1, -1, -1, 0);
+    for(int i = 0; i < NUMTRIALS; i++){
+        float rand = dist(gen);
+        robot.setMotorAngles(-1, rand, -1, -1, -1, rand);
+        robot.sleep(SLEEP_TIME);
 
+    }
     
     while(true){
         std::this_thread::sleep_for(std::chrono::milliseconds(5000));

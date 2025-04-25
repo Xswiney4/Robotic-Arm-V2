@@ -3,6 +3,7 @@
 
 #include "pca9548a.h"
 #include "motorModule.h"
+#include "robotFunctions.h"
 #include "robotic_definitions.h"
 
 // Tasks Definitions
@@ -19,6 +20,7 @@ class RoboticArm{
         // Variables
         PCA9548A pca9548a;      // PCA9548A object
         MotorModule* motors[6] = {nullptr}; // Pointers to all my motor objects
+        RtosResources rtosResources; // All RTOS Resources
 
         // Tasks
         MotorTask motorTask[6];

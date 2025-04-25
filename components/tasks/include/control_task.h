@@ -1,7 +1,7 @@
 #ifndef CONTROL_TASK_H
 #define CONTROL_TASK_H
 
-#include "robotic_definitions.h"
+#include "robotFunctions.h"
 
 class ControlTask{
     private:
@@ -9,24 +9,15 @@ class ControlTask{
         // Initialization
         bool isInitialized = false;
 
+        // RTOS Resources
+        RtosResources* rtosResources;
+
         // Task Handle
         TaskHandle_t taskHandle = nullptr;
 
         // Task Definition
         static void taskEntry(void* pvParameters);
         void controlTask();
-
-        // User Commands
-        void setEnd(UserCommand* cmd);
-        void setEndSpeed(UserCommand* cmd);
-        void setMotorAngles(UserCommand* cmd);
-        void setMotorSpeed(UserCommand* cmd);
-        void sleep(UserCommand* cmd);
-
-        // Other Utils
-        void primeMotor(int motor, float desiredAngle, float speed);
-        void enableMotors();
-        void waitTilMotorsIdle();
 
     public:
 
@@ -40,7 +31,7 @@ class ControlTask{
         ~ControlTask();
 
         // Initialization
-        void init();
+        void init(RtosResources* resources);
 
 };
 

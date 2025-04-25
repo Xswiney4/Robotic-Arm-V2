@@ -5,28 +5,51 @@
 #include <functional>
 #include <array>
 
+// FreeRTOS
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "freertos/event_groups.h"
+#include "freertos/queue.h"
+
 // Argument Types
 #define ARGTYPE_NULL           -1
-#define ARGTYPE_POSE            1
-#define ARGTYPE_MOTOR_TARGET    2
+#define ARGTYPE_INT             1
+#define ARGTYPE_FLOAT           2
+#define ARGTYPE_POSE            3
+#define ARGTYPE_MOTOR_TARGET    4
 
 
 
 // ~~ Robot Task Definitions ~~
 
 // setEnd(pos, ori)
-void setEndSM(void* args);
-void setEndCalc(void* args);
+void setEndSM(RtosResources* rtosResources, void* args);
+void setEndCalc(RtosResources* rtosResources, void* args);
 
 
 // setAngles({angle, speeed}[6]);
-void setAnglesSM(void* args);
-void setAnglesCalc(void* args);
+void setAnglesSM(RtosResources* rtosResources, void* args);
+void setAnglesCalc(RtosResources* rtosResources, void* args);
 
 // sleep(ms)
-void sleepSM(void* args);
+void sleepSM(RtosResources* rtosResources, void* args);
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+struct RtosResources{
+    QueueHandle_t controlCmd;       // Queue for user commands      (UserCommand Struct)
+    QueueHandle_t kinematicsCmd;    // Queue for kinematics task    (UserCommand Struct)
+
+    QueueHandle_t motorTargetsQueue[6];
+
+    // Task Notification
+    TaskHandle_t kinematicsSolved; // Flags if Kinematics Solver is idle
+
+    // Event Groups
+    EventGroupHandle_t motorEnabled; // Enables Motors
+    EventGroupHandle_t motorIdle;   // Flags if motor is idle
+    EventGroupHandle_t motorReady;  // Signals motor is ready
+};
 
 // User Command Structure
 struct UserCommand{
@@ -42,8 +65,8 @@ struct Pose{
 
 // Motor Target Structure
 struct MotorTarget{
-    float angle;
-    float speed;
+    float angle = -1.0f;
+    float speed = -1.0f;
 };
 
 // Robot Task Structure
@@ -52,8 +75,8 @@ struct RobotTask{
     const char* name;
 
     // Callbacks for control and calculation tasks
-    std::function<void(void*)> stateMachineFunc;  // Runs at higher priority and if necessary, waits for information from calculationFunc
-    std::function<void(void*)> calculationFunc;   // Runs at lowest priority and sends information to stateMachineFunc
+    std::function<void(RtosResources*, void*)> stateMachineFunc;  // Runs at higher priority and if necessary, waits for information from calculationFunc
+    std::function<void(RtosResources*, void*)> calculationFunc;   // Runs at lowest priority and sends information to stateMachineFunc
 
     // Communication Task Parsing
     int argType = ARGTYPE_NULL;     // Type of argument the callbacks input
@@ -63,9 +86,11 @@ struct RobotTask{
 
 // Robot Tasks that are registered into the system
 const RobotTask robotTasks[] = {
-    {"setEnd", setEndSM, setEndCalc},
-    {"setAngles", setAnglesSM, setAnglesCalc},
-    {"sleep", sleepSM, nullptr},
+    {"setEnd", setEndSM, setEndCalc, ARGTYPE_POSE, 1},
+    {"setAngles", setAnglesSM, setAnglesCalc, ARGTYPE_MOTOR_TARGET, 6},
+    {"sleep", sleepSM, nullptr, ARGTYPE_INT, 1},
 };
+
+const int numRobotTasks = sizeof(robotTasks) / sizeof(robotTasks[0]);  // Get array size dynamically
 
 #endif

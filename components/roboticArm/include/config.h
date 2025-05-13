@@ -165,6 +165,16 @@ constexpr uint16_t AS5600_CONF =
 // End Effector Params
 #define EE_PORT PCA9548A_PORT_0
 
+// Joint Parameter Arrays
+const float DEG_PER_STEP[] = {
+    J1S_DEG_P_STEP / J1S_MICROSTEP / J1S_GEAR_RATIO,
+    J2S_DEG_P_STEP / J2S_MICROSTEP / J2S_GEAR_RATIO,
+    J3S_DEG_P_STEP / J3S_MICROSTEP / J3S_GEAR_RATIO,
+    J4S_DEG_P_STEP / J4S_MICROSTEP / J4S_GEAR_RATIO,
+    J5S_DEG_P_STEP / J5S_MICROSTEP / J5S_GEAR_RATIO,
+    J6S_DEG_P_STEP / J6S_MICROSTEP / J6S_GEAR_RATIO,
+};
+
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #endif

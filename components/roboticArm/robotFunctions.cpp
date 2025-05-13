@@ -5,6 +5,7 @@
 #include "robotFunctions.h"
 
 // Component Definitions
+#include "motorModule.h"
 
 // ESP/FreeRTOS
 #include "freertos/FreeRTOS.h"
@@ -38,7 +39,7 @@ The structure is as follows:
 - Break
 */
 
-void setAnglesSM(RtosResources* rtosResources, void* args){
+void setAnglesSM(RtosResources* rtosResources, void* context, void* args){
 
     MotorTarget* targets = static_cast<MotorTarget*>(args);
     
@@ -47,7 +48,7 @@ void setAnglesSM(RtosResources* rtosResources, void* args){
     // Loop going through each parameter input
     for(int i = 0; i < 6; i++){
         // If parameter is valid
-        if(targets->speed != -1.0f){
+        if(targets[i].speed != -1.0f){
 
             // Adds the motor to the global bit mask
             motorBitMask |= (1 << i);
@@ -68,14 +69,45 @@ void setAnglesSM(RtosResources* rtosResources, void* args){
     xEventGroupWaitBits(rtosResources->motorIdle, motorBitMask, pdFALSE, pdTRUE, portMAX_DELAY);
 }
 
-void setAnglesCalc(RtosResources* rtosResources, void* args){
+void setAnglesCalc(RtosResources* rtosResources, void* context, void* args){
 
+    MotorTarget* targets = static_cast<MotorTarget*>(args);
+
+    // Loop going through each parameter input
+    for(int i = 0; i < 6; i++){
+        // If parameter is valid
+        if(targets[i].speed != -1.0f){
+
+            TargetParams refinedTarget;
+
+            // Difference the input motor needs to move in order for the output angle to reach the target
+            float inputDiff = cmd->params[i] - virtMotorAngle[i];
+
+            // Calculate the number of steps needed
+            refinedTarget.numSteps = (int)roundf(inputDiff / motors[i]->degreesPerStep);
+            
+            
+            // Calculates the step time in ms
+            float stepPeriodMs = 1000.0f * motors[i]->degreesPerStep / STEPPER_SPEED;
+
+            refinedTarget.xFrequency = pdMS_TO_TICKS(stepPeriodMs);
+            refinedTarget.targetAngle = cmd->params[i];
+
+
+            // Send target to motor
+            xQueueSend(motorTargetsQueue[i], &target, portMAX_DELAY);
+
+            // Set the virtMotorAngle and
+            virtMotorAngle[i] = cmd->params[i];
+
+        }
+    }
 }
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // ~~ sleep(ms) ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 // Puts the controller to sleep for a given time in ms
-void sleepSM(RtosResources* rtosResources, void* args){
+void sleepSM(RtosResources* rtosResources, void* context, void* args){
 
     // Cast and delete args
     int timeMS = *(int*)args;

@@ -1,6 +1,5 @@
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // ~~ Libraries ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#include "robotic_definitions.h"
 #include "communication_task.h"
 #include "config.h"
 
@@ -185,8 +184,8 @@ void CommunicationTask::communicationTask(){
 
 // Sends command over to control and kinematics task
 void CommunicationTask::exportUserCommand(UserCommand* cmd){
-    xQueueSend(controlCmd, cmd, portMAX_DELAY);
-    xQueueSend(kinematicsCmd, cmd, portMAX_DELAY);
+    xQueueSend(rtosResources->controlCmd, cmd, portMAX_DELAY);
+    xQueueSend(rtosResources->kinematicsCmd, cmd, portMAX_DELAY);
 }
 
 
@@ -224,12 +223,13 @@ void CommunicationTask::restart(){
 }
 
 // Initializes class parameters
-void CommunicationTask::init(){
+void CommunicationTask::init(RtosResources* resources){
     if(isInitialized){
         ESP_LOGE(TASK_NAME_KINEMATICS, "Task has already been initialized");
         return;
     }
     else{
+        this->rtosResources = resources;
         isInitialized = true;
         ESP_LOGI(TASK_NAME_KINEMATICS, "Task has been succesfully initialized");
     }

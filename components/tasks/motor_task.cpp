@@ -48,25 +48,25 @@ void MotorTask::motorTask(){
 
  
         // Set motor to idle
-        xEventGroupSetBits(motorIdle, motor->bitMask);
+        xEventGroupSetBits(rtosResources->motorIdle, motor->bitMask);
         ESP_LOGD(pcTaskGetName(NULL), "Motor Idle");
 
         // Wait for targetParams
-        xQueueReceive(motorTargetsQueue[motor->motorNum], &target, portMAX_DELAY);
+        xQueueReceive(rtosResources->motorTargetsQueue[motor->motorNum], &target, portMAX_DELAY);
 
         // Mark as ready
-        xEventGroupSetBits(motorReady, motor->bitMask);
+        xEventGroupSetBits(rtosResources->motorReady, motor->bitMask);
         ESP_LOGD(pcTaskGetName(NULL), "Motor Ready");
 
         // Wait for an enable signal from the control task
-        xEventGroupWaitBits(motorEnabled, motor->bitMask, pdFALSE, pdTRUE, portMAX_DELAY);
+        xEventGroupWaitBits(rtosResources->motorEnabled, motor->bitMask, pdFALSE, pdTRUE, portMAX_DELAY);
         ESP_LOGD(pcTaskGetName(NULL), "Motor Enabled");
 
         // Move to target
         motor->setAngle(target);
 
         // Remove the enable signal
-        xEventGroupClearBits(motorEnabled, motor->bitMask);
+        xEventGroupClearBits(rtosResources->motorEnabled, motor->bitMask);
 
     }
 }
@@ -105,7 +105,7 @@ void MotorTask::restart(){
 }
 
 // Initializes class parameters
-void MotorTask::init(const char* taskName, MotorModule* motor){
+void MotorTask::init(RtosResources* resources, const char* taskName, MotorModule* motor){
     if(isInitialized){
         ESP_LOGE(taskName, "Task has already been initialized");
         return;
@@ -113,6 +113,7 @@ void MotorTask::init(const char* taskName, MotorModule* motor){
     else{
         this->taskName = taskName;
         this->motor = motor;
+        this->rtosResources = resources;
         isInitialized = true;
         ESP_LOGI(taskName, "Task has been succesfully initialized");
     }

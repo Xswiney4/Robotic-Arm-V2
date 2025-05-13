@@ -107,8 +107,8 @@ void ControlTask::init(RtosResources* resources){
         return;
     }
     else{
+        this->rtosResources = resources;
         isInitialized = true;
-        rtosResources = resources;
         ESP_LOGI(TASK_NAME_CONTROL, "Task has been succesfully initialized");
     }
 }

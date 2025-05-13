@@ -11,6 +11,9 @@ class CommunicationTask{
         void initBluetooth();
         void initUART();
 
+        // RTOS Resources
+        RtosResources* rtosResources;
+
         // Task Definition
         static void taskEntry(void* pvParameters);
         void communicationTask();
@@ -36,7 +39,7 @@ class CommunicationTask{
         ~CommunicationTask();
 
         // Initialization
-        void init();
+        void init(RtosResources* resources);
 
 };
 

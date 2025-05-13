@@ -1,6 +1,5 @@
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // ~~ Libraries ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#include "robotic_definitions.h"
 #include "config.h"
 #include "motor_monitor_task.h"
 
@@ -49,7 +48,7 @@ void MotorMonitorTask::stepMonitorTask(){
     while(true){
 
         // Wait for a motor to be enabled
-        uxBits = xEventGroupWaitBits(motorEnabled, ALL_MOTORS_BIT_MASK, pdFALSE, pdFALSE, portMAX_DELAY);
+        uxBits = xEventGroupWaitBits(rtosResources->motorEnabled, ALL_MOTORS_BIT_MASK, pdFALSE, pdFALSE, portMAX_DELAY);
 
         // Check all motors
         for(int i = 0; i < 6; i++){
@@ -102,13 +101,14 @@ void MotorMonitorTask::restart(){
 }
 
 // Initializes class parameters
-void MotorMonitorTask::init(MotorModule** motors){
+void MotorMonitorTask::init(RtosResources* resources, MotorModule** motors){
     if(isInitialized){
         ESP_LOGE(TASK_NAME_STEP_MONITOR, "Task has already been initialized");
         return;
     }
     else{
         this->motors = motors;
+        this->rtosResources = resources;
         isInitialized = true;
         ESP_LOGI(TASK_NAME_STEP_MONITOR, "Task has been succesfully initialized");
     }

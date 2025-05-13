@@ -1,7 +1,7 @@
 #ifndef MOTOR_TASK_H
 #define MOTOR_TASK_H
 
-#include "robotic_definitions.h"
+#include "robotFunctions.h"
 #include "motorModule.h"
 
 class MotorTask{
@@ -9,6 +9,9 @@ class MotorTask{
 
         // Initialization
         bool isInitialized = false;
+
+        // RTOS Resources
+        RtosResources* rtosResources;
         
         // Task Handle
         TaskHandle_t taskHandle = nullptr;
@@ -33,7 +36,7 @@ class MotorTask{
         ~MotorTask();
 
         // Initialization
-        void init(const char* taskName, MotorModule* motor);
+        void init(RtosResources* resources, const char* taskName, MotorModule* motor);
 
 
 };

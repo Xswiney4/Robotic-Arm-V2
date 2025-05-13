@@ -1,6 +1,5 @@
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // ~~ Libraries ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#include "robotic_definitions.h"
 #include "config.h"
 #include "motorModule.h"
 #include "kinematics_task.h"
@@ -49,7 +48,7 @@ void KinematicsTask::kinematicsTask(){
         if(motors[i] != nullptr){
 
             // Wait for the motor to be idle
-            xEventGroupWaitBits(motorIdle, (1 << i), pdFALSE, pdTRUE, portMAX_DELAY);
+            xEventGroupWaitBits(rtosResources->motorIdle, (1 << i), pdFALSE, pdTRUE, portMAX_DELAY);
 
             // Measures it's start angle
             virtMotorAngle[i] = motors[i]->updateAngle();
@@ -61,7 +60,7 @@ void KinematicsTask::kinematicsTask(){
     while(true){
 
         // Wait until user command struct is recieved
-        xQueueReceive(kinematicsCmd, &cmd, portMAX_DELAY);
+        xQueueReceive(rtosResources->kinematicsCmd, &cmd, portMAX_DELAY);
 
         // Now we decode the command struct
         switch (cmd.commandNum){
@@ -183,13 +182,14 @@ void KinematicsTask::restart(){
 }
 
 // Initializes class parameters
-void KinematicsTask::init(MotorModule** motors){
+void KinematicsTask::init(RtosResources* resources, MotorModule** motors){
     if(isInitialized){
         ESP_LOGE(TASK_NAME_KINEMATICS, "Task has already been initialized");
         return;
     }
     else{
         this->motors = motors;
+        this->rtosResources = resources;
         isInitialized = true;
         ESP_LOGI(TASK_NAME_KINEMATICS, "Task has been succesfully initialized");
     }

@@ -1,7 +1,7 @@
 #ifndef KINEMATICS_TASK_H
 #define KINEMATICS_TASK_H
 
-#include "robotic_definitions.h"
+#include "robotFunctions.h"
 
 class KinematicsTask{
     private:
@@ -9,11 +9,15 @@ class KinematicsTask{
         // Initialization
         bool isInitialized = false;
 
+        // RTOS Resources
+        RtosResources* rtosResources;
+
         // Task Handle
         TaskHandle_t taskHandle = nullptr;
 
         // Motors
         MotorModule** motors;
+        float virtAngle[6];
 
         // Task Definition
         static void taskEntry(void* pvParameters);
@@ -37,7 +41,7 @@ class KinematicsTask{
         ~KinematicsTask();
 
         // Initialization
-        void init(MotorModule** motors);
+        void init(RtosResources* resources, MotorModule** motors);
 
         
 

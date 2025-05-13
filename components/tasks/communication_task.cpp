@@ -222,6 +222,11 @@ void CommunicationTask::restart(){
     start();
 }
 
+// RTOS Resources
+RtosResources* CommunicationTask::getRtosResources(){
+    return rtosResources;
+}
+
 // Initializes class parameters
 void CommunicationTask::init(RtosResources* resources){
     if(isInitialized){

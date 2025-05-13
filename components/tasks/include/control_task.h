@@ -26,6 +26,9 @@ class ControlTask{
         void stop();
         void restart();
 
+        // RTOS Resources
+        RtosResources* getRtosResources();
+
         // Constructor/Destructor
         ControlTask();
         ~ControlTask();

@@ -56,7 +56,7 @@ void ControlTask::controlTask(){
             if(strcmp(robotTasks[i].name,cmd.name) == 0){
                 // Then we run the state machine function
                 cmdFound = true;
-                robotTasks->stateMachineFunc(rtosResources, this, cmd.args);
+                robotTasks->stateMachineFunc(this, cmd.args);
                 break;
             }
         }
@@ -98,6 +98,11 @@ void ControlTask::restart(){
         stop();
     }
     start();
+}
+
+// RTOS Resources
+RtosResources* ControlTask::getRtosResources(){
+    return rtosResources;
 }
 
 // Initializes class parameters

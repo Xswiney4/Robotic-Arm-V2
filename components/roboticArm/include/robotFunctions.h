@@ -1,7 +1,6 @@
 #ifndef ROBOT_FUNCITONS_H
 #define ROBOT_FUNCTIONS_H
 
-// #include "robotic_definitions.h"
 #include <functional>
 #include <array>
 
@@ -23,16 +22,16 @@
 // ~~ Robot Task Definitions ~~
 
 // setEnd(pos, ori)
-void setEndSM(RtosResources* rtosResources, void* context, void* args);
-void setEndCalc(RtosResources* rtosResources, void* context, void* args);
+void setEndSM(void* context, void* args);
+void setEndCalc(void* context, void* args);
 
 
 // setAngles({angle, speeed}[6]);
-void setAnglesSM(RtosResources* rtosResources, void* context, void* args);
-void setAnglesCalc(RtosResources* rtosResources, void* context, void* args);
+void setAnglesSM(void* context, void* args);
+void setAnglesCalc(void* context, void* args);
 
 // sleep(ms)
-void sleepSM(RtosResources* rtosResources, void* context, void* args);
+void sleepSM(void* context, void* args);
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -76,8 +75,8 @@ struct RobotTask{
     const char* name;
 
     // Callbacks for control and calculation tasks
-    std::function<void(RtosResources*, void*, void*)> stateMachineFunc;  // Runs at higher priority and if necessary, waits for information from calculationFunc
-    std::function<void(RtosResources*, void*, void*)> calculationFunc;   // Runs at lowest priority and sends information to stateMachineFunc
+    std::function<void(void*, void*)> stateMachineFunc;  // Runs at higher priority and if necessary, waits for information from calculationFunc
+    std::function<void(void*, void*)> calculationFunc;   // Runs at lowest priority and sends information to stateMachineFunc
 
     // Communication Task Parsing
     int argType = ARGTYPE_NULL;     // Type of argument the callbacks input

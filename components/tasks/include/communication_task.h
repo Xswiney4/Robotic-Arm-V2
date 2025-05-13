@@ -34,6 +34,9 @@ class CommunicationTask{
         void stop();
         void restart();
 
+        // RTOS Resources
+        RtosResources* getRtosResources();
+
         // Constructor/Destructor
         CommunicationTask();
         ~CommunicationTask();

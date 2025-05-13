@@ -17,17 +17,10 @@ class KinematicsTask{
 
         // Motors
         MotorModule** motors;
-        float virtAngle[6];
 
         // Task Definition
         static void taskEntry(void* pvParameters);
         void kinematicsTask();
-
-        // User Commands
-        void setEndKinCalc(UserCommand* cmd, MotorModule** motors, float* virtMotorAngle);
-        void setMotorAnglesKinCalc(UserCommand* cmd, MotorModule** motors, float* virtMotorAngle);
-
-        // Other Utils
 
     public:
 
@@ -35,6 +28,12 @@ class KinematicsTask{
         void start();
         void stop();
         void restart();
+
+        // Virtual Motor Angles
+        float virtAngle[6];
+
+        // RTOS Resources
+        RtosResources* getRtosResources();
 
         // Constructor/Destructor
         KinematicsTask();

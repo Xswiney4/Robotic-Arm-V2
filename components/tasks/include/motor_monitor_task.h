@@ -29,6 +29,9 @@ class MotorMonitorTask{
         void stop();
         void restart();
 
+        // RTOS Resources
+        RtosResources* getRtosResources();
+
         // Constructor/Destructor
         MotorMonitorTask();
         ~MotorMonitorTask();

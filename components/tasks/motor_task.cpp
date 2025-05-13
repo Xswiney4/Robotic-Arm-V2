@@ -104,6 +104,11 @@ void MotorTask::restart(){
     start();
 }
 
+// RTOS Resources
+RtosResources* MotorTask::getRtosResources(){
+    return rtosResources;
+}
+
 // Initializes class parameters
 void MotorTask::init(RtosResources* resources, const char* taskName, MotorModule* motor){
     if(isInitialized){

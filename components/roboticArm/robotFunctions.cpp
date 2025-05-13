@@ -4,6 +4,10 @@
 #include "config.h"
 #include "robotFunctions.h"
 
+// Tasks
+#include "control_task.h"
+#include "kinematics_task.h"
+
 // Component Definitions
 #include "motorModule.h"
 
@@ -11,6 +15,9 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "esp_log.h"
+
+// Utils
+#include <cmath>
 
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -39,8 +46,11 @@ The structure is as follows:
 - Break
 */
 
-void setAnglesSM(RtosResources* rtosResources, void* context, void* args){
+void setAnglesSM(void* context, void* args){
 
+    // Variable Handling
+    ControlTask* controlTask = static_cast<ControlTask*>(context);
+    RtosResources* res = controlTask->getRtosResources();
     MotorTarget* targets = static_cast<MotorTarget*>(args);
     
     uint8_t motorBitMask = 0x00;
@@ -59,18 +69,22 @@ void setAnglesSM(RtosResources* rtosResources, void* context, void* args){
     ESP_LOGD(TASK_NAME_CONTROL, "Motor Bit Mask: 0x%2X", motorBitMask);
 
     // Wait for all motors to be ready (Once they recieve targets from the kinematics task)
-    xEventGroupWaitBits(rtosResources->motorReady, motorBitMask, pdTRUE, pdTRUE, portMAX_DELAY);
+    xEventGroupWaitBits(res->motorReady, motorBitMask, pdTRUE, pdTRUE, portMAX_DELAY);
     
     // Enable Motors
-    xEventGroupClearBits(rtosResources->motorIdle, motorBitMask);
-    xEventGroupSetBits(rtosResources->motorEnabled, motorBitMask);
+    xEventGroupClearBits(res->motorIdle, motorBitMask);
+    xEventGroupSetBits(res->motorEnabled, motorBitMask);
 
     // Wait until all motor's are idle before continuing
-    xEventGroupWaitBits(rtosResources->motorIdle, motorBitMask, pdFALSE, pdTRUE, portMAX_DELAY);
+    xEventGroupWaitBits(res->motorIdle, motorBitMask, pdFALSE, pdTRUE, portMAX_DELAY);
 }
 
-void setAnglesCalc(RtosResources* rtosResources, void* context, void* args){
+// Converts a position and orientation into joint angles, and then sends them to the motor tasks
+void setAnglesCalc(void* context, void* args){
 
+    // Variable Handling
+    KinematicsTask* kinematicsTask = static_cast<KinematicsTask*>(context);
+    RtosResources* res = kinematicsTask->getRtosResources();
     MotorTarget* targets = static_cast<MotorTarget*>(args);
 
     // Loop going through each parameter input
@@ -81,24 +95,24 @@ void setAnglesCalc(RtosResources* rtosResources, void* context, void* args){
             TargetParams refinedTarget;
 
             // Difference the input motor needs to move in order for the output angle to reach the target
-            float inputDiff = cmd->params[i] - virtMotorAngle[i];
+            float inputDiff = targets[i].angle - kinematicsTask->virtAngle[i];
 
             // Calculate the number of steps needed
-            refinedTarget.numSteps = (int)roundf(inputDiff / motors[i]->degreesPerStep);
+            refinedTarget.numSteps = (int)roundf(inputDiff / DEG_PER_STEP[i]);
             
             
             // Calculates the step time in ms
-            float stepPeriodMs = 1000.0f * motors[i]->degreesPerStep / STEPPER_SPEED;
+            float stepPeriodMs = 1000.0f * DEG_PER_STEP[i] / targets[i].speed;
 
             refinedTarget.xFrequency = pdMS_TO_TICKS(stepPeriodMs);
-            refinedTarget.targetAngle = cmd->params[i];
+            refinedTarget.targetAngle = targets[i].angle;
 
 
             // Send target to motor
-            xQueueSend(motorTargetsQueue[i], &target, portMAX_DELAY);
+            xQueueSend(res->motorTargetsQueue[i], &refinedTarget, portMAX_DELAY);
 
             // Set the virtMotorAngle and
-            virtMotorAngle[i] = cmd->params[i];
+            kinematicsTask->virtAngle[i] = targets[i].angle;
 
         }
     }
@@ -107,7 +121,9 @@ void setAnglesCalc(RtosResources* rtosResources, void* context, void* args){
 // ~~ sleep(ms) ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 // Puts the controller to sleep for a given time in ms
-void sleepSM(RtosResources* rtosResources, void* context, void* args){
+void sleepSM(void* context, void* args){
+
+    // Context isn't necessary
 
     // Cast and delete args
     int timeMS = *(int*)args;

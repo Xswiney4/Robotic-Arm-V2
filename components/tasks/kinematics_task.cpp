@@ -11,6 +11,7 @@
 
 // Utils
 #include <cmath>
+#include <cstring>
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // ~~ Constructor/Destructor ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -39,6 +40,7 @@ void KinematicsTask::kinematicsTask(){
 
     // Task Variables
     UserCommand cmd;
+    bool cmdFound;
     float virtMotorAngle[6]; // This is the location each motor should be at before it performs a calculation
 
     // Intialize virtMotorAngle
@@ -62,26 +64,26 @@ void KinematicsTask::kinematicsTask(){
         // Wait until user command struct is recieved
         xQueueReceive(rtosResources->kinematicsCmd, &cmd, portMAX_DELAY);
 
-        // Now we decode the command struct
-        switch (cmd.commandNum){
-            // Invalid Command
-            case -1:
-                ESP_LOGE(TASK_NAME_KINEMATICS, "Invalid command");
-                break;
-                
-            case 0:
-                ESP_LOGI(TASK_NAME_KINEMATICS, "Successfully Started setEndKinCalc()");
-                setEndKinCalc(&cmd, motors, virtMotorAngle);
-                break;
+        // Search through all robotTasks
+        cmdFound = false;
+        for(int i = 0; i < numRobotTasks; i++){
+            // If the user command matches a robotTask command
 
-            case 10:
-                ESP_LOGI(TASK_NAME_KINEMATICS, "Successfully Started setMotorAnglesKinCalc()");
-                setMotorAnglesKinCalc(&cmd, motors, virtMotorAngle);
-                break;
+            if(strcmp(robotTasks[i].name,cmd.name) == 0){
+                // Then we run the state machine function, only if there is a valid function for it
+                cmdFound = true;
 
-            default:
-                ESP_LOGD(TASK_NAME_KINEMATICS, "No processing required, throwing out command");
+                if(robotTasks[i].calculationFunc != nullptr){
+                    robotTasks->calculationFunc(rtosResources, this, cmd.args);
+                }
+                else{
+                    ESP_LOGD(TASK_NAME_KINEMATICS, "No kinematics calculation function found");
+                }
                 break;
+            }
+        }
+        if(!cmdFound){
+            ESP_LOGE(TASK_NAME_KINEMATICS, "Unknown command name");
         }
 
     }

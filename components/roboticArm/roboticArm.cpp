@@ -22,18 +22,6 @@
 static const char *roboticArmInitTag = "Robotic Arm Initializer";
 static const char *motorInitTag = "Motor Initializer";
 
-// ~~~ FreeRTOS ~~~
-// Queues
-QueueHandle_t controlCmd;       // Queue for user commands      (UserCommand Struct)
-QueueHandle_t kinematicsCmd; // Queue for kinematics task    (UserCommand Struct)
-
-QueueHandle_t motorTargetsQueue[6]; // Queue for stepper motor angles
-
-// Event Groups
-EventGroupHandle_t motorEnabled; // Enables Motors
-EventGroupHandle_t motorIdle;   // Flags if motor is idle
-EventGroupHandle_t motorReady;  // Signals motor is ready
-
 // ~~~~~~~~~~~~~~~
 
 
@@ -122,18 +110,18 @@ bool RoboticArm::initAll(){
 bool RoboticArm::initRTOSComms(){
 
     // Queues
-    controlCmd = xQueueCreate(QUEUE_SIZE_USR_CMD, sizeof(UserCommand));
-    kinematicsCmd = xQueueCreate(QUEUE_SIZE_USR_CMD, sizeof(UserCommand));
+    rtosResources.controlCmd = xQueueCreate(QUEUE_SIZE_USR_CMD, sizeof(UserCommand));
+    rtosResources.kinematicsCmd = xQueueCreate(QUEUE_SIZE_USR_CMD, sizeof(UserCommand));
 
     // Creates queues for each motor's desired angle
     for (int i = 0; i < 6; i++){
-        motorTargetsQueue[i] = xQueueCreate(QUEUE_SIZE_MOTOR, sizeof(TargetParams));
+        rtosResources.motorTargetsQueue[i] = xQueueCreate(QUEUE_SIZE_MOTOR, sizeof(TargetParams));
     }
 
     // Event Groups
-    motorEnabled = xEventGroupCreate();
-    motorIdle = xEventGroupCreate();
-    motorReady = xEventGroupCreate();
+    rtosResources.motorEnabled = xEventGroupCreate();
+    rtosResources.motorIdle = xEventGroupCreate();
+    rtosResources.motorReady = xEventGroupCreate();
 
     return this->errorCheckComms();
 
@@ -146,28 +134,28 @@ bool RoboticArm::errorCheckComms(){
     bool error = false;
 
     // Queues
-    if(controlCmd == NULL){
+    if(rtosResources.controlCmd == NULL){
         ESP_LOGE(roboticArmInitTag, "Failed to create queue: controlCmd");
         error = true;
     }
-    if(kinematicsCmd == NULL){
+    if(rtosResources.kinematicsCmd == NULL){
         ESP_LOGE(roboticArmInitTag, "Failed to create queue: kinematicsCmd");
         error = true;
     }
 
     for (int i = 0; i < 6; i++){
-        if(motorTargetsQueue[i] == NULL){
+        if(rtosResources.motorTargetsQueue[i] == NULL){
             ESP_LOGE(roboticArmInitTag, "Failed to create queue: motorTargetsQueue[%d]", i);
             error = true;
         }
     }
 
     // Event Groups
-    if(motorEnabled == NULL){
+    if(rtosResources.motorEnabled == NULL){
         ESP_LOGE(roboticArmInitTag, "Failed to create event group: motorEnabled");
         error = true;
     }
-    if(motorIdle == NULL){
+    if(rtosResources.motorIdle == NULL){
         ESP_LOGE(roboticArmInitTag, "Failed to create event group: motorIdle");
         error = true;
     }
@@ -178,21 +166,21 @@ bool RoboticArm::errorCheckComms(){
 
 // Initializes communcations task
 bool RoboticArm::initCommunications(){
-    communicationTask.init();
+    communicationTask.init(&rtosResources);
     communicationTask.start();
     return false;
 }
 
 // Initializes central control task
 bool RoboticArm::initControl(){
-    controlTask.init();
+    controlTask.init(&rtosResources);
     controlTask.start();
     return false;
 }
 
 // Initializes kinematics calculations task
 bool RoboticArm::initKinematics(){
-    kinematicsTask.init(motors);
+    kinematicsTask.init(&rtosResources, motors);
     kinematicsTask.start();
     return false;
 }
@@ -266,7 +254,7 @@ bool RoboticArm::initMotor1(){
         motors[0] = new MotorModule(params);
 
         // Task Creation
-        motorTask[0].init(J1S_TASK_NAME, motors[0]);
+        motorTask[0].init(&rtosResources, J1S_TASK_NAME, motors[0]);
         motorTask[0].start();
         ESP_LOGI(motorInitTag, "Motor 1 successfully initialized");
 
@@ -307,7 +295,7 @@ bool RoboticArm::initMotor2(){
         motors[1] = new MotorModule(params);
 
         // Task Creation
-        motorTask[1].init(J2S_TASK_NAME, motors[1]);
+        motorTask[1].init(&rtosResources, J2S_TASK_NAME, motors[1]);
         motorTask[1].start();
         ESP_LOGI(motorInitTag, "Motor 2 successfully initialized");
         
@@ -347,7 +335,7 @@ bool RoboticArm::initMotor3(){
         motors[2] = new MotorModule(params);
 
         // Task Creation
-        motorTask[2].init(J3S_TASK_NAME, motors[2]);
+        motorTask[2].init(&rtosResources, J3S_TASK_NAME, motors[2]);
         motorTask[2].start();
         ESP_LOGI(motorInitTag, "Motor 3 successfully initialized");
         
@@ -387,7 +375,7 @@ bool RoboticArm::initMotor4(){
         motors[3] = new MotorModule(params);
 
         // Task Creation
-        motorTask[3].init(J4S_TASK_NAME, motors[3]);
+        motorTask[3].init(&rtosResources, J4S_TASK_NAME, motors[3]);
         motorTask[3].start();
         ESP_LOGI(motorInitTag, "Motor 4 successfully initialized");
         
@@ -427,7 +415,7 @@ bool RoboticArm::initMotor5(){
         motors[4] = new MotorModule(params);
 
         // Task Creation
-        motorTask[4].init(J5S_TASK_NAME, motors[4]);
+        motorTask[4].init(&rtosResources, J5S_TASK_NAME, motors[4]);
         motorTask[4].start();
         ESP_LOGI(motorInitTag, "Motor 5 successfully initialized");
         
@@ -467,7 +455,7 @@ bool RoboticArm::initMotor6(){
         motors[5] = new MotorModule(params);
 
         // Task Creation
-        motorTask[5].init(J6S_TASK_NAME, motors[5]);
+        motorTask[5].init(&rtosResources, J6S_TASK_NAME, motors[5]);
         motorTask[5].start();
         ESP_LOGI(motorInitTag, "Motor 6 successfully initialized");
         
@@ -482,7 +470,7 @@ bool RoboticArm::initMotor6(){
 
 // Initializes the motor task monitor
 bool RoboticArm::initMotorMonitor(){
-    motorMonitorTask.init(motors);
+    motorMonitorTask.init(&rtosResources, motors);
     motorMonitorTask.start();
     return false;
 }

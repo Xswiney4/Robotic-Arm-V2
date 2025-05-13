@@ -477,18 +477,23 @@ bool RoboticArm::initMotorMonitor(){
 
 // Sends a UserCommand struct to the central control task
 void RoboticArm::sendUserCommand(UserCommand* cmd){
-    xQueueSend(controlCmd, cmd, portMAX_DELAY);
-    xQueueSend(kinematicsCmd, cmd, portMAX_DELAY);
+    xQueueSend(rtosResources.controlCmd, cmd, portMAX_DELAY);
+    xQueueSend(rtosResources.kinematicsCmd, cmd, portMAX_DELAY);
 }
 
 // *********************************** PUBLIC **************************************
 
 void RoboticArm::setEnd(float x, float y, float z, float pitch, float yaw, float roll){
+
+    // DELETION CURRENTLY UNHANDLED
+    Pose* posePtr = new Pose({
+        {x, y, z},
+        {pitch, yaw, roll}
+    });
     
     UserCommand cmd = {
-        0,
         "setEnd",
-        {x, y, z, pitch, yaw, roll}
+        static_cast<void*>(posePtr)
     };
     
     this -> sendUserCommand(&cmd);
@@ -497,10 +502,12 @@ void RoboticArm::setEnd(float x, float y, float z, float pitch, float yaw, float
 
 void RoboticArm::setEndSpeed(float speed){
 
+    // DELETION CURRENTLY UNHANDLED
+    float* speedPtr = new float(speed);
+    
     UserCommand cmd = {
-        1,
         "setEndSpeed",
-        {speed}
+        static_cast<void*>(speedPtr)
     };
     
     this -> sendUserCommand(&cmd);
@@ -509,22 +516,12 @@ void RoboticArm::setEndSpeed(float speed){
 
 void RoboticArm::setMotorAngles(float angle1, float angle2, float angle3, float angle4, float angle5, float angle6){
 
+    // DELETION CURRENTLY UNHANDLED
+    float* angleArrayPtr = new float[6]{angle1, angle2, angle3, angle4, angle5, angle6};
+
     UserCommand cmd = {
-        10,
         "setMotorAngles",
-        {angle1, angle2, angle3, angle4, angle5, angle6}
-    };
-    
-    this -> sendUserCommand(&cmd);
-
-}
-
-void RoboticArm::setMotorSpeed(int motor, float speed){
-
-    UserCommand cmd = {
-        11,
-        "setMotorSpeed",
-        {(float)motor, speed}
+        static_cast<void*>(angleArrayPtr)
     };
     
     this -> sendUserCommand(&cmd);
@@ -533,10 +530,12 @@ void RoboticArm::setMotorSpeed(int motor, float speed){
 
 // Puts the robotic arm to sleep for a time in ms
 void RoboticArm::sleep(int ms){
+
+    int* msPtr = new int(ms);
+
     UserCommand cmd = {
-        20,
         "sleep",
-        {(float)ms}
+        static_cast<void*>(msPtr)
     };
 
     this -> sendUserCommand(&cmd);

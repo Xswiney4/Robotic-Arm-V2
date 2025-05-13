@@ -125,11 +125,13 @@ void sleepSM(void* context, void* args){
 
     // Context isn't necessary
 
-    // Cast and delete args
+    // Cast args
     int timeMS = *(int*)args;
-    delete (int*)args;
 
     // Delay
     ESP_LOGD(TASK_NAME_CONTROL, "Delaying control task for %dms", timeMS);
     vTaskDelay(pdMS_TO_TICKS(timeMS));
+
+    // Delete args
+    delete (int*)args;
 }

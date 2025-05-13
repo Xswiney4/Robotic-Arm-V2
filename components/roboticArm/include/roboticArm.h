@@ -4,7 +4,6 @@
 #include "pca9548a.h"
 #include "motorModule.h"
 #include "robotFunctions.h"
-#include "robotic_definitions.h"
 
 // Tasks Definitions
 #include "communication_task.h"
@@ -65,7 +64,6 @@ class RoboticArm{
         void setEnd(float x, float y, float z, float pitch, float yaw, float roll);
         void setEndSpeed(float speed);
         void setMotorAngles(float angle1, float angle2, float angle3, float angle4, float angle5, float angle6);
-        void setMotorSpeed(int motor, float speed);
         void sleep(int ms);
 
 };

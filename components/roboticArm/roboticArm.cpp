@@ -514,13 +514,12 @@ void RoboticArm::setEndSpeed(float speed){
 
 }
 
-void RoboticArm::setMotorAngles(float angle1, float angle2, float angle3, float angle4, float angle5, float angle6){
+void RoboticArm::setAngles(float angle1, float angle2, float angle3, float angle4, float angle5, float angle6){
 
-    // DELETION CURRENTLY UNHANDLED
     float* angleArrayPtr = new float[6]{angle1, angle2, angle3, angle4, angle5, angle6};
 
     UserCommand cmd = {
-        "setMotorAngles",
+        "setAngles",
         static_cast<void*>(angleArrayPtr)
     };
     

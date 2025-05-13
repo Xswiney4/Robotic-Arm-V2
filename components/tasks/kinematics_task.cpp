@@ -73,7 +73,7 @@ void KinematicsTask::kinematicsTask(){
                 cmdFound = true;
 
                 if(robotTasks[i].calculationFunc != nullptr){
-                    robotTasks->calculationFunc(this, cmd.args);
+                    robotTasks[i].calculationFunc(this, cmd.args);
                 }
                 else{
                     ESP_LOGD(TASK_NAME_KINEMATICS, "No kinematics calculation function found");

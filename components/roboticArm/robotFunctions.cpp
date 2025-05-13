@@ -32,7 +32,23 @@ The control structure is as follows:
 - Break
 */
 
+void setEndSM(void* context, void* args){
 
+    // Variable Handling
+    ControlTask* controlTask = static_cast<ControlTask*>(context);
+    RtosResources* res = controlTask->getRtosResources();
+    MotorTarget* targets = static_cast<MotorTarget*>(args);
+
+}
+
+void setEndCalc(void* context, void* args){
+
+    // Variable Handling
+    KinematicsTask* kinematicsTask = static_cast<KinematicsTask*>(context);
+    RtosResources* res = kinematicsTask->getRtosResources();
+    MotorTarget* targets = static_cast<MotorTarget*>(args);
+
+}
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // ~~ setAngles(motorTarget[6]) ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -48,17 +64,19 @@ The structure is as follows:
 
 void setAnglesSM(void* context, void* args){
 
+    ESP_LOGD(TASK_NAME_CONTROL, "Started setAnglesSM");
+
     // Variable Handling
     ControlTask* controlTask = static_cast<ControlTask*>(context);
     RtosResources* res = controlTask->getRtosResources();
-    MotorTarget* targets = static_cast<MotorTarget*>(args);
+    float* targets = static_cast<float*>(args);
     
     uint8_t motorBitMask = 0x00;
 
     // Loop going through each parameter input
     for(int i = 0; i < 6; i++){
         // If parameter is valid
-        if(targets[i].speed != -1.0f){
+        if(targets[i] != -1.0f){
 
             // Adds the motor to the global bit mask
             motorBitMask |= (1 << i);
@@ -77,42 +95,47 @@ void setAnglesSM(void* context, void* args){
 
     // Wait until all motor's are idle before continuing
     xEventGroupWaitBits(res->motorIdle, motorBitMask, pdFALSE, pdTRUE, portMAX_DELAY);
+
+    // Control Task Cleanup
+    delete[] targets;
 }
 
 // Converts a position and orientation into joint angles, and then sends them to the motor tasks
 void setAnglesCalc(void* context, void* args){
 
+    ESP_LOGD(TASK_NAME_KINEMATICS, "Started setAnglesCalc");
+
     // Variable Handling
     KinematicsTask* kinematicsTask = static_cast<KinematicsTask*>(context);
     RtosResources* res = kinematicsTask->getRtosResources();
-    MotorTarget* targets = static_cast<MotorTarget*>(args);
+    float* targets = static_cast<float*>(args);
 
     // Loop going through each parameter input
     for(int i = 0; i < 6; i++){
         // If parameter is valid
-        if(targets[i].speed != -1.0f){
+        if(targets[i] != -1.0f){
 
             TargetParams refinedTarget;
 
             // Difference the input motor needs to move in order for the output angle to reach the target
-            float inputDiff = targets[i].angle - kinematicsTask->virtAngle[i];
+            float inputDiff = targets[i] - kinematicsTask->virtAngle[i];
 
             // Calculate the number of steps needed
             refinedTarget.numSteps = (int)roundf(inputDiff / DEG_PER_STEP[i]);
             
             
             // Calculates the step time in ms
-            float stepPeriodMs = 1000.0f * DEG_PER_STEP[i] / targets[i].speed;
+            float stepPeriodMs = 1000.0f * DEG_PER_STEP[i] / STEPPER_SPEED;
 
             refinedTarget.xFrequency = pdMS_TO_TICKS(stepPeriodMs);
-            refinedTarget.targetAngle = targets[i].angle;
+            refinedTarget.targetAngle = targets[i];
 
 
             // Send target to motor
             xQueueSend(res->motorTargetsQueue[i], &refinedTarget, portMAX_DELAY);
 
             // Set the virtMotorAngle and
-            kinematicsTask->virtAngle[i] = targets[i].angle;
+            kinematicsTask->virtAngle[i] = targets[i];
 
         }
     }
@@ -126,12 +149,12 @@ void sleepSM(void* context, void* args){
     // Context isn't necessary
 
     // Cast args
-    int timeMS = *(int*)args;
+    int timeMs = *static_cast<int*>(args);
 
     // Delay
-    ESP_LOGD(TASK_NAME_CONTROL, "Delaying control task for %dms", timeMS);
-    vTaskDelay(pdMS_TO_TICKS(timeMS));
+    ESP_LOGD(TASK_NAME_CONTROL, "Delaying control task for %dms", timeMs);
+    vTaskDelay(pdMS_TO_TICKS(timeMs));
 
-    // Delete args
-    delete (int*)args;
+    // Control Task Cleanup
+    delete static_cast<int*>(args);
 }

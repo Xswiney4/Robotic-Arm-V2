@@ -1,4 +1,4 @@
-#ifndef ROBOT_FUNCITONS_H
+#ifndef ROBOT_FUNCTIONS_H
 #define ROBOT_FUNCTIONS_H
 
 #include <functional>

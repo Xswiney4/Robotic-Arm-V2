@@ -25,7 +25,7 @@ extern "C" void app_main(){
 
     for(int i = 0; i < NUMTRIALS; i++){
         float rand = dist(gen);
-        robot.setMotorAngles(-1, rand, -1, -1, -1, rand);
+        robot.setAngles(-1.0f, rand, -1.0f, -1.0f, -1.0f, rand);
         robot.sleep(SLEEP_TIME);
 
     }
